@@ -1,0 +1,220 @@
+<!doctype html>
+<html>
+<head>
+
+  <title>google-chart Demo</title>
+
+  <script src="../platform/platform.js"></script>
+  <link rel="import" href="google-chart.html">
+  <style type="text/css">
+    code { color: #007000; }
+  </style>
+
+</head>
+<body unresolved>
+
+  <p>A simple <code>google-chart</code> looks like this:</p>
+
+  <google-chart
+    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+    rows='[["Something", 1]]'>
+  </google-chart>
+
+  <p>Here's a chart that changes data every 3 seconds:</p>
+
+  <google-chart
+    id='mutating_chart'
+    type='column'
+    height='300px'
+    width='400px'
+    options='{"title": "Random data",
+              "vAxis": {"minValue" : 0, "maxValue": 10},
+              "animation": {"duration": "1000"}}'
+    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+    rows='[["Col1", 5.0],["Col2", 5.0],["Col3", 5.0]]'>
+  </google-chart>
+
+  <script type="text/javascript">
+    function getRandomValue() {
+      return Math.random() * 10;
+    }
+
+    window.setInterval(function() {
+      var chart = document.getElementById('mutating_chart');
+
+      chart.rows = [["Col1", getRandomValue()],
+                    ["Col2", getRandomValue()],
+                    ["Col3", getRandomValue()]];
+    }, 3000)
+  </script>
+
+  <p>Here's a chart defined using <code>data</code>, rather than <code>rows</code> and <code>cols</code>:</p>
+
+  <google-chart
+    type='column'
+    height='300px'
+    width='400px'
+    options='{"title": "Inventory"}'
+    data='[["Year", "Things", "Stuff"],
+           ["2004", 1000, 400],
+           ["2005", 1170, 460],
+           ["2006", 660, 1120],
+           ["2007", 1030, 540]]'>
+  </google-chart>
+
+  <p>And one with some pretty complicated styling, where the data is loaded from an external JSON resource using the <code>data</code> attribute:</p>
+
+  <google-chart
+    type='column'
+    height='300px'
+    width='400px'
+    options='{"title": "Bar height", "legend": "none"}'
+    data='chart-data.json'>
+  </google-chart>
+
+  <h2>Chart gallery</h2>
+
+  <p>Here's an area chart:</p>
+
+  <google-chart
+    type='area'
+    height='300px'
+    width='400px'
+    options='{"title": "Days in a month"}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
+  <p>Here's a bar chart:</p>
+
+  <google-chart
+    type='bar'
+    height='300px'
+    width='400px'
+    options='{"title": "Days in a month"}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
+  <p>Here's a bubble chart:</p>
+
+  <google-chart
+    type='bubble'
+    height='300px'
+    width='400px'
+    options='{}'
+    data='[["ID", "Life Expectancy", "Fertility Rate", "Region", "Population"],
+           ["CAN", 80.66, 1.67, "North America", 33739900],
+           ["DEU", 79.84, 1.36, "Europe",        81902307],
+           ["DNK", 78.6,  1.84, "Europe",        5523095],
+           ["EGY", 72.73, 2.78, "Middle East",   79716203],
+           ["GBR", 80.05, 2,    "Europe",        61801570],
+           ["IRN", 72.49, 1.7,  "Middle East",   73137148],
+           ["IRQ", 68.09, 4.77, "Middle East",   31090763],
+           ["ISR", 81.55, 2.96, "Middle East",   7485600],
+           ["RUS", 68.6,  1.54, "Europe",        141850000],
+           ["USA", 78.09, 2.05, "North America", 307007000]]'>
+  </google-chart>
+
+  <p>Here's a candlestick chart:</p>
+
+  <google-chart
+    type='candlestick'
+    height='300px'
+    width='400px'
+    options='{"legend": "none"}'
+    data='[["Day", "low", "start", "end", "high"],
+           ["Mon", 20, 28, 38, 45],
+           ["Tue", 31, 38, 55, 66],
+           ["Wed", 50, 55, 77, 80],
+           ["Thu", 77, 77, 66, 50],
+           ["Fri", 68, 66, 22, 15]]'>
+  </google-chart>
+
+  <p>Here's a column chart:</p>
+
+  <google-chart
+    type='column'
+    height='300px'
+    width='400px'
+    options='{"title": "Days in a month"}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
+  <p>Here's a combo chart:</p>
+
+  <google-chart
+    type='combo'
+    height='300px'
+    width='400px'
+    options='{"seriesType": "bars", "series": {"2": {"type": "line"}}}'
+    data='[["Day", "A", "B", "C"],
+           ["Mon", 20, 45, 28],
+           ["Tue", 31, 66, 38],
+           ["Wed", 50, 80, 55],
+           ["Thu", 77, 50, 77],
+           ["Fri", 68, 15, 66]]'>
+  </google-chart>
+
+  <p>Here's a histogram:</p>
+
+  <google-chart
+    type='histogram'
+    height='300px'
+    width='400px'
+    options='{"title": "Days in a month", "legend": "none", "histogram": { "bucketSize": 1 }}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
+  <p>Here's a line chart:</p>
+
+  <google-chart
+    type='line'
+    height='300px'
+    width='400px'
+    options='{"title": "Days in a month"}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
+  <p>Here's a pie chart:</p>
+
+  <google-chart
+    type='pie'
+    height='300px'
+    width='400px'
+    options='{"title": "Distribution of days in 2001H1"}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
+  <p>Here's a scatter chart:</p>
+
+  <google-chart
+    type='scatter'
+    height='300px'
+    width='400px'
+    options='{"legend": "none"}'
+    data='[["A", "B"],
+           [20, 45],
+           [31, 66],
+           [50, 80],
+           [77, 50],
+           [68, 15]]'>
+  </google-chart>
+
+  <p>Here's a stepped area chart:</p>
+
+  <google-chart
+    type='stepped-area'
+    height='300px'
+    width='400px'
+    options='{"title": "Days in a month"}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
+</body>
+</html>

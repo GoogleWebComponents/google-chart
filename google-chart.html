@@ -1,0 +1,285 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../core-ajax/core-ajax.html">
+<link rel="import" href="../google-apis/google-apis.html">
+
+<!--
+`google-chart` encapsulates Google Charts into a web component.
+
+    <google-chart
+      type='pie'
+      height='300px'
+      width='400px'
+      options='{"title": "Distribution of days in 2001Q1"}'
+      cols='[{"label":"Month", "type":"string"}, {"label":"Days", "type":"number"}]'
+      rows='[["Jan", 31],["Feb", 28],["Mar", 31]]'>
+    </google-chart>
+
+Data can be provided in one of three ways:
+
+- Via the `cols` and `rows` attributes:
+
+      cols='[{"label":"Mth", "type":"string"}, {"label":"Days", "type":"number"}]'
+      rows='[["Jan", 31],["Feb", 28],["Mar", 31]]'
+
+- Via the `data` attribute, passing in the data directly:
+
+      data='[["Month", "Days"], ["Jan", 31], ["Feb", 28], ["Mar", 31]]'
+
+- Via the `data` attribute, passing in the URL to a resource containing the
+  data, in JSON format:
+
+      data='/chart-data.json'
+
+@element google-chart
+@status alpha
+@url googlewebcomponents.github.io/google-chart
+-->
+<polymer-element name="google-chart"
+  attributes="type width height options cols rows data">
+
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <core-ajax id="ajax" handleAs="json" url="{{data}}"
+      on-core-response="{{externalDataLoaded}}"></core-ajax>
+    <div id="chartdiv" style="width: {{width}}; height: {{height}};
+      min-width: {{width}}; min-height: {{height}}; text-align: center;"></div>
+    <google-jsapi id='jsapi'></google-jsapi>
+  </template>
+
+  <script>
+    Polymer({
+      /**
+       * Fired when the graph is displayed.
+       *
+       * @event rendered
+       */
+
+
+      /**
+       * Sets the type of the chart.
+       *
+       * Should be one of:
+       * - `area`, `bar`, `bubble`, `candlestick`, `column`, `combo`,
+       *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`
+       *
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
+       *
+       * @attribute type
+       * @type string
+       */
+      type: 'column',
+
+      /**
+       * Sets the width of the chart on the page.
+       *
+       * @attribute width
+       * @type string
+       */
+      width: '400px',
+
+      /**
+       * Sets the height of the chart on the page.
+       *
+       * @attribute height
+       * @type string
+       */
+      height: '300px',
+
+      /**
+       * Sets the options for the chart.
+       *
+       * Example:
+       * <pre>{
+       *   title: "Chart title goes here",
+       *   hAxis: {title: "Categories"},
+       *   vAxis: {title: "Values", minValue: 0, maxValue: 2},
+       *   legend: "none"
+       * };</pre>
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
+       * for the options available to each chart type.
+       *
+       * @attribute options
+       * @type object
+       */
+      options: null,
+
+      /**
+       * Sets the data columns for this object.
+       *
+       * When specifying data with `cols` you must also specify `rows`, and
+       * not specify `data`.
+       *
+       * Example:
+       * <pre>[{label: "Categories", type: "string"},
+       *  {label: "Value", type: "number"}]</pre>
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google Visualization API reference (addColumn)</a>
+       * for column definition format.
+       *
+       * @attribute cols
+       * @type array
+       */
+      cols: null,
+
+      /**
+       * Sets the data rows for this object.
+       *
+       * When specifying data with `rows` you must also specify `cols`, and
+       * not specify `data`.
+       *
+       * Example:
+       * <pre>[["Category 1", 1.0],
+       *  ["Category 2", 1.1]]</pre>
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google Visualization API reference (addRow)</a>
+       * for row format.
+       *
+       * @attribute rows
+       * @type array
+       */
+      rows: null,
+
+      /**
+       * Sets the entire dataset for this object.
+       * Can be used to provide the data directly, or to provide a URL from
+       * which to request the data.
+       *
+       * When specifying data with `data` you must not specify `cols` or `rows`.
+       *
+       * Example:
+       * <pre>[["Categories", "Value"],
+       *  ["Category 1", 1.0],
+       *  ["Category 2", 1.1]]</pre>
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable">Google Visualization API reference (DataTable constructor)</a>
+       * for data table format.
+       *
+       * @attribute data
+       * @type array or string
+       */
+      data: null,
+
+      chartTypes: null,
+
+      chartObject: null,
+
+      isReady: false,
+
+      created: function() {
+        this.chartTypes = {};
+        this.cols = [];
+        this.data = [];
+        this.options = {};
+        this.rows = [];
+      },
+
+      ready: function() {
+        this.$.jsapi.addEventListener('api-load',
+            this.readyForAction.bind(this));
+      },
+
+      readyForAction: function() {
+        google.load("visualization", "1", {
+          packages: ['corechart'],
+          callback: function() {
+            this.isReady = true;
+            this.loadChartTypes();
+            this.loadData();
+          }.bind(this)
+        });
+      },
+
+      typeChanged: function() {
+        // Invalidate current chart object.
+        this.chartObject = null;
+        this.loadData();
+      },
+
+      observe: {
+        rows: 'loadData',
+        cols: 'loadData',
+        data: 'loadData',
+      },
+
+      drawChart: function(dataTable) {
+        if (!this.options) {
+          this.options = {};
+        }
+        this.options.height = this.height;
+        this.options.width = this.width;
+        if (!this.chartObject) {
+          var chartClass = this.chartTypes[this.type];
+          if (chartClass) {
+            this.chartObject = new chartClass(this.$.chartdiv);
+          }
+        }
+        if (this.chartObject) {
+          this.chartObject.draw(dataTable, this.options);
+          google.visualization.events.addOneTimeListener(this.chartObject,
+              'ready', function() { this.fire('rendered'); }.bind(this));
+        } else {
+          this.$.chartdiv.innerHTML = 'Undefined chart type';
+        }
+      },
+
+      loadChartTypes: function() {
+        this.chartTypes = {
+          'area': google.visualization.AreaChart,
+          'bar': google.visualization.BarChart,
+          'bubble': google.visualization.BubbleChart,
+          'candlestick': google.visualization.CandlestickChart,
+          'column': google.visualization.ColumnChart,
+          'combo': google.visualization.ComboChart,
+          'histogram': google.visualization.Histogram,
+          'line': google.visualization.LineChart,
+          'pie': google.visualization.PieChart,
+          'scatter': google.visualization.ScatterChart,
+          'stepped-area': google.visualization.SteppedAreaChart
+        };
+      },
+
+      loadData: function() {
+        if (this.isReady) {
+          if (typeof this.data == 'string' || this.data instanceof String) {
+            // Load data asynchronously, from external URL.
+            this.$.ajax.go();
+          } else {
+            // Create a data table with provided data.
+            this.createDataTable();
+          }
+        }
+      },
+
+      externalDataLoaded: function() {
+        var dataTable =
+            google.visualization.arrayToDataTable(this.$.ajax.response);
+        this.drawChart(dataTable);
+      },
+
+      createDataTable: function() {
+        var dataTable = null;
+        if (this.rows && this.rows.length > 0 && this.cols &&
+            this.cols.length > 0) {
+          // Create the data table from cols and rows.
+          var dataTable = new google.visualization.DataTable();
+          dataTable.cols = this.cols;
+
+          for (var i = 0; i < this.cols.length; i++) {
+            dataTable.addColumn(this.cols[i]);
+          }
+
+          dataTable.addRows(this.rows);
+        } else if (this.data && this.data.length > 0) {
+          // Create the data table from the data attribute.
+          dataTable = google.visualization.arrayToDataTable(this.data);
+        }
+
+        if (dataTable) {
+          this.drawChart(dataTable);
+        }
+      }
+    });
+  </script>
+
+</polymer-element>
