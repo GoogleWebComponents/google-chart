@@ -54,7 +54,7 @@ Data can be provided in one of three ways:
       /**
        * Fired when the graph is displayed.
        *
-       * @event render
+       * @event google-chart-render
        */
 
 
@@ -211,7 +211,9 @@ Data can be provided in one of three ways:
         if (this.chartObject) {
           this.chartObject.draw(dataTable, this.options);
           google.visualization.events.addOneTimeListener(this.chartObject,
-              'ready', function() { this.fire('render'); }.bind(this));
+              'ready', function() {
+                  this.fire('google-chart-render');
+              }.bind(this));
         } else {
           this.$.chartdiv.innerHTML = 'Undefined chart type';
         }
