@@ -1,6 +1,5 @@
 {
   "name": "google-chart",
-  "private": true,
   "dependencies": {
     "polymer": "Polymer/polymer#master",
     "core-ajax": "Polymer/core-ajax#master",
