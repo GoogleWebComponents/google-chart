@@ -145,17 +145,20 @@ Data can be provided in one of three ways:
        * Can be used to provide the data directly, or to provide a URL from
        * which to request the data.
        *
+       * The data format can be a two-dimensional array or the DataTable format
+       * expected by Google Charts.
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable">Google Visualization API reference (DataTable constructor)</a>
+       * for data table format details.
+       *
        * When specifying data with `data` you must not specify `cols` or `rows`.
        *
        * Example:
        * <pre>[["Categories", "Value"],
        *  ["Category 1", 1.0],
        *  ["Category 2", 1.1]]</pre>
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable">Google Visualization API reference (DataTable constructor)</a>
-       * for data table format.
        *
        * @attribute data
-       * @type array or string
+       * @type array, object, or string
        */
       data: null,
 
@@ -241,20 +244,28 @@ Data can be provided in one of three ways:
             // Load data asynchronously, from external URL.
             this.$.ajax.go();
           } else {
-            // Create a data table with provided data.
-            this.createDataTable();
+            var dataTable = this.createDataTable();
+            if (dataTable) this.drawChart(dataTable);
           }
         }
       },
 
       externalDataLoaded: function(e, detail, sender) {
-        var dataTable =
-            google.visualization.arrayToDataTable(this.$.ajax.response);
+        var dataTable = this.createDataTable(this.$.ajax.response);
         this.drawChart(dataTable);
       },
 
-      createDataTable: function() {
+      createDataTable: function(data) {
         var dataTable = null;
+
+        // If a data object was not passed to this function, default to the
+        // chart's data attribute. Passing a data object is necessary for
+        // cases when the data attribute is a URL pointing to an external
+        // data source.
+        if (!data) {
+          data = this.data;
+        }
+
         if (this.rows && this.rows.length > 0 && this.cols &&
             this.cols.length > 0) {
           // Create the data table from cols and rows.
@@ -266,14 +277,18 @@ Data can be provided in one of three ways:
           }
 
           dataTable.addRows(this.rows);
-        } else if (this.data && this.data.length > 0) {
-          // Create the data table from the data attribute.
-          dataTable = google.visualization.arrayToDataTable(this.data);
+        } else {
+          // Create dataTable from the passed data or the data attribute.
+          // Data can be in the form of raw DataTable data or a two dimensional
+          // array.
+          if (data.rows && data.cols) {
+            dataTable = new google.visualization.DataTable(data);
+          } else if (data.length > 0) {
+            dataTable = google.visualization.arrayToDataTable(data);
+          }
         }
 
-        if (dataTable) {
-          this.drawChart(dataTable);
-        }
+        return dataTable;
       }
     });
   </script>
