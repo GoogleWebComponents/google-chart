@@ -1,13 +1,13 @@
 {
   "name": "google-chart",
-  "homepage": "http://googlewebcomponents.github.io/google-chart",
+  "version": "0.0.1",
   "description": "Encapsulates Google Charts into a web component",
+  "homepage": "http://googlewebcomponents.github.io/google-chart",
   "main": "google-chart.html",
   "authors": [
     "Sérgio Gomes"
   ],
   "license": "Apache2",
-  "version": "0.0.1",
   "ignore": [
     "**/.*",
     "node_modules",
