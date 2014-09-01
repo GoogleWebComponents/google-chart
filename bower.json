@@ -28,6 +28,6 @@
   "dependencies": {
     "polymer": "Polymer/polymer#~0.4.0",
     "core-ajax": "Polymer/core-ajax#~0.4.0",
-    "google-apis": "GoogleWebComponents/google-apis#~0.4.0"
+    "google-apis": "GoogleWebComponents/google-apis#~0.3.1"
   }
 }
