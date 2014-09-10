@@ -43,6 +43,10 @@ Data can be provided in one of three ways:
       :host {
         display: block;
       }
+
+      text {
+        stroke-width: 0;
+      }
     </style>
     <core-ajax id="ajax" handleAs="json" url="{{data}}"
       on-core-response="{{externalDataLoaded}}"></core-ajax>
