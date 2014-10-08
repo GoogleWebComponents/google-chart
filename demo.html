@@ -8,7 +8,15 @@
   <script src="../platform/platform.js"></script>
   <link rel="import" href="google-chart.html">
   <style>
-    code { color: #007000; }
+    code {
+      color: #007000;
+    }
+
+    google-chart {
+      height: 300px;
+      width: 400px;
+    }
+
   </style>
 
 </head>
@@ -21,13 +29,46 @@
     rows='[["Something", 1]]'>
   </google-chart>
 
+  <p>Charts can be resized with CSS, but you'll need to call the <code>drawChart</code> method when the size changes.</p>
+  <p>Here's a basic responsive example using only CSS and JS. You could also use <code>&lt;core-media-query&gt;</code>.</p>
+
+  <style>
+    /* Phone and tablet */
+    #resizing_chart {
+      height: 300px;
+      width: 400px;
+    }
+
+    /* Desktop */
+    @media screen and (min-width: 1024px) {
+      #resizing_chart {
+        width: 800px;
+      }
+    }
+  </style>
+
+  <script>
+    var media = window.matchMedia('(min-width: 1024px)');
+
+    media.addListener(function() {
+      document.getElementById('resizing_chart').drawChart();
+    });
+  </script>
+
+  <google-chart
+    id='resizing_chart'
+    type='column'
+    options='{"title": "Responsive chart",
+              "vAxis": {"minValue" : 0, "maxValue": 10}}'
+    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+    rows='[["Col1", 5.0],["Col2", 5.0],["Col3", 5.0]]'>
+  </google-chart>
+
   <p>Here's a chart that changes data every 3 seconds:</p>
 
   <google-chart
     id='mutating_chart'
     type='column'
-    height='300px'
-    width='400px'
     options='{"title": "Random data",
               "vAxis": {"minValue" : 0, "maxValue": 10},
               "animation": {"duration": "1000"}}'
@@ -53,8 +94,6 @@
 
   <google-chart
     type='column'
-    height='300px'
-    width='400px'
     options='{"title": "Inventory"}'
     data='[["Year", "Things", "Stuff"],
            ["2004", 1000, 400],
@@ -67,8 +106,6 @@
 
   <google-chart
     type='column'
-    height='300px'
-    width='400px'
     options='{"title": "Bar height", "legend": "none"}'
     data='chart-data.json'>
   </google-chart>
@@ -77,8 +114,6 @@
 
   <google-chart
     type='column'
-    height='300px'
-    width='400px'
     options='{"title": "Visitors by Country", "legend": "none"}'
     data='country-data.json'>
   </google-chart>
@@ -89,8 +124,6 @@
 
   <google-chart
     type='area'
-    height='300px'
-    width='400px'
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -100,8 +133,6 @@
 
   <google-chart
     type='bar'
-    height='300px'
-    width='400px'
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -111,8 +142,6 @@
 
   <google-chart
     type='bubble'
-    height='300px'
-    width='400px'
     options='{}'
     data='[["ID", "Life Expectancy", "Fertility Rate", "Region", "Population"],
            ["CAN", 80.66, 1.67, "North America", 33739900],
@@ -131,8 +160,6 @@
 
   <google-chart
     type='candlestick'
-    height='300px'
-    width='400px'
     options='{"legend": "none"}'
     data='[["Day", "low", "start", "end", "high"],
            ["Mon", 20, 28, 38, 45],
@@ -146,8 +173,6 @@
 
   <google-chart
     type='column'
-    height='300px'
-    width='400px'
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -157,8 +182,6 @@
 
   <google-chart
     type='combo'
-    height='300px'
-    width='400px'
     options='{"seriesType": "bars", "series": {"2": {"type": "line"}}}'
     data='[["Day", "A", "B", "C"],
            ["Mon", 20, 45, 28],
@@ -172,8 +195,6 @@
 
   <google-chart
     type='geo'
-    height='300px'
-    width='400px'
     data='[["Country", "Popularity"],
            ["Germany", 200],
            ["United States", 300],
@@ -187,8 +208,6 @@
 
   <google-chart
     type='histogram'
-    height='300px'
-    width='400px'
     options='{"title": "Days in a month", "legend": "none", "histogram": { "bucketSize": 1 }}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -198,8 +217,6 @@
 
   <google-chart
     type='line'
-    height='300px'
-    width='400px'
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -209,8 +226,6 @@
 
   <google-chart
     type='pie'
-    height='300px'
-    width='400px'
     options='{"title": "Distribution of days in 2001H1"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -220,8 +235,6 @@
 
   <google-chart
     type='scatter'
-    height='300px'
-    width='400px'
     options='{"legend": "none"}'
     data='[["A", "B"],
            [20, 45],
@@ -235,8 +248,6 @@
 
   <google-chart
     type='stepped-area'
-    height='300px'
-    width='400px'
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
