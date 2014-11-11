@@ -214,11 +214,11 @@ Data can be provided in one of three ways:
               }
             }
             if (this.chartObject) {
-              this.chartObject.draw(this.dataTable, this.options);
               google.visualization.events.addOneTimeListener(this.chartObject,
                   'ready', function() {
                       this.fire('google-chart-render');
                   }.bind(this));
+              this.chartObject.draw(this.dataTable, this.options);
             } else {
               this.$.chartdiv.innerHTML = 'Undefined chart type';
             }
