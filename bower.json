@@ -1,6 +1,6 @@
 {
   "name": "google-chart",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Encapsulates Google Charts into a web component",
   "homepage": "http://googlewebcomponents.github.io/google-chart",
   "main": "google-chart.html",
