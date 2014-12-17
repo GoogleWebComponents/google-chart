@@ -253,5 +253,29 @@
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
   </google-chart>
 
+  <p>Here's a pie chart with one area selection:</p>
+
+  <google-chart
+    type='pie'
+    id="selection-demo"
+    options='{"title": "Distribution of days in 2001H1"}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
+  <script> 
+    document.addEventListener('polymer-ready', function() {
+        var chart = document.querySelector('#selection-demo');
+        chart.addEventListener('google-chart-render', function() {
+          chart.selection = [{row: 1, column: null}];
+        })
+        document.addEventListener('google-chart-select', function(e) {
+          alert('selected row: '+chart.selection[0].row);
+        })
+
+    })
+  </script>
+
+
 </body>
 </html>
