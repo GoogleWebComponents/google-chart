@@ -41,7 +41,7 @@ Data can be provided in one of three ways:
 @status alpha
 @homepage http://googlewebcomponents.github.io/google-chart
 -->
-<polymer-element name="google-chart" attributes="type width height options cols rows data">
+<polymer-element name="google-chart" attributes="type width height options cols rows data selection">
 
   <template>
     <link rel="stylesheet" href="google-chart.css">
@@ -60,6 +60,12 @@ Data can be provided in one of three ways:
          * Fired when the graph is displayed.
          *
          * @event google-chart-render
+         */
+
+        /**
+         * Fired when user makes a selection in the chart
+         *
+         * @event google-chart-select
          */
 
 
@@ -151,6 +157,19 @@ Data can be provided in one of three ways:
          */
         data: null,
 
+        /**
+         * Datapoint which is selected (highlighted) in the map
+         *
+         * Example: 
+         * <pre>
+         *   [{row: 1, column: 1}]
+         * </pre>
+         *
+         * @attribute selection
+         * @type {Array}
+         */
+        selection: [],
+
         chartTypes: null,
 
         chartObject: null,
@@ -187,6 +206,13 @@ Data can be provided in one of three ways:
           this.loadData();
         },
 
+        selectionChanged: function() {
+          if(this.chartObject)
+          {
+            this.chartObject.setSelection(this.selection);
+          }
+        },
+
         observe: {
           rows: 'loadData',
           cols: 'loadData',
@@ -218,7 +244,18 @@ Data can be provided in one of three ways:
                   'ready', function() {
                       this.fire('google-chart-render');
                   }.bind(this));
+
+              google.visualization.events.addListener(this.chartObject,
+                  'select', function() {
+                      this.selection = this.chartObject.getSelection();
+                      this.fire('google-chart-select');
+                  }.bind(this));
+
+
               this.chartObject.draw(this.dataTable, this.options);
+
+              this.chartObject.setSelection(this.selection);
+
             } else {
               this.$.chartdiv.innerHTML = 'Undefined chart type';
             }
