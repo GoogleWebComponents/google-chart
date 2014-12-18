@@ -29,5 +29,8 @@
     "polymer": "Polymer/polymer#>=0.5.2 <1.0.0",
     "core-ajax": "Polymer/core-ajax#>=0.5.2 <1.0.0",
     "google-apis": "GoogleWebComponents/google-apis#~0.4.3"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^2.0.5"
   }
 }

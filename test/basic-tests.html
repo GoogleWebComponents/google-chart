@@ -1,0 +1,82 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>google-chart</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../google-chart.html">
+</head>
+
+  <style>
+    google-chart {
+      height: 300px;
+      width: 400px;
+    }
+  </style>
+
+<body>
+
+  <!-- Basic chart to test with. -->
+  <google-chart
+    id="test-chart"
+    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+    rows='[["Something", 1]]'>
+  </google-chart>
+  <p></p>
+
+  <script>
+    var chart = document.querySelector('#test-chart');
+    suite('<google-chart>', function() {
+      test('fires google-chart-render event for initial load', function(done) {
+        chart.addEventListener('google-chart-render', function(event) {
+          event.target.removeEventListener(event.type, arguments.callee);
+          assert.isNotNull(event.detail);
+          done();
+        });
+      });
+      test('fires google-chart-render event for drawChart call', function(done) {
+        chart.addEventListener('google-chart-render', function(event) {
+          event.target.removeEventListener(event.type, arguments.callee);
+          assert.isNotNull(event.detail);
+          done();
+        });
+        chart.drawChart();
+      });
+      test('default type is column', function() {
+        assert.equal(chart.type, 'column');
+      });
+      test('specified properties have the correct values', function () {
+        assert.isDefined(chart.cols);
+        assert.isDefined(chart.cols[0]);
+        assert.equal(chart.cols[0].label, 'Data');
+        assert.equal(chart.cols[0].type, 'string');
+        assert.isDefined(chart.cols[1]);
+        assert.equal(chart.cols[1].label, 'Value');
+        assert.equal(chart.cols[1].type, 'number');
+
+        assert.isDefined(chart.rows);
+        assert.isDefined(chart.rows[0]);
+        assert.isDefined(chart.rows[0][0]);
+        assert.equal(chart.rows[0][0], 'Something');
+        assert.isDefined(chart.rows[0][1]);
+        assert.equal(chart.rows[0][1], 1);
+      });
+    });
+  </script>
+
+</body>
+</html>
