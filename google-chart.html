@@ -63,9 +63,11 @@ Data can be provided in one of three ways:
          */
 
         /**
-         * Fired when user makes a selection in the chart
+         * Fired when the user makes a selection in the chart.
          *
          * @event google-chart-select
+         * @param {object} detail
+         *   @param {array} detail.selection The user-defined selection.
          */
 
 
@@ -158,15 +160,22 @@ Data can be provided in one of three ways:
         data: null,
 
         /**
-         * Datapoint which is selected (highlighted) in the map
+         * Selected datapoint(s) in the map.
          *
-         * Example: 
+         * An array of objects, each with a numeric row and/or column property.
+         * `row` and `column` are the zero-based row or column number of an item
+         * in the data table to select.
+         *
+         * To select a whole column, set row to null;
+         * to select a whole row, set column to null.
+         *
+         * Example:
          * <pre>
-         *   [{row: 1, column: 1}]
+         *   [{row:0,column:1}, {row:1, column:null}]
          * </pre>
          *
          * @attribute selection
-         * @type {Array}
+         * @type array
          */
         selection: [],
 
@@ -207,8 +216,7 @@ Data can be provided in one of three ways:
         },
 
         selectionChanged: function() {
-          if(this.chartObject)
-          {
+          if (this.chartObject) {
             this.chartObject.setSelection(this.selection);
           }
         },
@@ -248,7 +256,8 @@ Data can be provided in one of three ways:
               google.visualization.events.addListener(this.chartObject,
                   'select', function() {
                       this.selection = this.chartObject.getSelection();
-                      this.fire('google-chart-select');
+                      this.fire('google-chart-select',
+                          { selection: this.chartObject.getSelection() });
                   }.bind(this));
 
 
@@ -328,8 +337,8 @@ Data can be provided in one of three ways:
             dataTable.addRows(this.rows);
           } else {
             // Create dataTable from the passed data or the data attribute.
-            // Data can be in the form of raw DataTable data or a two dimensional
-            // array.
+            // Data can be in the form of raw DataTable data or a two
+            // dimensional array.
             if (data.rows && data.cols) {
               dataTable = new google.visualization.DataTable(data);
             } else if (data.length > 0) {

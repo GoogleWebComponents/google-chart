@@ -17,6 +17,20 @@
       width: 400px;
     }
 
+    #selection-demo {
+      position: relative;
+      height: 300px;
+    }
+
+    #selection-chart {
+      float: left;
+    }
+
+    #selection-display {
+      display: inline-block;
+      position: relative;
+      top: 50%;
+    }
   </style>
 
 </head>
@@ -88,6 +102,38 @@
                     ["Col2", getRandomValue()],
                     ["Col3", getRandomValue()]];
     }, 3000);
+  </script>
+
+  <p>Here's a pie chart with an area selection:</p>
+
+  <div id="selection-demo">
+    <google-chart
+      type='pie'
+      id="selection-chart"
+      options='{"title": "Distribution of days in 2001H1"}'
+      cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+      rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+    </google-chart>
+    <div id="selection-display">
+      Selected row: <span id="selection-label">None</span>.
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('polymer-ready', function() {
+      var chart = document.querySelector('#selection-chart');
+      var label = document.querySelector('#selection-label');
+
+      chart.addEventListener('google-chart-render', function() {
+        chart.selection = [{row: 1, column: null}];
+        label.textContent = chart.selection[0].row;
+      });
+
+      document.addEventListener('google-chart-select', function(e) {
+        label.textContent =
+            chart.selection[0] ? chart.selection[0].row : 'None';
+      });
+    });
   </script>
 
   <p>Here's a chart defined using <code>data</code>, rather than <code>rows</code> and <code>cols</code>:</p>
@@ -252,29 +298,6 @@
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
   </google-chart>
-
-  <p>Here's a pie chart with one area selection:</p>
-
-  <google-chart
-    type='pie'
-    id="selection-demo"
-    options='{"title": "Distribution of days in 2001H1"}'
-    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
-    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
-  </google-chart>
-
-  <script> 
-    document.addEventListener('polymer-ready', function() {
-        var chart = document.querySelector('#selection-demo');
-        chart.addEventListener('google-chart-render', function() {
-          chart.selection = [{row: 1, column: null}];
-        })
-        document.addEventListener('google-chart-select', function(e) {
-          alert('selected row: '+chart.selection[0].row);
-        })
-
-    })
-  </script>
 
 
 </body>
