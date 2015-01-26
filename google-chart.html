@@ -70,7 +70,6 @@ Data can be provided in one of three ways:
          *   @param {array} detail.selection The user-defined selection.
          */
 
-
         /**
          * Sets the type of the chart.
          *
@@ -181,6 +180,8 @@ Data can be provided in one of three ways:
 
         chartTypes: null,
 
+        packages: null,
+
         chartObject: null,
 
         isReady: false,
@@ -199,8 +200,10 @@ Data can be provided in one of three ways:
         },
 
         readyForAction: function(e, detail, sender) {
+          this.loadPackageByChartType();
+
           google.load("visualization", "1", {
-            packages: ['corechart'],
+            packages: this.packages[this.type],
             callback: function() {
               this.isReady = true;
               this.loadChartTypes();
@@ -285,7 +288,26 @@ Data can be provided in one of three ways:
             'line': google.visualization.LineChart,
             'pie': google.visualization.PieChart,
             'scatter': google.visualization.ScatterChart,
-            'stepped-area': google.visualization.SteppedAreaChart
+            'stepped-area': google.visualization.SteppedAreaChart,
+            'table': google.visualization.Table
+          };
+        },
+
+        loadPackageByChartType: function() {
+          this.packages = {
+            'area': 'corechart',
+            'bar': 'corechart',
+            'bubble': 'corechart',
+            'candlestick': 'corechart',
+            'column': 'corechart',
+            'combo': 'corechart',
+            'geo': 'corechart',
+            'histogram': 'corechart',
+            'line': 'corechart',
+            'pie': 'corechart',
+            'scatter': 'corechart',
+            'stepped-area': 'corechart',
+            'table': 'table'
           };
         },
 
