@@ -219,7 +219,7 @@ Data can be provided in one of three ways:
         },
 
         selectionChanged: function() {
-          if (this.chartObject) {
+          if (this.chartObject && this.setSelection) {
             this.chartObject.setSelection(this.selection);
           }
         },
@@ -266,8 +266,9 @@ Data can be provided in one of three ways:
 
               this.chartObject.draw(this.dataTable, this.options);
 
-              this.chartObject.setSelection(this.selection);
-
+              if (this.chartObject.setSelection){
+                this.chartObject.setSelection(this.selection);
+              }
             } else {
               this.$.chartdiv.innerHTML = 'Undefined chart type';
             }
@@ -289,7 +290,8 @@ Data can be provided in one of three ways:
             'pie': google.visualization.PieChart,
             'scatter': google.visualization.ScatterChart,
             'stepped-area': google.visualization.SteppedAreaChart,
-            'table': google.visualization.Table
+            'table': google.visualization.Table,
+            'gauge': google.visualization.Gauge
           };
         },
 
@@ -307,7 +309,8 @@ Data can be provided in one of three ways:
             'pie': 'corechart',
             'scatter': 'corechart',
             'stepped-area': 'corechart',
-            'table': 'table'
+            'table': 'table',
+            'gauge': 'gauge'
           };
         },
 
