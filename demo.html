@@ -311,6 +311,47 @@
            ["2007", 1030, 540]]'>
   </google-chart>
 
+  <p>Here are three gauges:</p>
+
+  <google-chart
+      type='gauge'
+      data='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'
+      options = '{"width": 400,
+                  "height": 120,
+                  "redFrom": 90,
+                  "redTo": 100,
+                  "yellowFrom":75,
+                  "yellowTo": 90,
+                  "minorTicks": 5}'>
+  </google-chart>
+
+  <p>Here are three gauges with random data that change every three seconds:</p>
+
+  <google-chart
+      id="mutating_gauge"
+      type='gauge'
+      data='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'
+      options = '{"width": 400,
+                  "height": 120,
+                  "redFrom": 90,
+                  "redTo": 100,
+                  "yellowFrom":75,
+                  "yellowTo": 90,
+                  "minorTicks": 5}'>
+  </google-chart>
+
+  <script>
+    function getRandomGaugeValue(offset, factor) {
+      return offset + Math.round(factor * Math.random());
+    }
+
+    window.setInterval(function() {
+      var gauge = document.getElementById('mutating_gauge');
+
+      gauge.data = [["Label", "Value"],["Memory", getRandomGaugeValue(40, 60)],["CPU", getRandomGaugeValue(40, 60)],["Network", getRandomGaugeValue(60, 20)]];
+
+    }, 3000);
+  </script>
 
 </body>
 </html>
