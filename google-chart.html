@@ -213,6 +213,7 @@ Data can be provided in one of three ways:
 
     _readyForAction: function(e, detail, sender) {
       this._loadPackageByChartType();
+      this._setDefaultOptions();
 
       google.load("visualization", "1", {
         packages: this._packages[this.type],
@@ -382,6 +383,21 @@ Data can be provided in one of three ways:
       }
 
       return dataTable;
+    },
+
+    _setDefaultOptions: function() {
+      // Set default class names for table charts.
+      if (this.type == 'table' && !this.options.cssClassNames) {
+        this.options.cssClassNames = {
+          headerRow: 'google-chart-table-tr-head',
+          tableRow: 'google-chart-table-tr-even',
+          oddTableRow: 'google-chart-table-tr-odd',
+          selectedTableRow: 'google-chart-table-tr-sel',
+          hoverTableRow: 'google-chart-table-tr-over',
+          headerCell: 'google-chart-table-th',
+          tableCell: 'google-chart-table-td'
+        };
+      }
     }
   });
 })();

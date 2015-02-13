@@ -16,3 +16,76 @@
 #chartdiv {
   width: 100%;
 }
+
+
+/**
+ * Core gviz table style overrides.
+ */
+
+.google-visualization-table-table {
+  background: #fff;
+  border-spacing: 0px;
+  font: inherit;
+  cursor: default;
+  width: 100%;
+}
+
+.google-visualization-table-table * {
+  font: inherit;
+  vertical-align: inherit;
+}
+
+.google-visualization-table-sortind {
+  color: #c0c0c0;
+  display: inline-block;
+  font: 1em/0 Arial, sans-serif!important;
+  margin: 0 0 0 .5em;
+  padding: 0;
+}
+
+.google-visualization-table-td-bool,
+.google-visualization-table-td-center,
+.google-visualization-table-td-number {
+  text-align: right;
+}
+
+
+/**
+ * <google-chart> table style overrides.
+ */
+
+.google-chart-table-tr-head {
+  font-weight: 700;
+}
+
+.google-chart-table-tr-odd {
+  background: #f8f8f8;
+}
+
+.google-chart-table-tr-over {
+  background-color: #f0f0f0;
+}
+
+.google-chart-table-tr-sel {
+  background-color: #ffffc0;
+}
+
+.google-chart-table-tr-even:last-child,
+.google-chart-table-tr-odd:last-child {
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.google-chart-table-th {
+  border-bottom: 1px solid #a8a8a8;
+  padding: .6em 1em!important;
+  text-align: left;
+}
+
+.google-chart-table-td {
+  border-left: 1px solid #e8e8e8;
+  padding: .6em 1em!important;
+}
+
+.google-chart-table-td:first-child {
+  border-left: 0;
+}
