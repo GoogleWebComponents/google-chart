@@ -404,7 +404,7 @@ Data can be provided in one of three ways:
             var format = this.numberFormats[i];
             
             // If valid column is given, create formatter object and apply to column in dataTable
-            if (format.col && format.col < dataTable.If.length ){
+            if (format.col && format.col < dataTable.getNumberOfColumns()){
               var formatter = new google.visualization.NumberFormat({
                 decimalSymbol: format.decimalSymbol, 
                 fractionDigits: format.fractionDigits, 
