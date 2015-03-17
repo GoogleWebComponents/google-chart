@@ -41,7 +41,7 @@ Data can be provided in one of three ways:
 @status alpha
 @homepage http://googlewebcomponents.github.io/google-chart
 -->
-<polymer-element name="google-chart" attributes="type options cols rows data selection">
+<polymer-element name="google-chart" attributes="type options cols rows data selection numberFormats">
 
   <template>
     <link rel="stylesheet" href="google-chart.css">
@@ -177,6 +177,25 @@ Data can be provided in one of three ways:
          * @type array
          */
         selection: [],
+
+        /**
+         * Sets the format for numbers shown in the tooltip.
+         *
+         * An array of objects, each with:
+         *   - a required `col` property (zero-based column number to which formatting applies)
+         *   - optional NumberFormat properties (`decimalSymbol`, `fractionDigits`, `groupingSymbol`, `negativeColor`, `negativeParens`, `pattern`, `prefix`, `suffix`)
+         * 
+         * See <a href="https://developers.google.com/chart/interactive/docs/reference#numberformatter">Google Visualization API reference (NumberFormat)</a> for details.
+         *
+         * Example:
+         * <pre>
+         *   [{col:1, pattern: '#,###%', fractionDigits: 2 }, {col: 2, prefix: '$', groupingSymbol: ','}]
+         * </pre>
+         *
+         * @attribute numberFormats
+         * @type array
+         */
+        numberFormats: [],
 
         chartTypes: null,
 
@@ -369,9 +388,37 @@ Data can be provided in one of three ways:
             } else if (data.length > 0) {
               dataTable = google.visualization.arrayToDataTable(data);
             }
+
+          }
+
+          // Apply number formats to designated columns in dataTable
+          if (this.numberFormats && this.numberFormats.length){
+            this.applyNumberFormats(dataTable);
           }
 
           return dataTable;
+        },
+
+        applyNumberFormats: function(dataTable){
+          for (var i=0; i < this.numberFormats.length; i++){
+            var format = this.numberFormats[i];
+            
+            // If valid column is given, create formatter object and apply to column in dataTable
+            if (format.col && format.col < dataTable.If.length ){
+              var formatter = new google.visualization.NumberFormat({
+                decimalSymbol: format.decimalSymbol, 
+                fractionDigits: format.fractionDigits, 
+                groupingSymbol: format.groupingSymbol, 
+                negativeColor: format.negativeColor, 
+                negativeParens: format.negativeParens, 
+                pattern: format.pattern,  
+                prefix: format.prefix, 
+                suffix: format.suffix
+              });
+
+              formatter.format(dataTable, format.col);  
+            }
+          }
         }
       });
     })();
