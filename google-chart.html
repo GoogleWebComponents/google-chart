@@ -281,9 +281,13 @@ Data can be provided in one of three ways:
 
               if (this.materialDesign){
                 if (this.type=='bar'){
-                  this.options.bars='horizontal';
+                  this.options.bars = 'horizontal';
+                  this.options = google.charts.Bar.convertOptions(this.options);
                 }
-                this.options=google.charts.Bar.convertOptions(this.options);
+                if (this.type=='column') {
+                  this.options.bars = 'vertical';
+                  this.options = google.charts.Column.convertOptions(this.options);
+                }
               }
 
               this.chartObject.draw(this.dataTable, this.options);
