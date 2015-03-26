@@ -204,22 +204,18 @@ Data can be provided in one of three ways:
           var element = this;
           var observer = new MutationObserver(function(mutations) {
               mutations.forEach(function(mutation) {
-
-                for (var i=0; i<mutation.addedNodes.length;i++){
-                  var newNode =mutation.addedNodes[i];
-                  if (newNode.rel && newNode.rel=='stylesheet'){
-
+                for (var i = 0; i < mutation.addedNodes.length; i++) {
+                  var newNode = mutation.addedNodes[i];
+                  if (newNode.rel && newNode.rel == 'stylesheet') {
                     //Add the stylesheet as an @import
                     var cssImport = document.createElement('style');
-                    cssImport.innerHTML="@import '"+newNode.href+"';";
+                    cssImport.innerHTML = "@import '" + newNode.href + "';";
                     element.shadowRoot.appendChild(cssImport);
-
                   }
-
                 }
-
               });
-          });
+            });
+            
           observer.observe(head, { subtree: false, characterData: false, childList: true });
 
         },
