@@ -195,7 +195,7 @@ Data can be provided in one of three ways:
          * @attribute numberFormats
          * @type array
          */
-        numberFormats: [],
+        numberFormats: null,
 
         chartTypes: null,
 
@@ -216,6 +216,7 @@ Data can be provided in one of three ways:
           this.options = {};
           this.rows = [];
           this.dataTable = null;
+          this.numberFormats = [];
         },
 
         readyForAction: function(e, detail, sender) {
