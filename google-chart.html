@@ -45,7 +45,7 @@ Data can be provided in one of three ways:
   <link rel="import" type="css" href="google-chart.css">
   <template>
     <core-ajax id="ajax" handle-as="json" url="{{data}}"
-      on-core-response="externalDataLoaded"></core-ajax>
+      on-response="externalDataLoaded"></core-ajax>
     <div id="chartdiv"></div>
     <google-legacy-loader on-api-load="readyForAction"></google-legacy-loader>
   </template>
@@ -173,7 +173,7 @@ Data can be provided in one of three ways:
        * @type array, object, or string
        */
       data: {
-        type: Array, // or array, or object
+        type: Object, // or array, or object
         value: function() { return [] }
       },
 
@@ -348,7 +348,7 @@ Data can be provided in one of three ways:
     },
 
     externalDataLoaded: function(e, detail, sender) {
-      var dataTable = this.createDataTable(this.$.ajax.response);
+      var dataTable = this.createDataTable(detail);
       this.canDraw = true;
       this.dataTable = dataTable;
       this.drawChart();
