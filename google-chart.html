@@ -364,6 +364,8 @@ Data can be provided in one of three ways:
       if (!data) {
         data = this.data;
       }
+      if (!data)
+        data = [];
 
       if (this.rows && this.rows.length > 0 && this.cols &&
           this.cols.length > 0) {
