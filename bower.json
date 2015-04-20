@@ -28,7 +28,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#0-8.preview",
     "google-apis": "GoogleWebComponents/google-apis#0.8-preview",
-    "core-ajax": "Polymer/core-ajax#0.8-preview"
+    "core-ajax": "PolymerElements/iron-ajax#master"
   },
   "devDependencies": {
     "web-component-tester": "*"
