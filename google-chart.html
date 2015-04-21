@@ -45,7 +45,7 @@ Data can be provided in one of three ways:
   <link rel="import" type="css" href="google-chart.css">
   <template>
     <iron-ajax id="ajax" handle-as="json" url="{{data}}"
-      on-response="externalDataLoaded"></core-ajax>
+      on-response="externalDataLoaded"></iron-ajax>
     <div id="chartdiv"></div>
     <google-legacy-loader on-api-load="readyForAction"></google-legacy-loader>
   </template>
