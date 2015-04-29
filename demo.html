@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>google-chart Demo</title>
 
-  <script src="../webcomponentsjs/webcomponents.js"></script>
+  <script src="../webcomponentsjs/webcomponents-lite.js"></script>
   <link rel="import" href="google-chart.html">
   <style>
     code {
@@ -108,7 +108,7 @@
 
   <div id="selection-demo">
     <google-chart
-      type='pie'
+      type="pie"
       id="selection-chart"
       options='{"title": "Distribution of days in 2001H1"}'
       cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
@@ -120,7 +120,7 @@
   </div>
 
   <script>
-    document.addEventListener('polymer-ready', function() {
+    document.addEventListener('WebComponentsReady', function() {
       var chart = document.querySelector('#selection-chart');
       var label = document.querySelector('#selection-label');
 
@@ -302,7 +302,7 @@
   <p>Here's a table chart:</p>
 
   <google-chart
-    type='table'
+    type="table"
     options='{"title": "Inventory"}'
     data='[["Year", "Things", "Stuff"],
            ["2004", 1000, 400],
@@ -316,28 +316,28 @@
   <google-chart
       type='gauge'
       data='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'
-      options = '{"width": 400,
-                  "height": 120,
-                  "redFrom": 90,
-                  "redTo": 100,
-                  "yellowFrom":75,
-                  "yellowTo": 90,
-                  "minorTicks": 5}'>
+      options='{"width": 400,
+                "height": 120,
+                "redFrom": 90,
+                "redTo": 100,
+                "yellowFrom":75,
+                "yellowTo": 90,
+                "minorTicks": 5}'>
   </google-chart>
 
   <p>Here are three gauges with random data that change every three seconds:</p>
 
   <google-chart
       id="mutating_gauge"
-      type='gauge'
+      type="gauge"
       data='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'
-      options = '{"width": 400,
-                  "height": 120,
-                  "redFrom": 90,
-                  "redTo": 100,
-                  "yellowFrom":75,
-                  "yellowTo": 90,
-                  "minorTicks": 5}'>
+      options='{"width": 400,
+                "height": 120,
+                "redFrom": 90,
+                "redTo": 100,
+                "yellowFrom": 75,
+                "yellowTo": 90,
+                "minorTicks": 5}'>
   </google-chart>
 
   <script>

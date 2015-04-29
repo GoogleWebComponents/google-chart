@@ -110,7 +110,7 @@ Data can be provided in one of three ways:
        */
       options: {
         type: Object,
-        value: function() { return {}}
+        value: function() { return {}; }
       },
 
       /**
@@ -130,7 +130,7 @@ Data can be provided in one of three ways:
        */
       cols: {
         type: Array,
-        value: function() { return []}
+        value: function() { return []; }
       },
       /**
        * Sets the data rows for this object.
@@ -149,7 +149,7 @@ Data can be provided in one of three ways:
        */
       rows: {
         type: Array,
-        value: function() { return [] }
+        value: function() { return []; }
       },
 
       /**
@@ -174,7 +174,7 @@ Data can be provided in one of three ways:
        */
       data: {
         type: Object, // or array, or object
-        value: function() { return [] }
+        value: function() { return []; }
       },
 
       /**
@@ -197,11 +197,18 @@ Data can be provided in one of three ways:
        */
       selection: {
         type: Array,
-        value: function() { return [] },
+        value: function() { return []; },
         observer: 'selectionChanged'
       }
     },
-    chartTypes: null,
+    chartTypes: {
+      type: Object,
+      value: function() { return {}; },
+    },
+
+    observers: [
+      'loadData(rows cols data)'
+    ],
 
     packages: null,
 
@@ -212,10 +219,6 @@ Data can be provided in one of three ways:
     canDraw: false,
 
     dataTable: null,
-
-    created: function() {
-      this.chartTypes = {};
-    },
 
     readyForAction: function(e, detail, sender) {
       this.loadPackageByChartType();
@@ -241,10 +244,6 @@ Data can be provided in one of three ways:
         this.chartObject.setSelection(this.selection);
       }
     },
-
-    observers: [
-      'loadData(rows cols data)'
-    ],
 
     /**
      * Draws the chart.
