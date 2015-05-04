@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>google-chart Demo</title>
 
-  <script src="../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../webcomponentsjs/webcomponents-lite.js"></script>
   <link rel="import" href="google-chart.html">
   <style>
     code {
@@ -17,10 +17,24 @@
       width: 400px;
     }
 
+    #selection-demo {
+      position: relative;
+      height: 300px;
+    }
+
+    #selection-chart {
+      float: left;
+    }
+
+    #selection-display {
+      display: inline-block;
+      position: relative;
+      top: 50%;
+    }
   </style>
 
 </head>
-<body unresolved>
+<body>
 
   <p>A simple <code>google-chart</code> looks like this:</p>
 
@@ -30,7 +44,7 @@
   </google-chart>
 
   <p>Charts can be resized with CSS, but you'll need to call the <code>drawChart</code> method when the size changes.</p>
-  <p>Here's a basic responsive example using only CSS and JS. You could also use <code>&lt;core-media-query&gt;</code>.</p>
+  <p>Here's a basic responsive example using only CSS and JS. You could also use <code>&lt;iron-media-query&gt;</code>.</p>
 
   <style>
     /* Phone and tablet */
@@ -88,6 +102,38 @@
                     ["Col2", getRandomValue()],
                     ["Col3", getRandomValue()]];
     }, 3000);
+  </script>
+
+  <p>Here's a pie chart with an area selection:</p>
+
+  <div id="selection-demo">
+    <google-chart
+      type="pie"
+      id="selection-chart"
+      options='{"title": "Distribution of days in 2001H1"}'
+      cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+      rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+    </google-chart>
+    <div id="selection-display">
+      Selected row: <span id="selection-label">None</span>.
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('WebComponentsReady', function() {
+      var chart = document.querySelector('#selection-chart');
+      var label = document.querySelector('#selection-label');
+
+      chart.addEventListener('google-chart-render', function() {
+        chart.selection = [{row: 1, column: null}];
+        label.textContent = chart.selection[0].row;
+      });
+
+      document.addEventListener('google-chart-select', function(e) {
+        label.textContent =
+            chart.selection[0] ? chart.selection[0].row : 'None';
+      });
+    });
   </script>
 
   <p>Here's a chart defined using <code>data</code>, rather than <code>rows</code> and <code>cols</code>:</p>
@@ -252,6 +298,60 @@
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
   </google-chart>
+
+  <p>Here's a table chart:</p>
+
+  <google-chart
+    type="table"
+    options='{"title": "Inventory"}'
+    data='[["Year", "Things", "Stuff"],
+           ["2004", 1000, 400],
+           ["2005", 1170, 460],
+           ["2006", 660, 1120],
+           ["2007", 1030, 540]]'>
+  </google-chart>
+
+  <p>Here are three gauges:</p>
+
+  <google-chart
+      type='gauge'
+      data='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'
+      options='{"width": 400,
+                "height": 120,
+                "redFrom": 90,
+                "redTo": 100,
+                "yellowFrom":75,
+                "yellowTo": 90,
+                "minorTicks": 5}'>
+  </google-chart>
+
+  <p>Here are three gauges with random data that change every three seconds:</p>
+
+  <google-chart
+      id="mutating_gauge"
+      type="gauge"
+      data='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'
+      options='{"width": 400,
+                "height": 120,
+                "redFrom": 90,
+                "redTo": 100,
+                "yellowFrom": 75,
+                "yellowTo": 90,
+                "minorTicks": 5}'>
+  </google-chart>
+
+  <script>
+    function getRandomGaugeValue(offset, factor) {
+      return offset + Math.round(factor * Math.random());
+    }
+
+    window.setInterval(function() {
+      var gauge = document.getElementById('mutating_gauge');
+
+      gauge.data = [["Label", "Value"],["Memory", getRandomGaugeValue(40, 60)],["CPU", getRandomGaugeValue(40, 60)],["Network", getRandomGaugeValue(60, 20)]];
+
+    }, 3000);
+  </script>
 
 </body>
 </html>
