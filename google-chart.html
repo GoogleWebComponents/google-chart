@@ -37,17 +37,14 @@ Data can be provided in one of three ways:
 
       data='http://example.com/chart-data.json'
 
-@element google-chart
-@status alpha
-@homepage http://googlewebcomponents.github.io/google-chart
 -->
 <dom-module id="google-chart">
   <link rel="import" type="css" href="google-chart.css">
   <template>
     <iron-ajax id="ajax" handle-as="json" url="{{data}}"
-      on-response="externalDataLoaded"></iron-ajax>
+      on-response="_externalDataLoaded"></iron-ajax>
     <div id="chartdiv"></div>
-    <google-legacy-loader on-api-load="readyForAction"></google-legacy-loader>
+    <google-legacy-loader on-api-load="_readyForAction"></google-legacy-loader>
   </template>
 </dom-module>
 
@@ -83,13 +80,11 @@ Data can be provided in one of three ways:
        *
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
        *
-       * @attribute type
-       * @type string
        */
       type: {
         type: String,
         value: 'column',
-        observer: 'typeChanged'
+        observer: '_typeChanged'
       },
 
       /**
@@ -105,8 +100,6 @@ Data can be provided in one of three ways:
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
        * for the options available to each chart type.
        *
-       * @attribute options
-       * @type object
        */
       options: {
         type: Object,
@@ -198,50 +191,48 @@ Data can be provided in one of three ways:
       selection: {
         type: Array,
         value: function() { return []; },
-        observer: 'selectionChanged'
-      }
-    },
-    chartTypes: {
-      type: Object,
-      value: function() { return {}; },
+        observer: '_selectionChanged'
+      },
     },
 
     observers: [
-      'loadData(rows cols data)'
+      '_loadData(rows cols data)'
     ],
 
-    packages: null,
+    _packages: null,
 
-    chartObject: null,
+    _chartObject: null,
 
-    isReady: false,
+    _isReady: false,
 
-    canDraw: false,
+    _canDraw: false,
 
-    dataTable: null,
+    _dataTable: null,
 
-    readyForAction: function(e, detail, sender) {
-      this.loadPackageByChartType();
+    _chartTypes: null,
+
+    _readyForAction: function(e, detail, sender) {
+      this._loadPackageByChartType();
 
       google.load("visualization", "1", {
-        packages: this.packages[this.type],
+        packages: this._packages[this.type],
         callback: function() {
-          this.isReady = true;
-          this.loadChartTypes();
-          this.loadData();
+          this._isReady = true;
+          this._loadChartTypes();
+          this._loadData();
         }.bind(this)
       });
     },
 
-    typeChanged: function() {
+    _typeChanged: function() {
       // Invalidate current chart object.
-      this.chartObject = null;
-      this.loadData();
+      this._chartObject = null;
+      this._loadData();
     },
 
-    selectionChanged: function() {
-      if (this.chartObject && this.setSelection) {
-        this.chartObject.setSelection(this.selection);
+    _selectionChanged: function() {
+      if (this._chartObject && this.setSelection) {
+        this._chartObject.setSelection(this.selection);
       }
     },
 
@@ -255,34 +246,34 @@ Data can be provided in one of three ways:
      * @return {Object} Returns null.
      */
     drawChart: function() {
-      if (this.canDraw) {
+      if (this._canDraw) {
         if (!this.options) {
           this.options = {};
         }
-        if (!this.chartObject) {
-          var chartClass = this.chartTypes[this.type];
+        if (!this._chartObject) {
+          var chartClass = this._chartTypes[this.type];
           if (chartClass) {
-            this.chartObject = new chartClass(this.$.chartdiv);
+            this._chartObject = new chartClass(this.$.chartdiv);
           }
         }
-        if (this.chartObject) {
-          google.visualization.events.addOneTimeListener(this.chartObject,
+        if (this._chartObject) {
+          google.visualization.events.addOneTimeListener(this._chartObject,
               'ready', function() {
                   this.fire('google-chart-render');
               }.bind(this));
 
-          google.visualization.events.addListener(this.chartObject,
+          google.visualization.events.addListener(this._chartObject,
               'select', function() {
-                  this.selection = this.chartObject.getSelection();
+                  this.selection = this._chartObject.getSelection();
                   this.fire('google-chart-select',
-                      { selection: this.chartObject.getSelection() });
+                      { selection: this._chartObject.getSelection() });
               }.bind(this));
 
 
-          this.chartObject.draw(this.dataTable, this.options);
+          this._chartObject.draw(this._dataTable, this.options);
 
-          if (this.chartObject.setSelection){
-            this.chartObject.setSelection(this.selection);
+          if (this._chartObject.setSelection){
+            this._chartObject.setSelection(this.selection);
           }
         } else {
           this.$.chartdiv.innerHTML = 'Undefined chart type';
@@ -291,8 +282,8 @@ Data can be provided in one of three ways:
       return null;
     },
 
-    loadChartTypes: function() {
-      this.chartTypes = {
+    _loadChartTypes: function() {
+      this._chartTypes = {
         'area': google.visualization.AreaChart,
         'bar': google.visualization.BarChart,
         'bubble': google.visualization.BubbleChart,
@@ -310,8 +301,8 @@ Data can be provided in one of three ways:
       };
     },
 
-    loadPackageByChartType: function() {
-      this.packages = {
+    _loadPackageByChartType: function() {
+      this._packages = {
         'area': 'corechart',
         'bar': 'corechart',
         'bubble': 'corechart',
@@ -329,31 +320,31 @@ Data can be provided in one of three ways:
       };
     },
 
-    loadData: function() {
-      this.canDraw = false;
-      if (this.isReady) {
+    _loadData: function() {
+      this._canDraw = false;
+      if (this._isReady) {
         if (typeof this.data == 'string' || this.data instanceof String) {
           // Load data asynchronously, from external URL.
           this.$.ajax.generateRequest();
         } else {
-          var dataTable = this.createDataTable();
-          this.canDraw = true;
+          var dataTable = this._createDataTable();
+          this._canDraw = true;
           if (dataTable) {
-            this.dataTable = dataTable;
+            this._dataTable = dataTable;
             this.drawChart();
           }
         }
       }
     },
 
-    externalDataLoaded: function(e, detail, sender) {
-      var dataTable = this.createDataTable(detail);
-      this.canDraw = true;
-      this.dataTable = dataTable;
+    _externalDataLoaded: function(e, detail, sender) {
+      var dataTable = this._createDataTable(detail);
+      this._canDraw = true;
+      this._dataTable = dataTable;
       this.drawChart();
     },
 
-    createDataTable: function(data) {
+    _createDataTable: function(data) {
       var dataTable = null;
 
       // If a data object was not passed to this function, default to the
