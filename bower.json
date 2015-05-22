@@ -2,7 +2,7 @@
   "name": "google-chart",
   "version": "1.0.0",
   "description": "Encapsulates Google Charts into a web component",
-  "homepage": "http://googlewebcomponents.github.io/google-chart",
+  "homepage": "https://googlewebcomponents.github.io/google-chart",
   "main": "google-chart.html",
   "authors": [
     "Sérgio Gomes"
