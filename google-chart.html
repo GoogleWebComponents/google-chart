@@ -36,7 +36,7 @@ Data can be provided in one of three ways:
   data, in JSON format:
 
       data='http://example.com/chart-data.json'
-
+@demo
 -->
 <dom-module id="google-chart">
   <link rel="import" type="css" href="google-chart.css">
@@ -196,7 +196,7 @@ Data can be provided in one of three ways:
     },
 
     observers: [
-      '_loadData(rows cols data)'
+      '_loadData(rows, cols, data)'
     ],
 
     _packages: null,
@@ -337,8 +337,8 @@ Data can be provided in one of three ways:
       }
     },
 
-    _externalDataLoaded: function(e, detail, sender) {
-      var dataTable = this._createDataTable(detail);
+    _externalDataLoaded: function(e) {
+      var dataTable = this._createDataTable(e.detail.response);
       this._canDraw = true;
       this._dataTable = dataTable;
       this.drawChart();
