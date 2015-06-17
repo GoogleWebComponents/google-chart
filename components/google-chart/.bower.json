@@ -1,0 +1,43 @@
+{
+  "name": "google-chart",
+  "description": "Encapsulates Google Charts into a web component",
+  "homepage": "https://googlewebcomponents.github.io/google-chart",
+  "main": "google-chart.html",
+  "authors": [
+    "Sérgio Gomes"
+  ],
+  "license": "Apache2",
+  "ignore": [
+    "/.*",
+    "/test/",
+    "/demo/"
+  ],
+  "keywords": [
+    "web-component",
+    "web-components",
+    "polymer",
+    "chart",
+    "charts",
+    "google-visualization",
+    "google"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "google-apis": "GoogleWebComponents/google-apis#^1.0.0",
+    "iron-ajax": "PolymerElements/iron-ajax#1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.2",
+    "web-component-tester": "*"
+  },
+  "_release": "e7fcf39689",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "e7fcf39689734d8cdf5baa795ba85a2d68bd58de"
+  },
+  "_source": "git://github.com/GoogleWebComponents/google-chart.git",
+  "_target": "master",
+  "_originalSource": "GoogleWebComponents/google-chart",
+  "_direct": true
+}
