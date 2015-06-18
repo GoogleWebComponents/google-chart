@@ -10,8 +10,7 @@
   "license": "Apache2",
   "ignore": [
     "/.*",
-    "/test/",
-    "/demo/"
+    "/test/"
   ],
   "keywords": [
     "web-component",
