@@ -76,7 +76,7 @@ Data can be provided in one of three ways:
        *
        * Should be one of:
        * - `area`, `bar`, `bubble`, `candlestick`, `column`, `combo`, `geo`,
-       *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`
+       *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`, `treemap`
        *
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
        *
@@ -297,7 +297,8 @@ Data can be provided in one of three ways:
         'scatter': google.visualization.ScatterChart,
         'stepped-area': google.visualization.SteppedAreaChart,
         'table': google.visualization.Table,
-        'gauge': google.visualization.Gauge
+        'gauge': google.visualization.Gauge,
+        'treemap': google.visualization.TreeMap
       };
     },
 
@@ -316,7 +317,8 @@ Data can be provided in one of three ways:
         'scatter': 'corechart',
         'stepped-area': 'corechart',
         'table': 'table',
-        'gauge': 'gauge'
+        'gauge': 'gauge',
+        'treemap': 'treemap'
       };
     },
 
