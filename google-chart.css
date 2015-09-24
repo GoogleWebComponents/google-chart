@@ -8,6 +8,11 @@
   height: 300px;
 }
 
+:host([type="gauge"]) {
+  width: 300px;
+  height: 300px;
+}
+
 #chartdiv {
   width: 100%;
 }
