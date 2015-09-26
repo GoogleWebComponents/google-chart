@@ -215,6 +215,12 @@ Data can be provided in one of three ways:
       this._loadPackageByChartType();
       this._setDefaultOptions();
 
+      // Allows shady DOM styles to work with DOM elements
+      // dynamically added by gviz table chart.
+      if (this.type == 'table') {
+        this.scopeSubtree(this.$.chartdiv, true);
+      }
+
       google.load("visualization", "1", {
         packages: this._packages[this.type],
         callback: function() {
