@@ -22,23 +22,30 @@
  * Core gviz table style overrides.
  */
 
+:host([type="table"]) {
+  height: auto;
+}
+
+.google-visualization-table {
+  border: 0;
+  display: block;
+  z-index: 0;
+}
+
 .google-visualization-table-table {
   background: #fff;
+  border-collapse: collapse;
   border-spacing: 0px;
   font: inherit;
   cursor: default;
-  width: 100%;
-}
-
-.google-visualization-table-table * {
-  font: inherit;
-  vertical-align: inherit;
+  width: 100%!important; /* override inline styles added by JS. */
 }
 
 .google-visualization-table-sortind {
   color: #c0c0c0;
   display: inline-block;
-  font: 1em/0 Arial, sans-serif!important;
+  /* Use `line-height:0` to prevent altering the parent line-height. */
+  font: 1em/0 Arial, sans-serif;
   margin: 0 0 0 .5em;
   padding: 0;
 }
@@ -53,10 +60,6 @@
 /**
  * <google-chart> table style overrides.
  */
-
-.google-chart-table-tr-head {
-  font-weight: 700;
-}
 
 .google-chart-table-tr-odd {
   background: #f8f8f8;
@@ -76,14 +79,18 @@
 }
 
 .google-chart-table-th {
+  border: 0;
   border-bottom: 1px solid #a8a8a8;
-  padding: .6em 1em!important;
+  font-weight: 700;
+  padding: .6em 1em;
   text-align: left;
+  white-space: nowrap;
 }
 
 .google-chart-table-td {
+  border: 0;
   border-left: 1px solid #e8e8e8;
-  padding: .6em 1em!important;
+  padding: .6em 1em;
 }
 
 .google-chart-table-td:first-child {
