@@ -262,6 +262,7 @@
   <p>Here's a line chart:</p>
 
   <google-chart
+    id='line_chart'
     type='line'
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
@@ -388,6 +389,22 @@
              ["Congo", "Africa", 10],
              ["Zaire", "Africa", 8]]'>
   </google-chart>
+
+  <p>Here's an image of the line chart:</p>
+
+  <div id='line_chart_div'></div>
+
+    <script>
+    document.addEventListener('WebComponentsReady', function() {
+      var chart_div = document.querySelector('#line_chart_div');
+      var chart = document.querySelector('#line_chart');
+
+      chart.addEventListener('google-chart-render', function() {
+        chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+      });
+
+    });
+  </script>
   
 </body>
 </html>

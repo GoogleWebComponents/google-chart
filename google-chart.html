@@ -282,6 +282,18 @@ Data can be provided in one of three ways:
       return null;
     },
 
+    /**
+     * Returns the chart serialized as an image URI.
+     *
+     * Call this after the chart is drawn (google-chart-render event).
+     *
+     * @method getImageURI
+     * @return {string} Returns image URI.
+     */
+    getImageURI: function() {
+      return this._chartObject.getImageURI();
+    },
+
     _loadChartTypes: function() {
       this._chartTypes = {
         'area': google.visualization.AreaChart,
