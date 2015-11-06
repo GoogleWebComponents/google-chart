@@ -75,6 +75,12 @@
         assert.isDefined(chart.rows[0][1]);
         assert.equal(chart.rows[0][1], 1);
       });
+      test('creates png chart uri', function () {
+        chart.drawChart();
+        var uri = chart.getImageURI();
+        assert.isString(uri);
+        assert.match(uri, /^data:image\/png;base64/, 'png regexp matches');
+      });
     });
   </script>
 
