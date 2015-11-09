@@ -269,6 +269,11 @@ Data can be provided in one of three ways:
                       { selection: this._chartObject.getSelection() });
               }.bind(this));
 
+		  google.visualization.events.addListener(this._chartObject,
+			  'onmouseover', function(event){
+				  this.fire('google-chart-onmouseover',
+					  { selection: event });
+			  }.bind(this));
 
           this._chartObject.draw(this._dataTable, this.options);
 
