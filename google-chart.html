@@ -171,6 +171,26 @@ Data can be provided in one of three ways:
       },
 
       /**
+       * Try to use the Material Design version of the chart.
+       *
+       * Material Design Charts are avaliable in BETA for the following types:
+       *  - <a href="https://developers.google.com/chart/interactive/docs/gallery/barchart#Material">Bar</a>
+       *  - <a href="https://developers.google.com/chart/interactive/docs/gallery/columnchart#Material">Column</a>
+       *  - <a href="https://developers.google.com/chart/interactive/docs/gallery/linechart#Material">Line</a>
+       *  - <a href="https://developers.google.com/chart/interactive/docs/gallery/scatterchart#Material">Scatter</a>
+       *
+       * @attribute materialDesign
+       * @type boolean
+       * @default false
+       *
+       */
+      materialDesign: {
+        type: Boolean,
+        value: false,
+        observer: '_materialDesignChanged'
+      },
+
+      /**
        * Selected datapoint(s) in the map.
        *
        * An array of objects, each with a numeric row and/or column property.
@@ -236,6 +256,15 @@ Data can be provided in one of three ways:
       }
     },
 
+    _materialDesignChanged: function() {
+      if(this.$$('google-legacy-loader').libraryLoaded) {
+        this._isReady = false;
+        this._canDraw = false;
+        this._chartObject = null;
+        this._readyForAction();
+      }
+    },
+
     /**
      * Draws the chart.
      *
@@ -269,10 +298,19 @@ Data can be provided in one of three ways:
                       { selection: this._chartObject.getSelection() });
               }.bind(this));
 
+          if (this.materialDesign) {
+            if (this.type == 'bar') {
+              this.options.bars = 'horizontal';
+              this.options = google.charts.Bar.convertOptions(this.options);
+            } else if (this.type == 'column') {
+              this.options.bars = 'vertical';
+              this.options = google.charts.Bar.convertOptions(this.options);
+            }
+          }
 
           this._chartObject.draw(this._dataTable, this.options);
 
-          if (this._chartObject.setSelection){
+          if (this._chartObject.setSelection) {
             this._chartObject.setSelection(this.selection);
           }
         } else {
@@ -296,41 +334,57 @@ Data can be provided in one of three ways:
     _loadChartTypes: function() {
       this._chartTypes = {
         'area': google.visualization.AreaChart,
-        'bar': google.visualization.BarChart,
         'bubble': google.visualization.BubbleChart,
         'candlestick': google.visualization.CandlestickChart,
-        'column': google.visualization.ColumnChart,
         'combo': google.visualization.ComboChart,
         'geo': google.visualization.GeoChart,
         'histogram': google.visualization.Histogram,
-        'line': google.visualization.LineChart,
         'pie': google.visualization.PieChart,
-        'scatter': google.visualization.ScatterChart,
         'stepped-area': google.visualization.SteppedAreaChart,
         'table': google.visualization.Table,
         'gauge': google.visualization.Gauge,
         'treemap': google.visualization.TreeMap
       };
+
+      if (this.materialDesign) {
+        this._chartTypes['bar'] = google.charts.Bar;
+        this._chartTypes['column'] = google.charts.Bar;
+        this._chartTypes['line'] = google.charts.Line;
+        this._chartTypes['scatter'] = google.charts.Scatter;
+      } else{
+        this._chartTypes['bar'] = google.visualization.BarChart;
+        this._chartTypes['column'] = google.visualization.ColumnChart;
+        this._chartTypes['line'] = google.visualization.LineChart;
+        this._chartTypes['scatter'] = google.visualization.ScatterChart;
+      }
     },
 
     _loadPackageByChartType: function() {
       this._packages = {
         'area': 'corechart',
-        'bar': 'corechart',
         'bubble': 'corechart',
         'candlestick': 'corechart',
-        'column': 'corechart',
         'combo': 'corechart',
         'geo': 'corechart',
         'histogram': 'corechart',
-        'line': 'corechart',
         'pie': 'corechart',
-        'scatter': 'corechart',
         'stepped-area': 'corechart',
         'table': 'table',
         'gauge': 'gauge',
         'treemap': 'treemap'
       };
+
+      if (this.materialDesign) {
+        this._packages['bar'] = 'bar';
+        this._packages['column'] = 'bar';
+        this._packages['line'] = 'line';
+        this._packages['scatter'] = 'scatter';
+      } else{
+        this._packages['bar'] = 'corechart';
+        this._packages['column'] = 'corechart';
+        this._packages['line'] = 'corechart';
+        this._packages['scatter'] = 'corechart';
+      }
     },
 
     _loadData: function() {
