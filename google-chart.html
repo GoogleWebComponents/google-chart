@@ -76,7 +76,8 @@ Data can be provided in one of three ways:
        *
        * Should be one of:
        * - `area`, `bar`, `bubble`, `candlestick`, `column`, `combo`, `geo`,
-       *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`, `treemap`
+       *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`, `timeline`,
+       *   `treemap`
        *
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
        *
@@ -309,6 +310,7 @@ Data can be provided in one of three ways:
         'stepped-area': google.visualization.SteppedAreaChart,
         'table': google.visualization.Table,
         'gauge': google.visualization.Gauge,
+        'timeline': google.visualization.Timeline,
         'treemap': google.visualization.TreeMap
       };
     },
@@ -329,6 +331,7 @@ Data can be provided in one of three ways:
         'stepped-area': 'corechart',
         'table': 'table',
         'gauge': 'gauge',
+        'timeline': 'timeline',
         'treemap': 'treemap'
       };
     },
@@ -379,7 +382,7 @@ Data can be provided in one of three ways:
         for (var i = 0; i < this.cols.length; i++) {
           dataTable.addColumn(this.cols[i]);
         }
-
+        
         dataTable.addRows(this.rows);
       } else {
         // Create dataTable from the passed data or the data attribute.
