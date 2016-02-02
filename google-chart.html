@@ -368,22 +368,12 @@ Data can be provided in one of three ways:
       // cases when the data attribute is a URL pointing to an external
       // data source.
       if (!data) {
-        data = this.data;
+        data = this.data || [];
       }
-      if (!data)
-        data = [];
-
       if (this.rows && this.rows.length > 0 && this.cols &&
           this.cols.length > 0) {
-        // Create the data table from cols and rows.
-        dataTable = new google.visualization.DataTable();
-        dataTable.cols = this.cols;
-
-        for (var i = 0; i < this.cols.length; i++) {
-          dataTable.addColumn(this.cols[i]);
-        }
-        
-        dataTable.addRows(this.rows);
+          data = [this.cols].concat(this.rows);
+          dataTable = google.visualization.arrayToDataTable(data);
       } else {
         // Create dataTable from the passed data or the data attribute.
         // Data can be in the form of raw DataTable data or a two
