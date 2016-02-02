@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>google-chart</title>
+
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../google-chart.html">
+</head>
+
+  <style>
+    google-chart {
+      height: 300px;
+      width: 400px;
+    }
+  </style>
+
+<body>
+
+  <google-chart
+    id="test-chart"
+    type="timeline"
+    cols='[
+      { "type": "string", "id": "President"},
+      { "type": "date", "id": "Start" },
+      { "type": "date", "id": "End" }
+    ]'
+    rows='[
+      ["Washington", "Date(1789, 3, 30)", "Date(1797, 2, 4)"],
+      ["Adams", "Date(1797, 2, 4)", "Date(1801, 2, 4)"],
+      ["Jefferson", "Date(1801, 2, 4)", "Date(1809, 2, 4)"]
+    ]'>
+  </google-chart>
+
+  <script>
+    var chart = document.querySelector('#test-chart');
+    suite('<google-chart>', function() {
+      test('fires google-chart-render event for initial load', function(done) {
+        chart.addEventListener('google-chart-render', function(event) {
+          event.target.removeEventListener(event.type, arguments.callee);
+          assert.isNotNull(event.detail);
+          done();
+        });
+      });
+
+      test('fires google-chart-render event for drawChart call', function(done) {
+        chart.addEventListener('google-chart-render', function(event) {
+          event.target.removeEventListener(event.type, arguments.callee);
+          assert.isNotNull(event.detail);
+          done();
+        });
+        chart.drawChart();
+      });
+    });
+  </script>
+
+</body>
+</html>
