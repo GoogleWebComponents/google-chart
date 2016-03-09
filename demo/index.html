@@ -91,17 +91,19 @@
   </google-chart>
 
   <script>
-    function getRandomValue() {
-      return Math.random() * 10;
-    }
+    (function() {
+      function getRandomValue() {
+        return Math.random() * 10;
+      }
 
-    window.setInterval(function() {
       var chart = document.getElementById('mutating_chart');
 
-      chart.rows = [["Col1", getRandomValue()],
-                    ["Col2", getRandomValue()],
-                    ["Col3", getRandomValue()]];
-    }, 3000);
+      window.setInterval(function() {
+        chart.rows = [["Col1", getRandomValue()],
+                      ["Col2", getRandomValue()],
+                      ["Col3", getRandomValue()]];
+      }, 3000);
+    }());
   </script>
 
   <p>Here's a pie chart with an area selection:</p>
@@ -112,7 +114,8 @@
       id="selection-chart"
       options='{"title": "Distribution of days in 2001H1"}'
       cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
-      rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+      rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'
+      selection='[{"row": 1}]'>
     </google-chart>
     <div id="selection-display">
       Selected row: <span id="selection-label">None</span>.
@@ -120,20 +123,22 @@
   </div>
 
   <script>
-    document.addEventListener('WebComponentsReady', function() {
-      var chart = document.querySelector('#selection-chart');
-      var label = document.querySelector('#selection-label');
+    (function() {
+      var chart = document.getElementById('selection-chart');
+      var label = document.getElementById('selection-label');
 
-      chart.addEventListener('google-chart-render', function() {
-        chart.selection = [{row: 1, column: null}];
-        label.textContent = chart.selection[0].row;
-      });
+      label.textContent = chart.selection[0].row;
 
       document.addEventListener('google-chart-select', function(e) {
-        label.textContent =
-            chart.selection[0] ? chart.selection[0].row : 'None';
+        var newSelection = e.detail.selection[0];  // From the event details
+        label.textContent = newSelection ? newSelection.row : 'None';
       });
-    });
+
+      chart.addEventListener('selection-changed', function(e) {
+        var newSelection = e.detail.value[0];  // From the event details
+        label.textContent = newSelection ? newSelection.row : 'None';
+      });
+    }());
   </script>
 
   <p>Here's a chart defined using <code>data</code>, rather than <code>rows</code> and <code>cols</code>:</p>
@@ -262,7 +267,7 @@
   <p>Here's a line chart:</p>
 
   <google-chart
-    id='line_chart'
+    id='line-chart'
     type='line'
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
@@ -329,7 +334,7 @@
   <p>Here are three gauges with random data that change every three seconds:</p>
 
   <google-chart
-      id="mutating_gauge"
+      id="mutating-gauge"
       type="gauge"
       data='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'
       options='{"width": 400,
@@ -342,16 +347,22 @@
   </google-chart>
 
   <script>
-    function getRandomGaugeValue(offset, factor) {
-      return offset + Math.round(factor * Math.random());
-    }
+    (function() {
+      function getRandomGaugeValue(offset, factor) {
+        return offset + Math.round(factor * Math.random());
+      }
 
-    window.setInterval(function() {
-      var gauge = document.getElementById('mutating_gauge');
+      var gauge = document.getElementById('mutating-gauge');
 
-      gauge.data = [["Label", "Value"],["Memory", getRandomGaugeValue(40, 60)],["CPU", getRandomGaugeValue(40, 60)],["Network", getRandomGaugeValue(60, 20)]];
-
-    }, 3000);
+      window.setInterval(function() {
+        gauge.data = [
+          ['Label', 'Value'],
+          ['Memory', getRandomGaugeValue(40, 60)],
+          ['CPU', getRandomGaugeValue(40, 60)],
+          ['Network', getRandomGaugeValue(60, 20)]
+        ];
+      }, 3000);
+    }());
   </script>
 
   <p>Here's a treemap:</p>
@@ -390,21 +401,76 @@
              ["Zaire", "Africa", 8]]'>
   </google-chart>
 
+  <p>Here is a chart using a DataTable as its source:</p>
+
+  <google-chart
+      id="source-datatable"
+      type="bar">
+  </google-chart>
+
+  <script>
+    (function() {
+      var chart = document.getElementById('source-datatable');
+      chart.pkg.then(function(viz) {
+        chart.data = viz.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Memory', 10],
+          ['CPU', 12],
+          ['Network', 14]
+        ]);
+      });
+    }());
+  </script>
+
+  <p>Here is a chart using a filtered DataView as its source:</p>
+
+  <google-chart
+      id="source-dataview"
+      type="bar">
+  </google-chart>
+
+  <p>DataViews can be altered, but you'll need to call the <code>drawChart</code> method afterward.</p>
+
+  <script>
+    (function() {
+      var chart = document.getElementById('source-dataview');
+      chart.pkg.then(function(viz) {
+        var dataTable = viz.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Memory', 10],
+          ['CPU', 12],
+          ['Network', 14]
+        ]);
+        chart.view = new google.visualization.DataView(dataTable);
+        var setRandomRow = function() {
+          var rowCount = dataTable.getNumberOfRows();
+          var row = Math.floor(Math.random() * rowCount);
+          var row2 = (row + 1) % rowCount;
+          chart.view.setRows([row, row2]);
+          chart.drawChart();
+        };
+        setInterval(setRandomRow, 3000);
+      });
+    }());
+  </script>
+
   <p>Here's an image of the line chart:</p>
 
-  <div id='line_chart_div'></div>
+  <div id='line-chart-img-container'></div>
 
-    <script>
-    document.addEventListener('WebComponentsReady', function() {
-      var chart_div = document.querySelector('#line_chart_div');
-      var chart = document.querySelector('#line_chart');
+  <script>
+    (function() {
+      var chart = document.getElementById('line-chart');
+      var imgContainer = document.getElementById('line-chart-img-container');
 
       chart.addEventListener('google-chart-render', function() {
-        chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+        var img = document.createElement('img');
+        img.src = chart.getImageURI();
+        imgContainer.innerHTML = '';
+        imgContainer.appendChild(img);
       });
-
-    });
+    }());
   </script>
-  
+
 </body>
 </html>
