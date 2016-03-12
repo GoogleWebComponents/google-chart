@@ -64,8 +64,10 @@ Data can be provided in one of three ways:
 
   // Loads a chart package and then calls the callback.
   var chartConstructor = function(callback, opt_pkg) {
-    return function() {
-      return getChartPackage(opt_pkg).then(callback);
+    return function(chartElement) {
+      return getChartPackage(opt_pkg).then(callback).then(function(ctor) {
+        return new ctor(chartElement);
+      });
     };
   };
 
@@ -140,9 +142,7 @@ Data can be provided in one of three ways:
   // Creates a chart of type on the chartElement.
   // Returns a Promise for the new chart.
   var createChart = function(type, chartElement) {
-    return CHART_CONSTRUCTORS[type]().then(function(ctor) {
-      return new ctor(chartElement);
-    });
+    return CHART_CONSTRUCTORS[type](chartElement);
   };
 
   // We can go ahead and load the defacto package because we'll need it to do
