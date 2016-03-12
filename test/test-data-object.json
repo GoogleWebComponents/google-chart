@@ -1,0 +1,9 @@
+{
+  "cols": [
+    {"label": "Data", "type": "string"},
+    {"label": "Value", "type": "number"}
+  ],
+  "rows": [
+    {"c": ["Someting", 1]}
+  ]
+}
