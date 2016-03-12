@@ -10,79 +10,139 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>google-chart</title>
-
   <script src="../../webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
-  <!-- Step 1: import the element to test -->
   <link rel="import" href="../google-chart.html">
 </head>
 
-  <style>
-    google-chart {
-      height: 300px;
-      width: 400px;
-    }
-  </style>
-
 <body>
 
-  <!-- Basic chart to test with. -->
-  <google-chart
-    id="test-chart"
-    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
-    rows='[["Something", 1]]'>
-  </google-chart>
-  <p></p>
+<test-fixture id="chart-fixture">
+  <template>
+    <google-chart></google-chart>
+  </template>
+</test-fixture>
 
-  <script>
-    var chart = document.querySelector('#test-chart');
-    suite('<google-chart>', function() {
-      test('fires google-chart-render event for initial load', function(done) {
-        chart.addEventListener('google-chart-render', function(event) {
-          event.target.removeEventListener(event.type, arguments.callee);
-          assert.isNotNull(event.detail);
-          done();
-        });
+<script>
+suite('<google-chart>', function() {
+  var chart;
+  setup(function() {
+    chart = fixture('chart-fixture');
+  });
+  suite('Default Functionality', function() {
+    test('fires google-chart-render event for initial load', function(done) {
+      chart.data = [ ['Data', 'Value'], ['Something', 1] ];
+      chart.addEventListener('google-chart-render', function() {
+        done();
       });
-      test('fires google-chart-render event for drawChart call', function(done) {
-        chart.addEventListener('google-chart-render', function(event) {
-          event.target.removeEventListener(event.type, arguments.callee);
-          assert.isNotNull(event.detail);
-          done();
-        });
-        chart.drawChart();
+    });
+    test('fires google-chart-render event for drawChart call', function(done) {
+      var drawCount = 0;
+      chart.data = [ ['Data', 'Value'], ['Something', 1] ];
+      chart.addEventListener('google-chart-render', function() {
+        ++drawCount;
+        if (drawCount == 4) done();
       });
-      test('default type is column', function() {
-        assert.equal(chart.type, 'column');
+      chart.drawChart();  // 2
+      chart.drawChart();  // 3
+      chart.drawChart();  // 4
+    });
+    test('default type is column', function() {
+      assert.equal(chart.type, 'column');
+    });
+    test('can change type', function() {
+      chart.type = 'line';
+    });
+    test('default selection is null', function() {
+      assert.equal(chart.selection, null);
+    });
+    test('can change selection', function() {
+      chart.selection = [{row: 1}];
+    });
+    test('default options are null', function() {
+      assert.equal(chart.options, null);
+    });
+    test('can change options', function() {
+      chart.options = {foo: 'bar'};
+    });
+    test('visualization package loads', function(done) {
+      chart.pkg.then(function() {
+        done();
       });
-      test('specified properties have the correct values', function () {
-        assert.isDefined(chart.cols);
-        assert.isDefined(chart.cols[0]);
-        assert.equal(chart.cols[0].label, 'Data');
-        assert.equal(chart.cols[0].type, 'string');
-        assert.isDefined(chart.cols[1]);
-        assert.equal(chart.cols[1].label, 'Value');
-        assert.equal(chart.cols[1].type, 'number');
-
-        assert.isDefined(chart.rows);
-        assert.isDefined(chart.rows[0]);
-        assert.isDefined(chart.rows[0][0]);
-        assert.equal(chart.rows[0][0], 'Something');
-        assert.isDefined(chart.rows[0][1]);
-        assert.equal(chart.rows[0][1], 1);
-      });
-      test('creates png chart uri', function () {
-        chart.drawChart();
+    });
+    test('creates png chart uri', function (done) {
+      chart.data = [ ['Foo', 'Value'], ['Bar', 1] ];
+      chart.addEventListener('google-chart-render', function(event) {
         var uri = chart.getImageURI();
         assert.isString(uri);
         assert.match(uri, /^data:image\/png;base64/, 'png regexp matches');
+        done();
       });
     });
-  </script>
+  });
+
+  suite('Data Source Types', function() {
+    test('[row] and [cols]', function (done) {
+      chart.cols = [
+        {'label': 'Data', 'type': 'string'},
+        {'label': 'Value', 'type': 'number'}
+      ];
+      chart.rows = [
+        ['Something', 1]
+      ];
+      chart.addEventListener('google-chart-render', function() {
+        done();
+      });
+    });
+    var setDataAndWaitForRender = function(data, done) {
+      chart.data = data;
+      chart.addEventListener('google-chart-render', function() {
+        done();
+      });
+    };
+    test('[data] is 2D Array', function(done) {
+      setDataAndWaitForRender([ ['Data', 'Value'], ['Something', 1] ], done);
+    });
+    test('[data] is DataTable Object format', function(done) {
+      setDataAndWaitForRender({
+        'cols': [
+          {'label': 'Data', 'type': 'string'},
+          {'label': 'Value', 'type': 'number'}
+        ],
+        'rows': [
+          {'c': ['Someting', 1]}
+        ]
+      }, done);
+    });
+    test('[data] is DataTable', function(done) {
+      chart.pkg.then(function(viz) {
+        setDataAndWaitForRender(viz.arrayToDataTable([
+          ['Data', 'Value'],
+          ['Something', 1]
+        ]), done);
+      });
+    });
+    test('[data] is JSON URL for 2D Array', function(done) {
+      setDataAndWaitForRender('test-data-array.json', done);
+    });
+    test('[data] is JSON URL for DataTable Object format', function(done) {
+      setDataAndWaitForRender('test-data-object.json', done);
+    });
+    test('[view] is DataView', function(done) {
+      chart.pkg.then(function(viz) {
+        chart.view = new viz.DataView(viz.arrayToDataTable([
+          ['Data', 'Value'],
+          ['Something', 1]
+        ]));
+        chart.addEventListener('google-chart-render', function() {
+          done();
+        });
+      });
+    });
+  });
+});
+</script>
 
 </body>
 </html>
