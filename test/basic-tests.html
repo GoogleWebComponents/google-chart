@@ -30,16 +30,26 @@ suite('<google-chart>', function() {
   setup(function() {
     chart = fixture('chart-fixture');
   });
+  var waitCheckAndDone = function(check, done) {
+    setTimeout(function() {
+      if (check()) {
+        chart.debounce('done', done, 100);
+      } else {
+        waitCheckAndDone(check, done);
+      }
+    }, 50);
+  };
   suite('Default Functionality', function() {
-    test('fires google-chart-render event for initial load', function(done) {
+    setup(function() {
       chart.data = [ ['Data', 'Value'], ['Something', 1] ];
+    });
+    test('fires google-chart-render event for initial load', function(done) {
       chart.addEventListener('google-chart-render', function() {
         done();
       });
     });
     test('fires google-chart-render event for drawChart call', function(done) {
       var drawCount = 0;
-      chart.data = [ ['Data', 'Value'], ['Something', 1] ];
       chart.addEventListener('google-chart-render', function() {
         ++drawCount;
         if (drawCount == 4) done();
@@ -51,20 +61,32 @@ suite('<google-chart>', function() {
     test('default type is column', function() {
       assert.equal(chart.type, 'column');
     });
-    test('can change type', function() {
+    test('can change type', function(done) {
       chart.type = 'line';
+      waitCheckAndDone(function() {
+        // A circle indicates the chart type change was drawn:
+        return chart.$$('circle');
+      }, done);
     });
     test('default selection is null', function() {
       assert.equal(chart.selection, null);
     });
-    test('can change selection', function() {
-      chart.selection = [{row: 1}];
+    test('can change selection', function(done) {
+      chart.selection = [ {row: 0} ];
+      waitCheckAndDone(function() {
+        // A white stroked rectangle signals the selection was drawn:
+        return chart.$$('rect[stroke="#ffffff"]');
+      }, done);
     });
     test('default options are null', function() {
       assert.equal(chart.options, null);
     });
-    test('can change options', function() {
-      chart.options = {foo: 'bar'};
+    test('can change options', function(done) {
+      var expectedTitle = 'Some Title';
+      chart.options = {'title': expectedTitle};
+      waitCheckAndDone(function() {
+        return chart.$$('text').innerHTML == expectedTitle;
+      }, done);
     });
     test('visualization package loads', function(done) {
       chart.pkg.then(function() {
@@ -72,7 +94,6 @@ suite('<google-chart>', function() {
       });
     });
     test('creates png chart uri', function (done) {
-      chart.data = [ ['Foo', 'Value'], ['Bar', 1] ];
       chart.addEventListener('google-chart-render', function(event) {
         var uri = chart.getImageURI();
         assert.isString(uri);
