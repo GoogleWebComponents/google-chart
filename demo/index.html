@@ -16,7 +16,84 @@
       height: 300px;
       width: 400px;
     }
+  </style>
 
+</head>
+<body>
+
+  <p>A simple <code>google-chart</code> looks like this:</p>
+
+  <google-chart
+    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+    rows='[["Something", 1]]'>
+  </google-chart>
+
+  <p>Charts can be resized with CSS, but you'll need to call the <code>drawChart</code> method when the size changes.</p>
+  <p>Here's a basic responsive example using only CSS and JS (You could also use <code>&lt;iron-media-query&gt;</code>):</p>
+
+  <style>
+    /* Phone and tablet */
+    #resizing-chart {
+      height: 300px;
+      width: 400px;
+    }
+
+    /* Desktop */
+    @media screen and (min-width: 1024px) {
+      #resizing-chart {
+        width: 800px;
+      }
+    }
+  </style>
+
+  <script>
+    var media = window.matchMedia('(min-width: 1024px)');
+
+    media.addListener(function() {
+      document.getElementById('resizing_chart').drawChart();
+    });
+  </script>
+
+  <google-chart
+    id="resizing-chart"
+    type="column"
+    options='{"title": "Responsive chart",
+              "vAxis": {"minValue" : 0, "maxValue": 10}}'
+    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+    rows='[ ["Col1", 5.0],["Col2", 5.0],["Col3", 5.0] ]'>
+  </google-chart>
+
+  <p>Here's a chart that changes data every 3 seconds:</p>
+
+  <google-chart
+    id="mutating-chart"
+    type="column"
+    options='{"title": "Random data",
+              "vAxis": {"minValue" : 0, "maxValue": 10},
+              "animation": {"duration": "1000"}}'
+    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+    rows='[ ["Col1", 5.0],["Col2", 5.0],["Col3", 5.0] ]'>
+  </google-chart>
+
+  <script>
+    (function() {
+      function getRandomValue() {
+        return Math.random() * 10;
+      }
+
+      var chart = document.getElementById('mutating-chart');
+
+      window.setInterval(function() {
+        chart.rows = [["Col1", getRandomValue()],
+                      ["Col2", getRandomValue()],
+                      ["Col3", getRandomValue()]];
+      }, 3000);
+    }());
+  </script>
+
+  <p>Here's a pie chart with an area selection:</p>
+
+  <style>
     #selection-demo {
       position: relative;
       height: 300px;
@@ -32,89 +109,13 @@
       top: 50%;
     }
   </style>
-
-</head>
-<body>
-
-  <p>A simple <code>google-chart</code> looks like this:</p>
-
-  <google-chart
-    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
-    rows='[["Something", 1]]'>
-  </google-chart>
-
-  <p>Charts can be resized with CSS, but you'll need to call the <code>drawChart</code> method when the size changes.</p>
-  <p>Here's a basic responsive example using only CSS and JS. You could also use <code>&lt;iron-media-query&gt;</code>.</p>
-
-  <style>
-    /* Phone and tablet */
-    #resizing_chart {
-      height: 300px;
-      width: 400px;
-    }
-
-    /* Desktop */
-    @media screen and (min-width: 1024px) {
-      #resizing_chart {
-        width: 800px;
-      }
-    }
-  </style>
-
-  <script>
-    var media = window.matchMedia('(min-width: 1024px)');
-
-    media.addListener(function() {
-      document.getElementById('resizing_chart').drawChart();
-    });
-  </script>
-
-  <google-chart
-    id='resizing_chart'
-    type='column'
-    options='{"title": "Responsive chart",
-              "vAxis": {"minValue" : 0, "maxValue": 10}}'
-    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
-    rows='[["Col1", 5.0],["Col2", 5.0],["Col3", 5.0]]'>
-  </google-chart>
-
-  <p>Here's a chart that changes data every 3 seconds:</p>
-
-  <google-chart
-    id='mutating_chart'
-    type='column'
-    options='{"title": "Random data",
-              "vAxis": {"minValue" : 0, "maxValue": 10},
-              "animation": {"duration": "1000"}}'
-    cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
-    rows='[["Col1", 5.0],["Col2", 5.0],["Col3", 5.0]]'>
-  </google-chart>
-
-  <script>
-    (function() {
-      function getRandomValue() {
-        return Math.random() * 10;
-      }
-
-      var chart = document.getElementById('mutating_chart');
-
-      window.setInterval(function() {
-        chart.rows = [["Col1", getRandomValue()],
-                      ["Col2", getRandomValue()],
-                      ["Col3", getRandomValue()]];
-      }, 3000);
-    }());
-  </script>
-
-  <p>Here's a pie chart with an area selection:</p>
-
   <div id="selection-demo">
     <google-chart
-      type="pie"
       id="selection-chart"
+      type="pie"
       options='{"title": "Distribution of days in 2001H1"}'
       cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
-      rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'
+      rows='[ ["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30] ]'
       selection='[{"row": 1}]'>
     </google-chart>
     <div id="selection-display">
@@ -144,7 +145,7 @@
   <p>Here's a chart defined using <code>data</code>, rather than <code>rows</code> and <code>cols</code>:</p>
 
   <google-chart
-    type='column'
+    type="column"
     options='{"title": "Inventory"}'
     data='[["Year", "Things", "Stuff"],
            ["2004", 1000, 400],
@@ -156,17 +157,17 @@
   <p>And one with some pretty complicated styling, where the data is loaded from an external JSON resource using the <code>data</code> attribute:</p>
 
   <google-chart
-    type='column'
+    type="column"
     options='{"title": "Bar height", "legend": "none"}'
-    data='chart-data.json'>
+    data="chart-data.json">
   </google-chart>
 
   <p>Website traffic data by country from an external JSON resource where the data is in raw DataTable format.</p>
 
   <google-chart
-    type='column'
+    type="column"
     options='{"title": "Visitors by Country", "legend": "none"}'
-    data='country-data.json'>
+    data="country-data.json">
   </google-chart>
 
   <h2>Chart gallery</h2>
@@ -174,7 +175,7 @@
   <p>Here's an area chart:</p>
 
   <google-chart
-    type='area'
+    type="area"
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -183,7 +184,7 @@
   <p>Here's a bar chart:</p>
 
   <google-chart
-    type='bar'
+    type="bar"
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -192,8 +193,7 @@
   <p>Here's a bubble chart:</p>
 
   <google-chart
-    type='bubble'
-    options='{}'
+    type="bubble"
     data='[["ID", "Life Expectancy", "Fertility Rate", "Region", "Population"],
            ["CAN", 80.66, 1.67, "North America", 33739900],
            ["DEU", 79.84, 1.36, "Europe",        81902307],
@@ -210,7 +210,7 @@
   <p>Here's a candlestick chart:</p>
 
   <google-chart
-    type='candlestick'
+    type="candlestick"
     options='{"legend": "none"}'
     data='[["Day", "low", "start", "end", "high"],
            ["Mon", 20, 28, 38, 45],
@@ -223,7 +223,7 @@
   <p>Here's a column chart:</p>
 
   <google-chart
-    type='column'
+    type="column"
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -232,7 +232,7 @@
   <p>Here's a combo chart:</p>
 
   <google-chart
-    type='combo'
+    type="combo"
     options='{"seriesType": "bars", "series": {"2": {"type": "line"}}}'
     data='[["Day", "A", "B", "C"],
            ["Mon", 20, 45, 28],
@@ -245,7 +245,7 @@
   <p>Here's a geo chart:</p>
 
   <google-chart
-    type='geo'
+    type="geo"
     data='[["Country", "Popularity"],
            ["Germany", 200],
            ["United States", 300],
@@ -258,7 +258,7 @@
   <p>Here's a histogram:</p>
 
   <google-chart
-    type='histogram'
+    type="histogram"
     options='{"title": "Days in a month", "legend": "none", "histogram": { "bucketSize": 1 }}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -267,8 +267,8 @@
   <p>Here's a line chart:</p>
 
   <google-chart
-    id='line-chart'
-    type='line'
+    id="line-chart"
+    type="line"
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -277,7 +277,7 @@
   <p>Here's a pie chart:</p>
 
   <google-chart
-    type='pie'
+    type="pie"
     options='{"title": "Distribution of days in 2001H1"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -286,7 +286,7 @@
   <p>Here's a scatter chart:</p>
 
   <google-chart
-    type='scatter'
+    type="scatter"
     options='{"legend": "none"}'
     data='[["A", "B"],
            [20, 45],
@@ -299,7 +299,7 @@
   <p>Here's a stepped area chart:</p>
 
   <google-chart
-    type='stepped-area'
+    type="stepped-area"
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
@@ -320,7 +320,7 @@
   <p>Here are three gauges:</p>
 
   <google-chart
-      type='gauge'
+      type="gauge"
       data='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'
       options='{"width": 400,
                 "height": 120,
