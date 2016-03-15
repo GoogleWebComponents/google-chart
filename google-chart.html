@@ -200,7 +200,6 @@ Data can be provided in one of three ways:
        */
       options: {
         type: Object,
-        value: null,
         observer: 'drawChart'
       },
 
@@ -237,7 +236,6 @@ Data can be provided in one of three ways:
        */
       cols: {
         type: Array,
-        value: null,
         observer: '_rowsOrColumnsChanged',
       },
       /**
@@ -257,7 +255,6 @@ Data can be provided in one of three ways:
        */
       rows: {
         type: Array,
-        value: null,
         observer: '_rowsOrColumnsChanged',
       },
 
@@ -283,7 +280,6 @@ Data can be provided in one of three ways:
        */
       data: {
         type: Object, // or array, or object, or string
-        value: null,
         observer: '_dataChanged'
       },
 
@@ -300,7 +296,6 @@ Data can be provided in one of three ways:
        */
       view: {
         type: Object,
-        value: null,
         observer: '_viewChanged'
       },
 
@@ -325,7 +320,6 @@ Data can be provided in one of three ways:
       selection: {
         type: Array,
         notify: true,
-        value: null,
         observer: 'drawChart'
       },
     },
