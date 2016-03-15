@@ -113,6 +113,9 @@ Data can be provided in one of three ways:
     'table': chartConstructor(function(pkg) {
       return pkg.Table;
     }, 'table'),
+    'timeline': chartConstructor(function(pkg) {
+      return pkg.Timeline;
+    }, 'timeline'),
     'gauge': chartConstructor(function(pkg) {
       return pkg.Gauge;
     }, 'gauge'),
@@ -386,6 +389,8 @@ Data can be provided in one of three ways:
               chart.setSelection(this.selection);
             }
             return chart;
+          }.bind(this), function(error) {
+            this.$.chartdiv.innerHTML = error;
           }.bind(this));
     },
 
