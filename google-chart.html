@@ -325,6 +325,26 @@ Data can be provided in one of three ways:
         notify: true,
         observer: '_setSelection'
       },
+
+      /**
+       * The Image URI for the currently displayed graph.
+       *
+       * This value can be used as the `src` attribute of an `img` tag.
+       *
+       * Example:
+       * <pre>
+       *   <img src$="{{imageUri}}">
+       *   <google-chart image-uri="{{imageUri}}"></google-chart>
+       * </pre>
+       *
+       * @attribute image-uri
+       * @type string
+       */
+      imageUri: {
+        type: String,
+        notify: true,
+        readOnly: true
+      }
     },
 
     observers: [],
@@ -405,6 +425,7 @@ Data can be provided in one of three ways:
             var chart = chartAndData[0];
             var data = chartAndData[1];
             google.visualization.events.addOneTimeListener(chart, 'ready', function() {
+              this._setImageUri(this.imageURI);
               this.fire('google-chart-render');
             }.bind(this));
             chart.draw(data, this.options || {});
@@ -423,7 +444,9 @@ Data can be provided in one of three ways:
      *
      * @return {string} Returns image URI.
      */
-    getImageURI: function() {
+    get imageURI() {
+      // Some charts do not support getting an image URI (e.g. Gauge).
+      if (!this._chartObject || !this._chartObject.getImageURI) return null;
       return this._chartObject.getImageURI();
     },
 

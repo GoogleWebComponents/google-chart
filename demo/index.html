@@ -267,7 +267,6 @@
   <p>Here's a line chart:</p>
 
   <google-chart
-    id="line-chart"
     type="line"
     options='{"title": "Days in a month"}'
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
@@ -475,23 +474,49 @@
     }());
   </script>
 
-  <p>Here's an image of the line chart:</p>
+  <p>This demonstrates the ways to get the chart image URI:</p>
 
-  <div id='line-chart-img-container'></div>
+  <dom-module id="my-el">
+    <template>
 
-  <script>
-    (function() {
-      var chart = document.getElementById('line-chart');
-      var imgContainer = document.getElementById('line-chart-img-container');
+      <p>Original chart:</p>
 
-      chart.addEventListener('google-chart-render', function() {
-        var img = document.createElement('img');
-        img.src = chart.getImageURI();
-        imgContainer.innerHTML = '';
-        imgContainer.appendChild(img);
+      <google-chart
+          id="makeAnImgFromMe"
+          image-uri="{{chartImageUri}}"
+          data='[ ["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68] ]'></google-chart>
+      <p>Image created via upward data binding:</p>
+      <img id="imgByUpwardBinding" src$="{{chartImageUri}}">
+
+      <p>Image created via method return value:</p>
+      <img id="imgByEvent">
+
+    </template>
+    <script>
+      HTMLImports.whenReady(function () {
+        Polymer({
+          is: 'my-el',
+          properties: {
+            chartImageUri: {
+              type: String,
+              observer: '_chartImageUriChanged'
+            }
+          },
+          ready: function() {
+            var chart = this.$.makeAnImgFromMe;
+            var imgByEvent = this.$.imgByEvent;
+            chart.addEventListener('google-chart-render', function() {
+              imgByEvent.src = chart.imageUri;
+            });
+          },
+          _chartImageUriChanged: function() {
+            console.log('chartImageUriChanged');
+          }
+        });
       });
-    }());
-  </script>
+    </script>
+  </dom-module>
+  <my-el></my-el>
 
 </body>
 </html>
