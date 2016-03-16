@@ -28,6 +28,30 @@
     rows='[["Something", 1]]'>
   </google-chart>
 
+  <p>A simple <code>google-chart-dashboard</code> looks like this:</p>
+
+  <google-chart-dashboard
+      data='[
+          ["Name", "Donuts eaten"],
+          ["Michael" , 5],
+          ["Elisa", 7],
+          ["Robert", 3],
+          ["John", 2],
+          ["Jessica", 6],
+          ["Aaron", 1],
+          ["Margareth", 8]
+        ]'>
+    <google-chart type="pie" options='{
+            "width": 300,
+            "height": 300,
+            "pieSliceText": "value",
+            "legend": "right"
+          }'></google-chart>
+    <google-chart-control
+        type="number-range-filter"
+        options='{ "filterColumnLabel": "Donuts eaten" }'></google-chart-control>
+  </google-chart-dashboard>
+
   <p>Charts can be resized with CSS, but you'll need to call the <code>drawChart</code> method when the size changes.</p>
   <p>Here's a basic responsive example using only CSS and JS (You could also use <code>&lt;iron-media-query&gt;</code>):</p>
 

@@ -54,6 +54,18 @@ Data can be provided in one of three ways:
     <div id="chartdiv"></div>
   </template>
 </dom-module>
+<dom-module id="google-chart-control">
+  <template>
+    <div id="control"></div>
+  </template>
+</dom-module>
+<dom-module id="google-chart-dashboard">
+  <template>
+    <div id="dashboard">
+      <content></content>
+    </div>
+  </template>
+</dom-module>
 
 <script>
 (function() {
@@ -121,7 +133,10 @@ Data can be provided in one of three ways:
     }, 'gauge'),
     'treemap': chartConstructor(function(pkg) {
       return pkg.TreeMap;
-    }, 'treemap')
+    }, 'treemap'),
+    'dashboard': chartConstructor(function(pkg) {
+      return pkg.Dashboard;
+    }, 'controls')
   };
 
   // A cache of Package Promises so we can re-use them between charts.
@@ -152,60 +167,8 @@ Data can be provided in one of three ways:
   // anything (e.g. creating the DataTable to render).
   var vizPkg = getChartPackage();
 
-  Polymer({
-
-    is: 'google-chart',
-
-    /**
-     * Fired when a new chart type is created and rendered.
-     *
-     * @event google-chart-render
-     */
-
-    /**
-     * Fired when the user makes a selection in the chart.
-     *
-     * @event google-chart-select
-     * @param {object} detail
-     *   @param {array} detail.selection The user-defined selection.
-     */
-
+  var DataLoadingBehavior = {
     properties: {
-      /**
-       * Sets the type of the chart.
-       *
-       * Should be one of:
-       * - `area`, `bar`, `bubble`, `candlestick`, `column`, `combo`, `geo`,
-       *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`, `treemap`
-       *
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
-       *
-       */
-      type: {
-        type: String,
-        value: 'column',
-        observer: '_typeChanged'
-      },
-
-      /**
-       * Sets the options for the chart.
-       *
-       * Example:
-       * <pre>{
-       *   title: "Chart title goes here",
-       *   hAxis: {title: "Categories"},
-       *   vAxis: {title: "Values", minValue: 0, maxValue: 2},
-       *   legend: "none"
-       * };</pre>
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
-       * for the options available to each chart type.
-       *
-       */
-      options: {
-        type: Object,
-        observer: 'drawChart'
-      },
-
       /**
        * A Promise for the Google Visualization library.
        *
@@ -300,116 +263,16 @@ Data can be provided in one of three ways:
       view: {
         type: Object,
         observer: '_viewChanged'
-      },
-
-      /**
-       * Selected datapoint(s) in the map.
-       *
-       * An array of objects, each with a numeric row and/or column property.
-       * `row` and `column` are the zero-based row or column number of an item
-       * in the data table to select.
-       *
-       * To select a whole column, set row to null;
-       * to select a whole row, set column to null.
-       *
-       * Example:
-       * <pre>
-       *   [{row:0,column:1}, {row:1, column:null}]
-       * </pre>
-       *
-       * @attribute selection
-       * @type array
-       */
-      selection: {
-        type: Array,
-        notify: true,
-        observer: 'drawChart'
-      },
+      }
     },
-
-    observers: [],
-
-    // Used to get the ImageURI to maintain the old API.
-    _chartObject: null,  // not accessible before render event.
-
-    // Promise for the chart object that we will draw.
-    _chart: null,
-
     // Promise for the DataView with which the chart is drawn.
     _dataView: null,
-
-    // The chart type was changed.
-    // We need to create a new chart and redraw.
-    _typeChanged: function() {
-      this._chart = this._createChart();
-      this.drawChart();
-    },
-
-    // Creates the Google Chart object of a particular type.
-    // @return {Promise} The Promise for the created Google Chart.
-    _createChart: function() {
-      var setupChart = function(chart) {
-        google.visualization.events.addListener(chart, 'select', function() {
-          this.selection = chart.getSelection();
-          // This should be deprecated.
-          // The value for the new selection is here:
-          // event.detail.selection
-          // with property notification, the path is:
-          // event.detail.value
-          this.fire('google-chart-select', {
-             selection: this.selection
-          });
-        }.bind(this));
-        this._chartObject = chart;
-        return chart;
-      }.bind(this);
-      return createChart(this.type, this.$.chartdiv).then(setupChart);
-    },
-
-    /**
-     * Redraws the chart.
-     *
-     * Called automatically when data/type/selection attributes change.
-     * Call manually to handle view updates, page resizes, etc.
-     *
-     * @method drawChart
-     */
-    drawChart: function() {
-      if (!this._chart || !this._dataView) return;
-      Promise.all([this._chart, this._dataView])
-          .then(function(chartAndData) {
-            var chart = chartAndData[0];
-            var data = chartAndData[1];
-            google.visualization.events.addOneTimeListener(chart, 'ready', function() {
-              this.fire('google-chart-render');
-            }.bind(this));
-            chart.draw(data, this.options || {});
-            if (this.selection && chart.setSelection) {
-              // Note: Some charts (e.g. TreeMap) must have a selection.
-              chart.setSelection(this.selection);
-            }
-            return chart;
-          }.bind(this), function(error) {
-            this.$.chartdiv.innerHTML = error;
-          }.bind(this));
-    },
-
-    /**
-     * Returns the chart serialized as an image URI.
-     *
-     * Call this after the chart is drawn (google-chart-render event).
-     *
-     * @return {string} Returns image URI.
-     */
-    getImageURI: function() {
-      return this._chartObject.getImageURI();
-    },
 
     // Handles changes to the DataView object attribute.
     _viewChanged: function() {
       if (!this.view) return;
       this._dataView = Promise.resolve(this.view);
-      this.drawChart();
+      this.draw();
     },
 
     // Handles changes to the rows & columns attributes.
@@ -424,7 +287,7 @@ Data can be provided in one of three ways:
         dataTable.addRows(rows);
         return new viz.DataView(dataTable);
       });
-      this.drawChart();
+      this.draw();
     },
 
     // Handles changes to the data attribute.
@@ -464,7 +327,238 @@ Data can be provided in one of three ways:
       this._dataView = dataTable.then(function(dataTable) {
         return new google.visualization.DataView(dataTable);
       });
+      this.draw();
+    },
+    draw: function() {
+      throw Error('Should be overridden');
+    }
+  };
+
+  Polymer({
+
+    is: 'google-chart',
+    behaviors: [DataLoadingBehavior],
+
+    /**
+     * Fired when a new chart type is created and rendered.
+     *
+     * @event google-chart-render
+     */
+
+    /**
+     * Fired when the user makes a selection in the chart.
+     *
+     * @event google-chart-select
+     * @param {object} detail
+     *   @param {array} detail.selection The user-defined selection.
+     */
+
+    properties: {
+      /**
+       * Sets the type of the chart.
+       *
+       * Should be one of:
+       * - `area`, `bar`, `bubble`, `candlestick`, `column`, `combo`, `geo`,
+       *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`, `treemap`
+       *
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
+       *
+       */
+      type: {
+        type: String,
+        value: 'column',
+        observer: '_typeChanged'
+      },
+
+      /**
+       * Sets the options for the chart.
+       *
+       * Example:
+       * <pre>{
+       *   title: "Chart title goes here",
+       *   hAxis: {title: "Categories"},
+       *   vAxis: {title: "Values", minValue: 0, maxValue: 2},
+       *   legend: "none"
+       * };</pre>
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
+       * for the options available to each chart type.
+       *
+       */
+      options: {
+        type: Object,
+        observer: 'drawChart'
+      },
+
+      /**
+       * Selected datapoint(s) in the map.
+       *
+       * An array of objects, each with a numeric row and/or column property.
+       * `row` and `column` are the zero-based row or column number of an item
+       * in the data table to select.
+       *
+       * To select a whole column, set row to null;
+       * to select a whole row, set column to null.
+       *
+       * Example:
+       * <pre>
+       *   [{row:0,column:1}, {row:1, column:null}]
+       * </pre>
+       *
+       * @attribute selection
+       * @type array
+       */
+      selection: {
+        type: Array,
+        notify: true,
+        observer: 'drawChart'
+      },
+    },
+
+    observers: [],
+
+    // Used to get the ImageURI to maintain the old API.
+    _chartObject: null,  // not accessible before render event.
+
+    // Promise for the chart object that we will draw.
+    _chart: null,
+
+    // The chart type was changed.
+    // We need to create a new chart and redraw.
+    _typeChanged: function() {
+      this._chart = this._createChart();
       this.drawChart();
+    },
+
+    // Creates the Google Chart object of a particular type.
+    // @return {Promise} The Promise for the created Google Chart.
+    _createChart: function() {
+      var setupChart = function(chart) {
+        google.visualization.events.addListener(chart, 'select', function() {
+          this.selection = chart.getSelection();
+          // This should be deprecated.
+          // The value for the new selection is here:
+          // event.detail.selection
+          // with property notification, the path is:
+          // event.detail.value
+          this.fire('google-chart-select', {
+             selection: this.selection
+          });
+        }.bind(this));
+        this._chartObject = chart;
+        return chart;
+      }.bind(this);
+      return createChart(this.type, this.$.chartdiv).then(setupChart);
+    },
+
+    /**
+     * Redraws the chart.
+     *
+     * Called automatically when data/type/selection attributes change.
+     * Call manually to handle view updates, page resizes, etc.
+     *
+     * @method drawChart
+     */
+    draw: function() {
+      if (!this._chart || !this._dataView) return;
+      Promise.all([this._chart, this._dataView])
+          .then(function(chartAndData) {
+            var chart = chartAndData[0];
+            var data = chartAndData[1];
+            google.visualization.events.addOneTimeListener(chart, 'ready', function() {
+              this.fire('google-chart-render');
+            }.bind(this));
+            chart.draw(data, this.options || {});
+            if (this.selection && chart.setSelection) {
+              // Note: Some charts (e.g. TreeMap) must have a selection.
+              chart.setSelection(this.selection);
+            }
+            return chart;
+          }.bind(this), function(error) {
+            this.$.chartdiv.innerHTML = error;
+          }.bind(this));
+    },
+
+    drawChart: function() {
+      this.draw();
+    },
+
+    /**
+     * Returns the chart serialized as an image URI.
+     *
+     * Call this after the chart is drawn (google-chart-render event).
+     *
+     * @return {string} Returns image URI.
+     */
+    getImageURI: function() {
+      return this._chartObject.getImageURI();
+    },
+
+  });
+  Polymer({
+    is: 'google-chart-control',
+    properties: {
+      type: {
+        type: String
+      },
+      options: {
+        type: Object
+      }
+    }
+  });
+  var CHART_TYPES = {
+    'bar': 'BarChart',
+    'column': 'ColumnChart',
+    'pie': 'PieChart',
+    'md-bar': 'google.charts.Bar'
+  };
+  var CONTROL_TYPES = {
+    'number-range-filter': 'NumberRangeFilter'
+  };
+  var DEFACTO_CHART_TYPE = 'column';
+  Polymer({
+    is: 'google-chart-dashboard',
+    behaviors: [DataLoadingBehavior],
+    properties: {
+    },
+    _dashboard: null,
+    draw: function() {
+      if (!this._dataView || !this._dashboard) return;
+      Promise.all([this._dashboard, this._dataView]).then(function(dashboardAndData) {
+        var dashboard = dashboardAndData[0];
+        var data = dashboardAndData[1];
+        dashboard.draw(data, this.options);
+      }.bind(this));
+    },
+    ready: function() {
+      this._dashboard = createChart('dashboard', this.$.dashboard).then(function(dashboard) {
+        console.log('controls', Polymer.dom(this).querySelectorAll('google-chart-control'));
+        var id = 0;
+        var charts = Polymer.dom(this).querySelectorAll('google-chart').map(function(chart) {
+          if (!chart.id) {
+            chart.id = 'chart-' + ++id;
+          }
+          console.log('chart', chart);
+          return new google.visualization.ChartWrapper({
+            chartType: CHART_TYPES[chart.type] || DEFACTO_CHART_TYPE,
+            containerId: chart.id
+          });
+        });
+        id = 0;
+        var controls = Polymer.dom(this).querySelectorAll('google-chart-control').map(function(control) {
+          if (!control.id) {
+            control.id = 'control-' + ++id;
+          }
+          return new google.visualization.ControlWrapper({
+            controlType: CONTROL_TYPES[control.type],
+            containerId: control.id,
+            options: control.options || {filterColumnIndex: 1, ui: {chartView: {columns: [0, 1]}}},
+            state: control.state || {}
+          });
+        });
+        dashboard.bind(controls, charts);
+        return dashboard;
+      }.bind(this));
+      this.draw();
     }
   });
 })();
