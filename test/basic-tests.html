@@ -104,7 +104,7 @@ suite('<google-chart>', function() {
   });
 
   suite('Data Source Types', function() {
-    test('[row] and [cols]', function (done) {
+    test('[rows] and [cols]', function (done) {
       chart.cols = [
         {'label': 'Data', 'type': 'string'},
         {'label': 'Value', 'type': 'number'}
@@ -115,6 +115,17 @@ suite('<google-chart>', function() {
       chart.addEventListener('google-chart-render', function() {
         done();
       });
+    });
+
+    test('[rows] and [cols] with date string repr is broken', function(done) {
+      chart.cols = [ { 'type': 'date' } ];
+      chart.rows = [ ['Date(1789, 3, 30)'] ];
+      waitCheckAndDone(function() {
+        console.log(chart.$$('#chartdiv').innerHTML)
+        return chart.$$('#chartdiv').innerHTML ==
+          'Error: Type mismatch. Value Date(1789, 3, 30) ' +
+          'does not match type date in column index 0';
+      }, done);
     });
     var setDataAndWaitForRender = function(data, done) {
       chart.data = data;
