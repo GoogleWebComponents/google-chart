@@ -314,8 +314,25 @@
            ["2004", 1000, 400],
            ["2005", 1170, 460],
            ["2006", 660, 1120],
-           ["2007", 1030, 540]]'>
-  </google-chart>
+           ["2007", 1030, 540]]'></google-chart>
+
+  <p>Here's a timeline chart:</p>
+
+  <google-chart id="timeline" type="timeline"></google-chart>
+
+  <script>
+    (function() {
+      var chart = document.getElementById('timeline');
+      chart.pkg.then(function(viz) {
+        chart.data = [
+          ['Name', 'Start', 'End'],
+          ['Washington', new Date(1789, 3, 30), new Date(1797, 2, 4)],
+          ['Adams', new Date(1797, 2, 4), new Date(1801, 2, 4)],
+          ['Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4)]
+        ];
+      });
+    }());
+  </script>
 
   <p>Here are three gauges:</p>
 
