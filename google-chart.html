@@ -323,7 +323,7 @@ Data can be provided in one of three ways:
       selection: {
         type: Array,
         notify: true,
-        observer: 'drawChart'
+        observer: '_setSelection'
       },
     },
 
@@ -338,19 +338,43 @@ Data can be provided in one of three ways:
     // Promise for the DataView with which the chart is drawn.
     _dataView: null,
 
+    // Promise for the drawn chart.
+    _chartDrawn: null,
+
+    // The current selection in the chart.
+    _selection: null,
+
     // The chart type was changed.
     // We need to create a new chart and redraw.
     _typeChanged: function() {
-      this._chart = this._createChart();
+      this._chart = createChart(this.type, this.$.chartdiv)
+          .then(this._setupChart.bind(this));
       this.drawChart();
     },
 
-    // Creates the Google Chart object of a particular type.
-    // @return {Promise} The Promise for the created Google Chart.
-    _createChart: function() {
-      var setupChart = function(chart) {
+    _setSelection: function() {
+      // Note: Some charts (e.g. TreeMap) must have a selection.
+      if (!this.selection ||
+          this.selection === this._selection ||
+          !this._chartDrawn) {
+        return;
+      }
+      this._selection = this.selection;
+
+      this._chartDrawn.then(function(chart) {
+        if (chart.setSelection) {
+          chart.setSelection(this.selection);
+        }
+      }.bind(this));
+    },
+
+    // Sets up a chart after construction.
+    // @return {Object} The chart.
+    _setupChart: function(chart) {
+      // Some charts (e.g. Gauge) do not support selection
+      if (chart.getSelection) {
         google.visualization.events.addListener(chart, 'select', function() {
-          this.selection = chart.getSelection();
+          this.selection = this._selection = chart.getSelection();
           // This should be deprecated.
           // The value for the new selection is here:
           // event.detail.selection
@@ -360,10 +384,10 @@ Data can be provided in one of three ways:
              selection: this.selection
           });
         }.bind(this));
-        this._chartObject = chart;
-        return chart;
-      }.bind(this);
-      return createChart(this.type, this.$.chartdiv).then(setupChart);
+      }
+      this._chartObject = chart;
+      this._selection = null;  // Reset the internal selection value.
+      return chart;
     },
 
     /**
@@ -376,7 +400,7 @@ Data can be provided in one of three ways:
      */
     drawChart: function() {
       if (!this._chart || !this._dataView) return;
-      Promise.all([this._chart, this._dataView])
+      this._chartDrawn = Promise.all([this._chart, this._dataView])
           .then(function(chartAndData) {
             var chart = chartAndData[0];
             var data = chartAndData[1];
@@ -384,14 +408,12 @@ Data can be provided in one of three ways:
               this.fire('google-chart-render');
             }.bind(this));
             chart.draw(data, this.options || {});
-            if (this.selection && chart.setSelection) {
-              // Note: Some charts (e.g. TreeMap) must have a selection.
-              chart.setSelection(this.selection);
-            }
             return chart;
           }.bind(this), function(error) {
             this.$.chartdiv.innerHTML = error;
+            throw error;
           }.bind(this));
+      this._setSelection();
     },
 
     /**
