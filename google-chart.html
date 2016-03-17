@@ -1,7 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-request.html">
 <link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" xsrc="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <!--
 `google-chart` encapsulates Google Charts as a web component, allowing you to easily visualize
@@ -9,7 +10,7 @@ data. From simple line charts to complex hierarchical tree maps, the chart eleme
 number of ready-to-use chart types.
 
     <google-chart
-      type='pie'
+      type="pie"
       options='{"title": "Distribution of days in 2001Q1"}'
       cols='[{"label":"Month", "type":"string"}, {"label":"Days", "type":"number"}]'
       rows='[["Jan", 31],["Feb", 28],["Mar", 31]]'>
@@ -51,7 +52,8 @@ Data can be provided in one of three ways:
   <link rel="import" type="css" href="google-chart.css">
   <template>
     <iron-request id="xhr"></iron-request>
-    <div id="chartdiv"></div>
+    <div id="chart"></div>
+    <div id="error"></div>
   </template>
 </dom-module>
 
@@ -59,101 +61,45 @@ Data can be provided in one of three ways:
 (function() {
   "use strict";
 
-  // Most charts use this package.
-  var DEFACTO_CHART_PACKAGE = 'corechart';
-
-  // Loads a chart package and then calls the callback.
-  var chartConstructor = function(callback, opt_pkg) {
-    return function(chartElement) {
-      return getChartPackage(opt_pkg).then(callback).then(function(ctor) {
-        return new ctor(chartElement);
-      });
-    };
-  };
-
   // A collection of chart types associated with a function that returns a
   // Promise for the chart type's constructor.
-  var CHART_CONSTRUCTORS = {
-    'area': chartConstructor(function(pkg) {
-      return pkg.AreaChart;
-    }),
-    'bar': chartConstructor(function(pkg) {
-      return pkg.BarChart;
-    }),
-    'bubble': chartConstructor(function(pkg) {
-      return pkg.BubbleChart;
-    }),
-    'candlestick': chartConstructor(function(pkg) {
-      return pkg.CandlestickChart;
-    }),
-    'column': chartConstructor(function(pkg) {
-      return pkg.ColumnChart;
-    }),
-    'combo': chartConstructor(function(pkg) {
-      return pkg.ComboChart;
-    }),
-    'geo': chartConstructor(function(pkg) {
-      return pkg.GeoChart;
-    }),
-    'histogram': chartConstructor(function(pkg) {
-      return pkg.Histogram;
-    }),
-    'line': chartConstructor(function(pkg) {
-      return pkg.LineChart;
-    }),
-    'pie': chartConstructor(function(pkg) {
-      return pkg.PieChart;
-    }),
-    'scatter': chartConstructor(function(pkg) {
-      return pkg.ScatterChart;
-    }),
-    'stepped-area': chartConstructor(function(pkg) {
-      return pkg.SteppedAreaChart;
-    }),
-    'table': chartConstructor(function(pkg) {
-      return pkg.Table;
-    }, 'table'),
-    'timeline': chartConstructor(function(pkg) {
-      return pkg.Timeline;
-    }, 'timeline'),
-    'gauge': chartConstructor(function(pkg) {
-      return pkg.Gauge;
-    }, 'gauge'),
-    'treemap': chartConstructor(function(pkg) {
-      return pkg.TreeMap;
-    }, 'treemap')
+  var CHART_TYPES = {
+    'area': 'AreaChart',
+    'bar': 'BarChart',
+    'bubble': 'BubbleChart',
+    'candlestick': 'CandlestickChart',
+    'column': 'ColumnChart',
+    'combo': 'ComboChart',
+    'gauge': 'Gauge',
+    'geo': 'GeoChart',
+    'histogram': 'Histogram',
+    'line': 'LineChart',
+    'pie': 'PieChart',
+    'scatter': 'ScatterChart',
+    'stepped-area': 'SteppedAreaChart',
+    'table': 'Table',
+    'timeline': 'Timeline',
+    'treemap': 'TreeMap',
+    // Material Charts:
+    'md-bar': 'google.charts.Bar',
+    'md-gantt': 'google.charts.Gantt',
+    'md-scatter': 'google.charts.Scatter'
   };
 
-  // A cache of Package Promises so we can re-use them between charts.
-  var pkgPromises = {};
-
-  // Returns a Promise for a Chart package.
-  var getChartPackage = function(opt_pkg) {
-    var pkg = opt_pkg || DEFACTO_CHART_PACKAGE;
-    if (pkgPromises[pkg]) return pkgPromises[pkg];
-    pkgPromises[pkg] = new Promise(function(resolve) {
-      google.load('visualization', '1', {
-        packages: [pkg],
-        callback: function() {
-          resolve(google.visualization);
-        }
-      });
+  var vizPkg = new Promise(function(resolve, reject) {
+    google.charts.load('43', {packages: ['corechart']});
+    google.charts.setOnLoadCallback(function() {
+      resolve(google.visualization);
     });
-    return pkgPromises[pkg];
-  };
-
-  // Creates a chart of type on the chartElement.
-  // Returns a Promise for the new chart.
-  var createChart = function(type, chartElement) {
-    return CHART_CONSTRUCTORS[type](chartElement);
-  };
-
-  // We can go ahead and load the defacto package because we'll need it to do
-  // anything (e.g. creating the DataTable to render).
-  var vizPkg = getChartPackage();
+    return;
+    google.load('visualization', '1.2', {
+      callback: function() {
+        resolve(google.visualization);
+      }
+    });
+  });
 
   Polymer({
-
     is: 'google-chart',
 
     /**
@@ -162,21 +108,30 @@ Data can be provided in one of three ways:
      * @event google-chart-render
      */
 
-    /**
-     * Fired when the user makes a selection in the chart.
-     *
-     * @event google-chart-select
-     * @param {object} detail
-     *   @param {array} detail.selection The user-defined selection.
-     */
-
     properties: {
       /**
        * Sets the type of the chart.
        *
        * Should be one of:
-       * - `area`, `bar`, `bubble`, `candlestick`, `column`, `combo`, `geo`,
-       *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`, `treemap`
+       * - `area`,
+       * - `bar`
+       * - `bubble`
+       * - `candlestick`
+       * - `column`
+       * - `combo`
+       * - `gauge`
+       * - `geo`
+       * - `histogram`
+       * - `line`
+       * - `pie`
+       * - `scatter`
+       * - `stepped-area`
+       * - `table`
+       * - `timeline`
+       * - `treemap`
+       * - `md-bar`
+       * - `md-gantt`
+       * - `md-scatter`
        *
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
        *
@@ -204,22 +159,6 @@ Data can be provided in one of three ways:
       options: {
         type: Object,
         observer: 'drawChart'
-      },
-
-      /**
-       * A Promise for the Google Visualization library.
-       *
-       * Example:
-       * <pre>myChart.pkg.then(function(viz) {
-       *   // `viz` is equivalent to `google.visualization`
-       *   myChart.view = new viz.DataView(myData);
-       * });</pre>
-       *
-       */
-      pkg: {
-        type: Object,
-        value: vizPkg,
-        readOnly: true
       },
 
       /**
@@ -344,10 +283,18 @@ Data can be provided in one of three ways:
     // The current selection in the chart.
     _selection: null,
 
+    pkg: vizPkg,
+
     // The chart type was changed.
     // We need to create a new chart and redraw.
     _typeChanged: function() {
-      this._chart = createChart(this.type, this.$.chartdiv)
+      this._chart = vizPkg.then(function() {
+        return new google.visualization.ChartWrapper({
+          chartType: CHART_TYPES[this.type],
+          containerId: this.$.chart,
+          options: this.options
+        });
+      }.bind(this))
           .then(this._setupChart.bind(this));
       this.drawChart();
     },
@@ -374,7 +321,8 @@ Data can be provided in one of three ways:
       // Some charts (e.g. Gauge) do not support selection
       if (chart.getSelection) {
         google.visualization.events.addListener(chart, 'select', function() {
-          this.selection = this._selection = chart.getSelection();
+          this.selection = chart.getChart().getSelection();
+          this._selection = this.selection;
           // This should be deprecated.
           // The value for the new selection is here:
           // event.detail.selection
@@ -390,6 +338,14 @@ Data can be provided in one of three ways:
       return chart;
     },
 
+    get chart() {
+      return this._chart || Promise.reject('No chart');
+    },
+
+    get dataView() {
+      return this._dataView || Promise.reject('No data');
+    },
+
     /**
      * Redraws the chart.
      *
@@ -399,21 +355,25 @@ Data can be provided in one of three ways:
      * @method drawChart
      */
     drawChart: function() {
-      if (!this._chart || !this._dataView) return;
-      this._chartDrawn = Promise.all([this._chart, this._dataView])
-          .then(function(chartAndData) {
-            var chart = chartAndData[0];
-            var data = chartAndData[1];
-            google.visualization.events.addOneTimeListener(chart, 'ready', function() {
-              this.fire('google-chart-render');
-            }.bind(this));
-            chart.draw(data, this.options || {});
-            return chart;
-          }.bind(this), function(error) {
-            this.$.chartdiv.innerHTML = error;
-            throw error;
-          }.bind(this));
-      this._setSelection();
+      Promise.all([this.chart, this.dataView]).then(function(chartAndData) {
+        var chart = chartAndData[0];
+        var data = chartAndData[1];
+        google.visualization.events.addOneTimeListener(chart, 'ready', function() {
+          if (this.selection && chart.getChart().setSelection) {
+            // Note: Some charts (e.g. TreeMap) must have a selection.
+            chart.getChart().setSelection(this.selection);
+          }
+          this.fire('google-chart-render');
+        }.bind(this));
+        chart.setDataTable(data);
+        chart.draw();
+        return chart;
+      }.bind(this))
+      .then(function() {
+        this.$.error.innerHTML = '';
+      }.bind(this), function(error) {
+        this.$.error.innerHTML = error;
+      }.bind(this));
     },
 
     /**
@@ -424,7 +384,8 @@ Data can be provided in one of three ways:
      * @return {string} Returns image URI.
      */
     getImageURI: function() {
-      return this._chartObject.getImageURI();
+      var chart = this._chartObject.getChart();
+      return chart ? chart.getImageURI() : null;
     },
 
     // Handles changes to the DataView object attribute.
