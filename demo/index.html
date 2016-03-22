@@ -130,7 +130,7 @@
 
       label.textContent = chart.selection[0].row;
 
-      document.addEventListener('google-chart-select', function(e) {
+      chart.addEventListener('google-chart-select', function(e) {
         var newSelection = e.detail.selection[0];  // From the event details
         label.textContent = newSelection ? newSelection.row : 'None';
       });
@@ -309,12 +309,16 @@
 
   <google-chart
     type="table"
-    options='{"title": "Inventory"}'
+    options='{"title": "Inventory", "page": "enable", "pageSize": 4}'
     data='[["Year", "Things", "Stuff"],
            ["2004", 1000, 400],
            ["2005", 1170, 460],
            ["2006", 660, 1120],
-           ["2007", 1030, 540]]'></google-chart>
+           ["2007", 1030, 540],
+           ["2008", 1000, 400],
+           ["2009", 1170, 460],
+           ["2010", 660, 1120],
+           ["2011", 1030, 540]]'></google-chart>
 
   <p>Here's a timeline chart:</p>
 
