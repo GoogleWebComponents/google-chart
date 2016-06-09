@@ -20,7 +20,9 @@
 
 <test-fixture id="chart-fixture">
   <template>
-    <google-chart></google-chart>
+    <google-chart>
+      <p>Some alternative</p>
+    </google-chart>
   </template>
 </test-fixture>
 
@@ -42,6 +44,9 @@ suite('<google-chart>', function() {
   suite('Default Functionality', function() {
     setup(function() {
       chart.data = [ ['Data', 'Value'], ['Something', 1] ];
+    });
+    test('render alternative content', function() {
+      assert.equal(chart.querySelectorAll('p').length, 1);
     });
     test('fires google-chart-render event for initial load', function(done) {
       chart.addEventListener('google-chart-render', function() {
