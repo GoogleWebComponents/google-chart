@@ -132,7 +132,7 @@ Data can be provided in one of three ways:
     var pkg = opt_pkg || DEFACTO_CHART_PACKAGE;
     if (pkgPromises[pkg]) return pkgPromises[pkg];
     pkgPromises[pkg] = new Promise(function(resolve) {
-      google.charts.load('44', {packages: [pkg]});
+      google.charts.load('current', {packages: [pkg]});
       google.charts.setOnLoadCallback(function() {
         resolve(google.visualization);
       });
