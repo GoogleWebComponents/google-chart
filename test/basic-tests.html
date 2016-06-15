@@ -101,6 +101,18 @@ suite('<google-chart>', function() {
         done();
       });
     });
+    test('can render multiple instances', function (done) {
+      var secondChart = document.createElement('google-chart');
+      secondChart.data = [ ['Data', 'Value'], ['Something', 1] ];
+
+      // Ensure second chart is rendered. Clean up test.
+      secondChart.addEventListener('google-chart-render', function() {
+        document.body.removeChild(secondChart);
+        done();
+      });
+
+      document.body.appendChild(secondChart);
+    });
   });
 
   suite('Data Source Types', function() {
