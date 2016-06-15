@@ -50,7 +50,6 @@ Data can be provided in one of three ways:
 <dom-module id="google-chart">
   <link rel="import" type="css" href="google-chart.css">
   <template>
-    <iron-request id="xhr"></iron-request>
     <div id="chartdiv"></div>
   </template>
 </dom-module>
@@ -454,7 +453,8 @@ Data can be provided in one of three ways:
       var dataTable;
       if (typeof data == 'string' || data instanceof String) {
         // Load data asynchronously, from external URL.
-        dataTable = this.$.xhr.send({url: data, handleAs: 'json'})
+        var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
+        dataTable = request.send({url: data, handleAs: 'json'})
             .then(function(xhr) {
               return xhr.response;
             });

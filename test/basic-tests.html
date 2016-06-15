@@ -184,6 +184,10 @@ suite('<google-chart>', function() {
         });
       });
     });
+    test('multiple calls to JSON URL', function(done) {
+      setDataAndWaitForRender('test-data-array.json', done);
+      setDataAndWaitForRender('test-data-object.json', done);
+    });
   });
 });
 </script>
