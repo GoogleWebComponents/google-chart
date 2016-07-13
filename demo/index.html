@@ -46,14 +46,6 @@
     }
   </style>
 
-  <script>
-    var media = window.matchMedia('(min-width: 1024px)');
-
-    media.addListener(function() {
-      document.getElementById('resizing_chart').drawChart();
-    });
-  </script>
-
   <google-chart
     id="resizing-chart"
     type="column"
@@ -62,6 +54,14 @@
     cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
     rows='[ ["Col1", 5.0],["Col2", 5.0],["Col3", 5.0] ]'>
   </google-chart>
+
+  <script>
+    var media = window.matchMedia('(min-width: 1024px)');
+
+    media.addListener(function() {
+      document.getElementById('resizing-chart').drawChart();
+    });
+  </script>
 
   <p>Here's a chart that changes data every 3 seconds:</p>
 
@@ -131,7 +131,7 @@
       label.textContent = chart.selection[0].row;
 
       chart.addEventListener('google-chart-select', function(e) {
-        var newSelection = e.detail.selection[0];  // From the event details
+        var newSelection = e.detail.chart.getSelection()[0];  // From the event details
         label.textContent = newSelection ? newSelection.row : 'None';
       });
 
@@ -327,13 +327,13 @@
   <script>
     (function() {
       var chart = document.getElementById('timeline');
-      chart.pkg.then(function(viz) {
-        chart.data = [
-          ['Name', 'Start', 'End'],
-          ['Washington', new Date(1789, 3, 30), new Date(1797, 2, 4)],
-          ['Adams', new Date(1797, 2, 4), new Date(1801, 2, 4)],
-          ['Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4)]
-        ];
+      document.createElement('google-chart-loader').dataTable([
+        ['Name', 'Start', 'End'],
+        ['Washington', new Date(1789, 3, 30), new Date(1797, 2, 4)],
+        ['Adams', new Date(1797, 2, 4), new Date(1801, 2, 4)],
+        ['Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4)]
+      ]).then(function(dataTable) {
+        chart.data = dataTable;
       });
     }());
   </script>
@@ -432,13 +432,13 @@
   <script>
     (function() {
       var chart = document.getElementById('source-datatable');
-      chart.pkg.then(function(viz) {
-        chart.data = viz.arrayToDataTable([
-          ['Label', 'Value'],
-          ['Memory', 10],
-          ['CPU', 12],
-          ['Network', 14]
-        ]);
+      document.createElement('google-chart-loader').dataTable([
+        ['Label', 'Value'],
+        ['Memory', 10],
+        ['CPU', 12],
+        ['Network', 14]
+      ]).then(function(dataTable) {
+        chart.data = dataTable;
       });
     }());
   </script>
@@ -455,40 +455,39 @@
   <script>
     (function() {
       var chart = document.getElementById('source-dataview');
-      chart.pkg.then(function(viz) {
-        var dataTable = viz.arrayToDataTable([
-          ['Label', 'Value'],
-          ['Memory', 10],
-          ['CPU', 12],
-          ['Network', 14]
-        ]);
-        chart.view = new google.visualization.DataView(dataTable);
-        var setRandomRow = function() {
-          var rowCount = dataTable.getNumberOfRows();
-          var row = Math.floor(Math.random() * rowCount);
-          var row2 = (row + 1) % rowCount;
-          chart.view.setRows([row, row2]);
-          chart.drawChart();
-        };
-        setInterval(setRandomRow, 3000);
+      var loader = document.createElement('google-chart-loader');
+      loader.dataTable([
+        ['Label', 'Value'],
+        ['Memory', 10],
+        ['CPU', 12],
+        ['Network', 14]
+      ]).then(function(dataTable) {
+        loader.dataView(dataTable).then(function(dataView) {
+          chart.view = dataView;
+          var setRandomRow = function() {
+            var rowCount = dataTable.getNumberOfRows();
+            var row = Math.floor(Math.random() * rowCount);
+            var row2 = (row + 1) % rowCount;
+            chart.view.setRows([row, row2]);
+            chart.drawChart();
+          };
+          setInterval(setRandomRow, 3000);
+        });
       });
     }());
   </script>
 
   <p>Here's an image of the line chart:</p>
 
-  <div id='line-chart-img-container'></div>
+  <img id="line-chart-img">
 
   <script>
     (function() {
       var chart = document.getElementById('line-chart');
-      var imgContainer = document.getElementById('line-chart-img-container');
+      var img = document.getElementById('line-chart-img');
 
-      chart.addEventListener('google-chart-render', function() {
-        var img = document.createElement('img');
-        img.src = chart.getImageURI();
-        imgContainer.innerHTML = '';
-        imgContainer.appendChild(img);
+      chart.addEventListener('google-chart-ready', function() {
+        img.src = chart.imageURI;
       });
     }());
   </script>

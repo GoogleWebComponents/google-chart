@@ -43,20 +43,19 @@ suite('<google-chart>', function() {
     setup(function() {
       chart.data = [ ['Data', 'Value'], ['Something', 1] ];
     });
-    test('fires google-chart-render event for initial load', function(done) {
-      chart.addEventListener('google-chart-render', function() {
+    test('fires google-chart-ready event for initial load', function(done) {
+      chart.addEventListener('google-chart-ready', function() {
         done();
       });
     });
-    test('fires google-chart-render event for drawChart call', function(done) {
+    test('fires google-chart-ready event for drawChart call', function(done) {
       var drawCount = 0;
-      chart.addEventListener('google-chart-render', function() {
+      chart.addEventListener('google-chart-ready', function() {
         ++drawCount;
         if (drawCount == 4) done();
+        else chart.drawChart();
       });
-      chart.drawChart();  // 2
-      chart.drawChart();  // 3
-      chart.drawChart();  // 4
+
     });
     test('default type is column', function() {
       assert.equal(chart.type, 'column');
@@ -88,14 +87,9 @@ suite('<google-chart>', function() {
         return chart.$$('text').innerHTML == expectedTitle;
       }, done);
     });
-    test('visualization package loads', function(done) {
-      chart.pkg.then(function() {
-        done();
-      });
-    });
     test('creates png chart uri', function (done) {
-      chart.addEventListener('google-chart-render', function(event) {
-        var uri = chart.getImageURI();
+      chart.addEventListener('google-chart-ready', function(event) {
+        var uri = chart.imageURI;
         assert.isString(uri);
         assert.match(uri, /^data:image\/png;base64/, 'png regexp matches');
         done();
@@ -106,7 +100,7 @@ suite('<google-chart>', function() {
       secondChart.data = [ ['Data', 'Value'], ['Something', 1] ];
 
       // Ensure second chart is rendered. Clean up test.
-      secondChart.addEventListener('google-chart-render', function() {
+      secondChart.addEventListener('google-chart-ready', function() {
         document.body.removeChild(secondChart);
         done();
       });
@@ -124,7 +118,7 @@ suite('<google-chart>', function() {
       chart.rows = [
         ['Something', 1]
       ];
-      chart.addEventListener('google-chart-render', function() {
+      chart.addEventListener('google-chart-ready', function() {
         done();
       });
     });
@@ -133,7 +127,6 @@ suite('<google-chart>', function() {
       chart.cols = [ { 'type': 'date' } ];
       chart.rows = [ ['Date(1789, 3, 30)'] ];
       waitCheckAndDone(function() {
-        console.log(chart.$$('#chartdiv').innerHTML)
         return chart.$$('#chartdiv').innerHTML ==
           'Error: Type mismatch. Value Date(1789, 3, 30) ' +
           'does not match type date in column index 0';
@@ -141,7 +134,7 @@ suite('<google-chart>', function() {
     });
     var setDataAndWaitForRender = function(data, done) {
       chart.data = data;
-      chart.addEventListener('google-chart-render', function() {
+      chart.addEventListener('google-chart-ready', function() {
         done();
       });
     };
@@ -160,11 +153,15 @@ suite('<google-chart>', function() {
       }, done);
     });
     test('[data] is DataTable', function(done) {
-      chart.pkg.then(function(viz) {
-        setDataAndWaitForRender(viz.arrayToDataTable([
-          ['Data', 'Value'],
-          ['Something', 1]
-        ]), done);
+      chart.addEventListener('google-chart-ready', function() {
+        done();
+      });
+      var loader = document.createElement('google-chart-loader');
+      loader.dataTable([
+        ['Data', 'Value'],
+        ['Something', 1]
+      ]).then(function(dataTable) {
+        chart.data = dataTable;
       });
     });
     test('[data] is JSON URL for 2D Array', function(done) {
@@ -174,19 +171,23 @@ suite('<google-chart>', function() {
       setDataAndWaitForRender('test-data-object.json', done);
     });
     test('[view] is DataView', function(done) {
-      chart.pkg.then(function(viz) {
-        chart.view = new viz.DataView(viz.arrayToDataTable([
-          ['Data', 'Value'],
-          ['Something', 1]
-        ]));
-        chart.addEventListener('google-chart-render', function() {
-          done();
-        });
+      chart.addEventListener('google-chart-ready', function() {
+        done();
+      });
+      var loader = document.createElement('google-chart-loader');
+      loader.dataTable([
+        ['Data', 'Value'],
+        ['Something', 1]
+      ])
+      .then(loader.dataView.bind(loader))
+      .then(function(dataView) {
+        chart.view = dataView;
       });
     });
     test('multiple calls to JSON URL', function(done) {
-      setDataAndWaitForRender('test-data-array.json', done);
-      setDataAndWaitForRender('test-data-object.json', done);
+      setDataAndWaitForRender('test-data-array.json', function() {
+        setDataAndWaitForRender('test-data-object.json', done);
+      });
     });
   });
 });

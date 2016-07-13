@@ -1,0 +1,261 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
+<link rel="import" href="charts-loader.html">
+
+<script>
+(function() {
+  "use strict";
+
+  // Most charts use this package.
+  var DEFACTO_CHART_PACKAGE = 'corechart';
+
+  // A collection of chart types associated with a function that returns a
+  // Promise for the chart type's constructor.
+  var CHART_CONSTRUCTORS = {
+    'area': {
+      ctor: 'AreaChart',
+    },
+    'bar': {
+      ctor: 'BarChart',
+    },
+    'bubble': {
+      ctor: 'BubbleChart',
+    },
+    'candlestick': {
+      ctor: 'CandlestickChart',
+    },
+    'column': {
+      ctor: 'ColumnChart',
+    },
+    'combo': {
+      ctor: 'ComboChart',
+    },
+    'geo': {
+      ctor: 'GeoChart',
+    },
+    'histogram': {
+      ctor: 'Histogram',
+    },
+    'line': {
+      ctor: 'LineChart',
+    },
+    'pie': {
+      ctor: 'PieChart',
+    },
+    'scatter': {
+      ctor: 'ScatterChart',
+    },
+    'stepped-area': {
+      ctor: 'SteppedAreaChart',
+    },
+    'table': {
+      ctor: 'Table',
+      pkg: 'table',
+    },
+    'timeline': {
+      ctor: 'Timeline',
+      pkg: 'timeline',
+    },
+    'gauge': {
+      ctor: 'Gauge',
+      pkg: 'gauge',
+    },
+    'treemap': {
+      ctor: 'TreeMap',
+      pkg: 'treemap',
+    },
+  };
+
+  function namespaceForType(type) {
+    return google[type.startsWith('md-') ? 'charts' : 'visualization'];
+  }
+
+  var packagesToLoad = {};
+  var promises = {};
+  var resolves = {};
+
+  Polymer({
+    is: 'google-chart-loader',
+    properties: {
+      /**
+       * Adds packages to the list of packages to load.
+       *
+       * This is an array consisting of any Google Visualization package names.
+       *
+       */
+      packages: {
+        type: Array,
+        value: function() { return []; },
+        observer: '_loadPackages',
+      },
+      /**
+       * Loads the package for the chart type specified.
+       *
+       * This may be any of the supported `google-chart` types.
+       * This is mainly used by the `google-chart` element internally.
+       *
+       */
+      type: {
+        type: String,
+        observer: '_loadPackageForType',
+      },
+    },
+
+    get _corePackage() {
+      if (promises[DEFACTO_CHART_PACKAGE]) {
+        return promises[DEFACTO_CHART_PACKAGE];
+      }
+      return this._loadPackages([DEFACTO_CHART_PACKAGE]).then(function(pkgs) {
+        return pkgs[0];
+      });
+    },
+
+    _loadPackagesDebounce: function() {
+      this.debounce('loadPackages', function() {
+        var packages = Object.keys(packagesToLoad);
+        if (!packages.length) {
+          return;
+        }
+        packagesToLoad = {};
+        google.charts.load('current', {'packages': packages});
+        google.charts.setOnLoadCallback(function() {
+          packages.forEach(function(pkg) {
+            this.fire('loaded', pkg);
+            resolves[pkg](google.visualization);
+          }.bind(this));
+        }.bind(this));
+      }, 100);
+    },
+
+    _loadPackages: function(pkgs) {
+      var returns = [];
+      pkgs.forEach(function(pkg) {
+        if (!promises[pkg]) {
+          packagesToLoad[pkg] = true;
+          promises[pkg] = new Promise(function(resolve) {
+            resolves[pkg] = resolve;
+          });
+          this._loadPackagesDebounce();
+        }
+        returns.push(promises[pkg]);
+      }.bind(this));
+      return Promise.all(returns);
+    },
+
+    _loadPackageForType: function(type) {
+      var chartData = CHART_CONSTRUCTORS[type];
+      return this._loadPackages([chartData.pkg || DEFACTO_CHART_PACKAGE])
+        .then(function() {
+          return namespaceForType(type)[chartData.ctor];
+        });
+    },
+
+    /**
+     * Creates a chart object by type in the specified element.
+     * Use *only* if you need total control of a chart object.
+     * Most should just use the `google-chart` element.
+     *
+     * @param {string} type the type of chart to create
+     * @param {!Element} el the element in which to create the chart
+     * @return {!Promise} promise for the created chart object
+     */
+    create: function(type, el) {
+      return this._loadPackageForType(type).then(function(ctor) {
+        return new ctor(el);
+      });
+    },
+
+    /**
+     * Begins firing Polymer events for the requested chart event.
+     * Use *only* if you have control of a chart object.
+     * Most should just use the `google-chart` element.
+     *
+     * Events fired all have the same detail object:
+     *   {{
+     *     chart: !Object,  // The chart target object
+     *     data: (Object|undefined),  // The chart event details
+     *   }}
+     *
+     * @param {!Object} chart the chart object to which we should listen
+     * @param {string} eventName the name of the chart event
+     * @param {boolean=} opt_once whether to listen only one time
+     * @return {!Promise} promise resolved when listener is attached
+     */
+    fireOnChartEvent: function(chart, eventName, opt_once) {
+      return this._corePackage.then(function(viz) {
+        var adder = opt_once ?
+            viz.events.addOneTimeListener : viz.events.addListener;
+        adder(chart, eventName, function(event) {
+          this.fire('google-chart-' + eventName, {
+            chart: chart,
+            data: event,
+          });
+        }.bind(this));
+      }.bind(this));
+    },
+
+    /**
+     * Creates a DataTable object for use with a chart.
+     *
+     * Multiple different argument types are supported. This is because the
+     * result of loading the JSON data URL is fed into this function for
+     * DataTable construction and its format is unknown.
+     *
+     * The data argument can be one of a few options:
+     *
+     * - null/undefined: An empty DataTable is created. Columns must be added
+     * - !DataTable: The object is simply returned
+     * - {{cols: !Array, rows: !Array}}: A DataTable in object format
+     * - {{cols: !Array}}: A DataTable in object format without rows
+     * - !Array<!Array>: A DataTable in 2D array format
+     *
+     * Un-supported types:
+     *
+     * - Empty !Array<!Array>: (e.g. `[]`) While technically a valid data
+     *   format, this is rejected as charts will not render empty DataTables.
+     *   DataTables must at least have columns specified. An empty array is most
+     *   likely due to a bug or bad data. If one wants an empty DataTable, pass
+     *   no arguments.
+     * - Anything else
+     *
+     * @param {(Object|Array)} data the data with which we should use to
+     *     construct the new DataTable object
+     * @return {!Promise} promise for the created DataTable
+     */
+    dataTable: function(data) {
+      return this._corePackage.then(function(viz) {
+        if (data == null) {
+          return new viz.DataTable();
+        } else if (data.getNumberOfRows) {
+          // Data is already a DataTable
+          return data;
+        } else if (data.cols) {  // data.rows may also be specified
+          // Data is in the form of object DataTable structure
+          return new viz.DataTable(data);
+        } else if (data.length > 0) {
+          // Data is in the form of a two dimensional array.
+          return viz.arrayToDataTable(data);
+        } else if (data.length === 0) {
+          // Chart data was empty.
+          // We return null instead of creating an empty DataTable because most
+          // (if not all) charts will render a sticky error in this situation.
+          return Promise.reject('Data was empty.');
+        }
+        return Promise.reject('Data format was not recognized.');
+      });
+    },
+
+    /**
+     * Creates a DataView object from a DataTable for use with a chart.
+     *
+     * @param {!Object} data the DataTable to use
+     * @return {!Promise} promise for the created DataView
+     */
+    dataView: function(data) {
+      return this._corePackage.then(function(viz) {
+        return new viz.DataView(data);
+      });
+    },
+  });
+})();
+</script>
