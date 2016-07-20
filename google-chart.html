@@ -15,7 +15,8 @@ number of ready-to-use chart types.
       rows='[["Jan", 31],["Feb", 28],["Mar", 31]]'>
     </google-chart>j
 
-Note: if you're passing JSON as attributes, single quotes are necessary to be valid JSON. See https://www.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties.
+Note: if you're passing JSON as attributes, single quotes are necessary to be valid JSON.
+See https://www.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties.
 
 Height and width are specified as style attributes:
 
@@ -68,14 +69,17 @@ Data can be provided in one of three ways:
      * Fired after a chart type is rendered and ready for interaction.
      *
      * @event google-chart-ready
+     * @param {{chart: !Object}} The raw chart object.
      */
 
     /**
      * Fired when the user makes a selection in the chart.
      *
      * @event google-chart-select
+     * @param {{chart: !Object}} The raw chart object.
      */
 
+    /** Polymer element properties. */
     properties: {
       /**
        * Sets the type of the chart.
@@ -84,7 +88,8 @@ Data can be provided in one of three ways:
        * - `area`, `bar`, `bubble`, `candlestick`, `column`, `combo`, `geo`,
        *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`, `treemap`
        *
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
+       * for details.
        *
        * @attribute type
        * @type string
@@ -109,7 +114,7 @@ Data can be provided in one of three ways:
        * for the options available to each chart type.
        *
        * @attribute options
-       * @type Object
+       * @type {!Object|undefined}
        */
       options: {
         type: Object,
@@ -129,7 +134,7 @@ Data can be provided in one of three ways:
        * for column definition format.
        *
        * @attribute cols
-       * @type array
+       * @type {!Array|undefined}
        */
       cols: {
         type: Array,
@@ -149,7 +154,7 @@ Data can be provided in one of three ways:
        * for row format.
        *
        * @attribute rows
-       * @type array
+       * @type {!Array<!Array>|undefined}
        */
       rows: {
         type: Array,
@@ -174,10 +179,14 @@ Data can be provided in one of three ways:
        *  ["Category 2", 1.1]]</pre>
        *
        * @attribute data
-       * @type google.visualization.DataTable, array, object, or string
+       * @type {!google.visualization.DataTable|
+       *        !Array<!Array>|
+       *        !{cols: !Array, rows: (!Array<!Array>|undefined)}|
+       *        string|
+       *        undefined}
        */
       data: {
-        type: Object, // or array, or object, or string
+        type: Object,
         observer: '_dataChanged'
       },
 
@@ -190,7 +199,7 @@ Data can be provided in one of three ways:
        * When specifying data with `view` you must not specify `data`, `cols` or `rows`.
        *
        * @attribute view
-       * @type google.visualization.DataView
+       * @type {!google.visualization.DataView|undefined}
        */
       view: {
         type: Object,
@@ -213,7 +222,7 @@ Data can be provided in one of three ways:
        * </pre>
        *
        * @attribute selection
-       * @type array
+       * @type {!Array|undefined}
        */
       selection: {
         type: Array,
@@ -240,9 +249,12 @@ Data can be provided in one of three ways:
       'google-chart-ready': '_onChartReady'
     },
 
-    _chart: null,  // Internal chart object
-    _dataView: null,  // Internal data state
-    _selection: null,  // Internal selection state
+    /** @type Object Internal Google Visualization chart object */
+    _chart: null,
+    /** @type google.visualization.DataView Internal data state */
+    _dataView: null,
+    /** @type Array Internal selection state */
+    _selection: null,
 
     // The chart type was changed.
     // We need to create a new chart and redraw.
@@ -305,17 +317,21 @@ Data can be provided in one of three ways:
      *
      * Call this after the chart is drawn (google-chart-render event).
      *
-     * @return {string} Returns image URI.
+     * @return {?string} Returns image URI.
      */
     get imageURI() {
-      if (!this._chart) { return; }
+      if (!this._chart) { return null; }
       return this._chart.getImageURI();
     },
 
-    // Handles changes to the DataView object attribute.
-    _viewChanged: function() {
-      if (!this.view) { return; }
-      this._dataView = this.view;
+    /**
+     * Handles changes to the `view` attribute.
+     *
+     * @param {!google.visualization.DataView|undefined} view The new view value
+     */
+    _viewChanged: function(view) {
+      if (!view) { return; }
+      this._dataView = view;
     },
 
     // Handles changes to the rows & columns attributes.
@@ -339,20 +355,30 @@ Data can be provided in one of three ways:
         }.bind(this));
     },
 
-    // Handles changes to the data attribute.
-    _dataChanged: function() {
-      var data = this.data;
+    /**
+     * Handles changes to the `data` attribute.
+     *
+     * @param {
+     *     !google.visualization.DataTable|
+     *     !Array<!Array>|
+     *     !{cols: !Array, rows: (!Array<!Array>|undefined)}|
+     *     string|
+     *     undefined} data The new data value
+     */
+    _dataChanged: function(data) {
+      var dataPromise;
       if (!data) { return; }
       if (typeof data == 'string' || data instanceof String) {
         // Load data asynchronously, from external URL.
         var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
-        data = request.send({url: data, handleAs: 'json'})
-            .then(function(xhr) { return xhr.response; });
+        dataPromise = request.send({
+          url: /** @type string */(data), handleAs: 'json'
+        }).then(function(xhr) { return xhr.response; });
       } else {
         // Data is all ready to be processed.
-        data = Promise.resolve(data);
+        dataPromise = Promise.resolve(data);
       }
-      data
+      dataPromise
         .then(this.$.loader.dataTable.bind(this.$.loader))
         .then(this.$.loader.dataView.bind(this.$.loader))
         .then(function(dataView) {
