@@ -45,15 +45,17 @@ suite('<google-chart>', function() {
     });
     test('fires google-chart-ready event for initial load', function(done) {
       chart.addEventListener('google-chart-ready', function() {
+        assert.isTrue(chart.drawn);
         done();
       });
     });
-    test('fires google-chart-ready event for drawChart call', function(done) {
+    test('fires google-chart-ready event for redraw call', function(done) {
       var drawCount = 0;
       chart.addEventListener('google-chart-ready', function() {
+        assert.isTrue(chart.drawn);
         ++drawCount;
-        if (drawCount == 4) done();
-        else chart.drawChart();
+        if (drawCount == 4) { done(); }
+        else chart.redraw();
       });
 
     });
@@ -81,11 +83,17 @@ suite('<google-chart>', function() {
       assert.equal(chart.options, null);
     });
     test('can change options', function(done) {
-      var expectedTitle = 'Some Title';
-      chart.options = {'title': expectedTitle};
-      waitCheckAndDone(function() {
-        return chart.$$('text').innerHTML == expectedTitle;
-      }, done);
+      var expectedTitle = 'New Title';
+      var initialDraw = true;
+      chart.addEventListener('google-chart-ready', function() {
+        if (initialDraw) {
+          initialDraw = false;
+          chart.options = {'title': expectedTitle};
+        } else {
+          assert.equal(chart.$$('text').innerHTML, expectedTitle);
+          done();
+        }
+      });
     });
     test('creates png chart uri', function (done) {
       chart.addEventListener('google-chart-ready', function(event) {

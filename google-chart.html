@@ -86,6 +86,8 @@ Data can be provided in one of three ways:
        *
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
        *
+       * @attribute type
+       * @type string
        */
       type: {
         type: String,
@@ -106,10 +108,12 @@ Data can be provided in one of three ways:
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
        * for the options available to each chart type.
        *
+       * @attribute options
+       * @type Object
        */
       options: {
         type: Object,
-        observer: 'drawChart'
+        observer: 'redraw'
       },
 
       /**
@@ -194,7 +198,7 @@ Data can be provided in one of three ways:
       },
 
       /**
-       * Selected datapoint(s) in the map.
+       * Selected datapoint(s) in the chart.
        *
        * An array of objects, each with a numeric row and/or column property.
        * `row` and `column` are the zero-based row or column number of an item
@@ -216,63 +220,62 @@ Data can be provided in one of three ways:
         notify: true,
         observer: '_setSelection'
       },
+
+      /**
+       * Whether the chart is currently rendered.
+       *
+       * @type boolean
+       */
+      drawn: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      },
     },
+
+    observers: ['_draw(_chart, _dataView)'],
 
     listeners: {
       'google-chart-select': '_updateSelection',
+      'google-chart-ready': '_onChartReady'
     },
 
-    // Used to get the ImageURI to maintain the old API.
-    _chartObject: null,  // not accessible before ready event.
-
-    // Promise for the chart object that we will draw.
-    _chart: null,
-
-    // Promise for the DataView with which the chart is drawn.
-    _dataView: null,
-
-    // Promise for the drawn chart.
-    _chartDrawn: null,
-
-    // The current selection in the chart.
-    _selection: null,
+    _chart: null,  // Internal chart object
+    _dataView: null,  // Internal data state
+    _selection: null,  // Internal selection state
 
     // The chart type was changed.
     // We need to create a new chart and redraw.
     _typeChanged: function() {
-      this._chart = this.$.loader.create(this.type, this.$.chartdiv)
-          .then(this._setupChart.bind(this));
-      this.drawChart();
+      this.$.loader.create(this.type, this.$.chartdiv)
+          .then(function(chart) {
+            this.$.loader.fireOnChartEvent(chart, 'select');
+            this.$.loader.fireOnChartEvent(chart, 'ready');
+            this._setDrawn(false);
+            this._chart = chart;
+          }.bind(this));
     },
 
     _setSelection: function() {
       // Note: Some charts (e.g. TreeMap) must have a selection.
-      if (!this.selection ||
-          this.selection === this._selection ||
-          !this._chartDrawn) {
+      if (!this.drawn || !this.selection || this.selection === this._selection) {
         return;
       }
+
+      if (this._chart.setSelection) {
+        this._chart.setSelection(this.selection);
+      }
       this._selection = this.selection;
-
-      this._chartDrawn.then(function(chart) {
-        if (chart.setSelection) {
-          chart.setSelection(this.selection);
-        }
-      }.bind(this));
-    },
-
-    // Sets up a chart after construction.
-    // @return {Object} The chart.
-    _setupChart: function(chart) {
-      this.$.loader.fireOnChartEvent(chart, 'select');
-      this.$.loader.fireOnChartEvent(chart, 'ready');
-      this._chartObject = chart;
-      this._selection = null;  // Reset the internal selection value.
-      return chart;
     },
 
     _updateSelection: function() {
-      this.selection = this._selection = this._chartObject.getSelection();
+      this.selection = this._selection = this._chart.getSelection();
+    },
+
+    _onChartReady: function() {
+      this._setDrawn(true);
+      this._selection = null;
+      this._setSelection();
     },
 
     /**
@@ -281,21 +284,20 @@ Data can be provided in one of three ways:
      * Called automatically when data/type/selection attributes change.
      * Call manually to handle view updates, page resizes, etc.
      *
-     * @method drawChart
+     * @method redraw
      */
-    drawChart: function() {
-      if (!this._chart || !this._dataView) return;
-      this._chartDrawn = Promise.all([this._chart, this._dataView])
-          .then(function(chartAndData) {
-            var chart = chartAndData[0];
-            var data = chartAndData[1];
-            chart.draw(data, this.options || {});
-            return chart;
-          }.bind(this), function(error) {
-            this.$.chartdiv.innerHTML = error;
-            throw error;
-          }.bind(this));
-      this._setSelection();
+    redraw: function() {
+      if (!this._chart || !this._dataView) { return; }
+      this._draw(this._chart, this._dataView);
+    },
+
+    _draw: function(chart, data) {
+      try {
+        this._setDrawn(false);
+        chart.draw(data, this.options || {});
+      } catch(error) {
+        this.$.chartdiv.innerHTML = error;
+      }
     },
 
     /**
@@ -306,35 +308,41 @@ Data can be provided in one of three ways:
      * @return {string} Returns image URI.
      */
     get imageURI() {
-      return this._chartObject.getImageURI();
+      if (!this._chart) { return; }
+      return this._chart.getImageURI();
     },
 
     // Handles changes to the DataView object attribute.
     _viewChanged: function() {
-      if (!this.view) return;
-      this._dataView = Promise.resolve(this.view);
-      this.drawChart();
+      if (!this.view) { return; }
+      this._dataView = this.view;
     },
 
     // Handles changes to the rows & columns attributes.
     _rowsOrColumnsChanged: function() {
       var rows = this.rows, cols = this.cols;
-      if (!rows || !cols) return;
-      this._dataView = this.$.loader.dataTable()
+      if (!rows || !cols) { return; }
+      this.$.loader.dataTable()
         .then(function(dataTable) {
           cols.forEach(function(col) {
             dataTable.addColumn(col);
           });
           dataTable.addRows(rows);
-          return this.$.loader.dataView(dataTable);
+          return dataTable;
+        }.bind(this))
+        .then(this.$.loader.dataView.bind(this.$.loader))
+        .then(function(dataView) {
+          this._dataView = dataView;
+        }.bind(this))
+        .catch(function(reason) {
+          this.$.chartdiv.innerHTML = reason;
         }.bind(this));
-      this.drawChart();
     },
 
     // Handles changes to the data attribute.
     _dataChanged: function() {
       var data = this.data;
-      if (!data) return;
+      if (!data) { return; }
       if (typeof data == 'string' || data instanceof String) {
         // Load data asynchronously, from external URL.
         var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
@@ -344,14 +352,12 @@ Data can be provided in one of three ways:
         // Data is all ready to be processed.
         data = Promise.resolve(data);
       }
-      this._dataView = data
-        .then(function(data) {
-          return this.$.loader.dataTable(data);
-        }.bind(this))
-        .then(function(dataTable) {
-          return this.$.loader.dataView(dataTable);
+      data
+        .then(this.$.loader.dataTable.bind(this.$.loader))
+        .then(this.$.loader.dataView.bind(this.$.loader))
+        .then(function(dataView) {
+          this._dataView = dataView;
         }.bind(this));
-      this.drawChart();
     }
   });
 })();
