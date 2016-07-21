@@ -281,6 +281,22 @@
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
   </google-chart>
+  
+  <p>Here's a organization chart:</p>
+  
+  <google-chart
+    id="org-chart",
+    type="org",
+    options='{"allowHtml": "true"}'
+    cols='[{"label": "Name", "type": "string"},{"label":"Manager", "type":"string"},{"label":"ToolTip", "type":"string"}]'
+    rows='[[{"v":"Mike", "f":"Mike<div style=\"color:red; font-style:italic\">President</div>"},
+            "", "The President"],
+            [{"v":"Jim", "f":"Jim<div style=\"color:red; font-style:italic\">Vice President</div>"},
+            "Mike", "VP"],
+            ["Alice", "Mike", ""],
+            ["Bob", "Jim", "Bob Sponge"],
+            ["Carol", "Bob", ""]]'>
+  </google-chart>
 
   <p>Here's a pie chart:</p>
 
