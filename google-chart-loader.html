@@ -6,11 +6,14 @@
 (function() {
   "use strict";
 
-  // Most charts use this package.
+  /** @type string Most charts use this package. */
   var DEFACTO_CHART_PACKAGE = 'corechart';
 
-  // A collection of chart types associated with a function that returns a
-  // Promise for the chart type's constructor.
+  /**
+   * A collection of chart type details.
+   *
+   * @type !Object<string, {ctor: string, pkg: (string|undefined)}>
+   */
   var CHART_CONSTRUCTORS = {
     'area': {
       ctor: 'AreaChart',
@@ -70,12 +73,20 @@
     },
   };
 
+  /**
+   * Returns the namespace for the given chart type.
+   * @param {string} type the type of the chart
+   * @return {!Object} the namespace that contains the chart's constructor
+   */
   function namespaceForType(type) {
     return google[type.startsWith('md-') ? 'charts' : 'visualization'];
   }
 
+  /** @type !Object<string, boolean> set-like object of gviz packages to load */
   var packagesToLoad = {};
+  /** @type !Object<string, !Promise> promises for the various packages */
   var promises = {};
+  /** @type !Object<string, function(!Object)> resolves for the package promises */
   var resolves = {};
 
   Polymer({
@@ -86,6 +97,8 @@
        *
        * This is an array consisting of any Google Visualization package names.
        *
+       * @attribute packages
+       * @type !Array<string>
        */
       packages: {
         type: Array,
@@ -98,6 +111,8 @@
        * This may be any of the supported `google-chart` types.
        * This is mainly used by the `google-chart` element internally.
        *
+       * @attribute type
+       * @type string
        */
       type: {
         type: String,
@@ -105,6 +120,11 @@
       },
     },
 
+    /**
+     * Gets a promise for the `corechart` package being loaded.
+     * @return {!Promise<!Object>} google.visualization package promise
+     * @private
+     */
     get _corePackage() {
       if (promises[DEFACTO_CHART_PACKAGE]) {
         return promises[DEFACTO_CHART_PACKAGE];
@@ -114,6 +134,11 @@
       });
     },
 
+    /**
+     * Debounces the actual call to load the packages requested.
+     * We debounce so that load is only called once.
+     * @private
+     */
     _loadPackagesDebounce: function() {
       this.debounce('loadPackages', function() {
         var packages = Object.keys(packagesToLoad);
@@ -131,6 +156,13 @@
       }, 100);
     },
 
+    /**
+     * Adds a list of packages to load.
+     *
+     * @param {!Array<string>} pkgs list of packages to load
+     * @return {!Promise} Promise resolved when all packages are loaded
+     * @private
+     */
     _loadPackages: function(pkgs) {
       var returns = [];
       pkgs.forEach(function(pkg) {
@@ -146,6 +178,13 @@
       return Promise.all(returns);
     },
 
+    /**
+     * Adds a package to load for the given type.
+     *
+     * @param {string} type the chart type for which we should load the package
+     * @return {!Promise<!Function>} Promise for the chart type constructor
+     * @private
+     */
     _loadPackageForType: function(type) {
       var chartData = CHART_CONSTRUCTORS[type];
       return this._loadPackages([chartData.pkg || DEFACTO_CHART_PACKAGE])
@@ -161,7 +200,7 @@
      *
      * @param {string} type the type of chart to create
      * @param {!Element} el the element in which to create the chart
-     * @return {!Promise} promise for the created chart object
+     * @return {!Promise<!Object>} promise for the created chart object
      */
     create: function(type, el) {
       return this._loadPackageForType(type).then(function(ctor) {
@@ -183,7 +222,7 @@
      * @param {!Object} chart the chart object to which we should listen
      * @param {string} eventName the name of the chart event
      * @param {boolean=} opt_once whether to listen only one time
-     * @return {!Promise} promise resolved when listener is attached
+     * @return {!Promise<void>} promise resolved when listener is attached
      */
     fireOnChartEvent: function(chart, eventName, opt_once) {
       return this._corePackage.then(function(viz) {
@@ -222,9 +261,9 @@
      *   no arguments.
      * - Anything else
      *
-     * @param {(Object|Array)} data the data with which we should use to
-     *     construct the new DataTable object
-     * @return {!Promise} promise for the created DataTable
+     * @param {Array|{cols: !Array, rows: (!Array<!Array>|undefined)}|undefined} data
+     *     the data with which we should use to construct the new DataTable object
+     * @return {!Promise<!google.visualization.DataTable>} promise for the created DataTable
      */
     dataTable: function(data) {
       return this._corePackage.then(function(viz) {
@@ -252,8 +291,8 @@
     /**
      * Creates a DataView object from a DataTable for use with a chart.
      *
-     * @param {!Object} data the DataTable to use
-     * @return {!Promise} promise for the created DataView
+     * @param {!google.visualization.DataTable} data the DataTable to use
+     * @return {!Promise<!google.visualization.DataView>} promise for the created DataView
      */
     dataView: function(data) {
       return this._corePackage.then(function(viz) {

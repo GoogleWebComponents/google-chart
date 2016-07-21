@@ -28,7 +28,7 @@
     rows='[["Something", 1]]'>
   </google-chart>
 
-  <p>Charts can be resized with CSS, but you'll need to call the <code>drawChart</code> method when the size changes.</p>
+  <p>Charts can be resized with CSS, but you'll need to call the <code>redraw</code> method when the size changes.</p>
   <p>Here's a basic responsive example using only CSS and JS (You could also use <code>&lt;iron-media-query&gt;</code>):</p>
 
   <style>
@@ -59,7 +59,7 @@
     var media = window.matchMedia('(min-width: 1024px)');
 
     media.addListener(function() {
-      document.getElementById('resizing-chart').drawChart();
+      document.getElementById('resizing-chart').redraw();
     });
   </script>
 
@@ -458,7 +458,7 @@
       type="bar">
   </google-chart>
 
-  <p>DataViews can be altered, but you'll need to call the <code>drawChart</code> method afterward.</p>
+  <p>DataViews can be altered, but you'll need to call the <code>redraw</code> method afterward.</p>
 
   <script>
     (function() {
@@ -477,7 +477,7 @@
             var row = Math.floor(Math.random() * rowCount);
             var row2 = (row + 1) % rowCount;
             chart.view.setRows([row, row2]);
-            chart.drawChart();
+            chart.redraw();
           };
           setInterval(setRandomRow, 3000);
         });

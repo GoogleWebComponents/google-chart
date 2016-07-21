@@ -15,7 +15,8 @@ number of ready-to-use chart types.
       rows='[["Jan", 31],["Feb", 28],["Mar", 31]]'>
     </google-chart>j
 
-Note: if you're passing JSON as attributes, single quotes are necessary to be valid JSON. See https://www.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties.
+Note: if you're passing JSON as attributes, single quotes are necessary to be valid JSON.
+See https://www.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties.
 
 Height and width are specified as style attributes:
 
@@ -68,14 +69,17 @@ Data can be provided in one of three ways:
      * Fired after a chart type is rendered and ready for interaction.
      *
      * @event google-chart-ready
+     * @param {{chart: !Object}} The raw chart object.
      */
 
     /**
      * Fired when the user makes a selection in the chart.
      *
      * @event google-chart-select
+     * @param {{chart: !Object}} The raw chart object.
      */
 
+    /** Polymer element properties. */
     properties: {
       /**
        * Sets the type of the chart.
@@ -84,8 +88,11 @@ Data can be provided in one of three ways:
        * - `area`, `bar`, `bubble`, `candlestick`, `column`, `combo`, `geo`,
        *   `histogram`, `line`, `pie`, `scatter`, `stepped-area`, `treemap`
        *
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a> for details.
+       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
+       * for details.
        *
+       * @attribute type
+       * @type string
        */
       type: {
         type: String,
@@ -106,10 +113,12 @@ Data can be provided in one of three ways:
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
        * for the options available to each chart type.
        *
+       * @attribute options
+       * @type {!Object|undefined}
        */
       options: {
         type: Object,
-        observer: 'drawChart'
+        observer: 'redraw'
       },
 
       /**
@@ -125,7 +134,7 @@ Data can be provided in one of three ways:
        * for column definition format.
        *
        * @attribute cols
-       * @type array
+       * @type {!Array|undefined}
        */
       cols: {
         type: Array,
@@ -145,7 +154,7 @@ Data can be provided in one of three ways:
        * for row format.
        *
        * @attribute rows
-       * @type array
+       * @type {!Array<!Array>|undefined}
        */
       rows: {
         type: Array,
@@ -170,10 +179,14 @@ Data can be provided in one of three ways:
        *  ["Category 2", 1.1]]</pre>
        *
        * @attribute data
-       * @type google.visualization.DataTable, array, object, or string
+       * @type {!google.visualization.DataTable|
+       *        !Array<!Array>|
+       *        !{cols: !Array, rows: (!Array<!Array>|undefined)}|
+       *        string|
+       *        undefined}
        */
       data: {
-        type: Object, // or array, or object, or string
+        type: Object,
         observer: '_dataChanged'
       },
 
@@ -186,7 +199,7 @@ Data can be provided in one of three ways:
        * When specifying data with `view` you must not specify `data`, `cols` or `rows`.
        *
        * @attribute view
-       * @type google.visualization.DataView
+       * @type {!google.visualization.DataView|undefined}
        */
       view: {
         type: Object,
@@ -194,7 +207,7 @@ Data can be provided in one of three ways:
       },
 
       /**
-       * Selected datapoint(s) in the map.
+       * Selected datapoint(s) in the chart.
        *
        * An array of objects, each with a numeric row and/or column property.
        * `row` and `column` are the zero-based row or column number of an item
@@ -209,70 +222,72 @@ Data can be provided in one of three ways:
        * </pre>
        *
        * @attribute selection
-       * @type array
+       * @type {!Array|undefined}
        */
       selection: {
         type: Array,
         notify: true,
         observer: '_setSelection'
       },
+
+      /**
+       * Whether the chart is currently rendered.
+       *
+       * @type boolean
+       */
+      drawn: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      },
     },
+
+    observers: ['_draw(_chart, _dataView)'],
 
     listeners: {
       'google-chart-select': '_updateSelection',
+      'google-chart-ready': '_onChartReady'
     },
 
-    // Used to get the ImageURI to maintain the old API.
-    _chartObject: null,  // not accessible before ready event.
-
-    // Promise for the chart object that we will draw.
+    /** @type Object Internal Google Visualization chart object */
     _chart: null,
-
-    // Promise for the DataView with which the chart is drawn.
+    /** @type google.visualization.DataView Internal data state */
     _dataView: null,
-
-    // Promise for the drawn chart.
-    _chartDrawn: null,
-
-    // The current selection in the chart.
+    /** @type Array Internal selection state */
     _selection: null,
 
     // The chart type was changed.
     // We need to create a new chart and redraw.
     _typeChanged: function() {
-      this._chart = this.$.loader.create(this.type, this.$.chartdiv)
-          .then(this._setupChart.bind(this));
-      this.drawChart();
+      this.$.loader.create(this.type, this.$.chartdiv)
+          .then(function(chart) {
+            this.$.loader.fireOnChartEvent(chart, 'select');
+            this.$.loader.fireOnChartEvent(chart, 'ready');
+            this._setDrawn(false);
+            this._chart = chart;
+          }.bind(this));
     },
 
     _setSelection: function() {
       // Note: Some charts (e.g. TreeMap) must have a selection.
-      if (!this.selection ||
-          this.selection === this._selection ||
-          !this._chartDrawn) {
+      if (!this.drawn || !this.selection || this.selection === this._selection) {
         return;
       }
+
+      if (this._chart.setSelection) {
+        this._chart.setSelection(this.selection);
+      }
       this._selection = this.selection;
-
-      this._chartDrawn.then(function(chart) {
-        if (chart.setSelection) {
-          chart.setSelection(this.selection);
-        }
-      }.bind(this));
-    },
-
-    // Sets up a chart after construction.
-    // @return {Object} The chart.
-    _setupChart: function(chart) {
-      this.$.loader.fireOnChartEvent(chart, 'select');
-      this.$.loader.fireOnChartEvent(chart, 'ready');
-      this._chartObject = chart;
-      this._selection = null;  // Reset the internal selection value.
-      return chart;
     },
 
     _updateSelection: function() {
-      this.selection = this._selection = this._chartObject.getSelection();
+      this.selection = this._selection = this._chart.getSelection();
+    },
+
+    _onChartReady: function() {
+      this._setDrawn(true);
+      this._selection = null;
+      this._setSelection();
     },
 
     /**
@@ -281,21 +296,20 @@ Data can be provided in one of three ways:
      * Called automatically when data/type/selection attributes change.
      * Call manually to handle view updates, page resizes, etc.
      *
-     * @method drawChart
+     * @method redraw
      */
-    drawChart: function() {
-      if (!this._chart || !this._dataView) return;
-      this._chartDrawn = Promise.all([this._chart, this._dataView])
-          .then(function(chartAndData) {
-            var chart = chartAndData[0];
-            var data = chartAndData[1];
-            chart.draw(data, this.options || {});
-            return chart;
-          }.bind(this), function(error) {
-            this.$.chartdiv.innerHTML = error;
-            throw error;
-          }.bind(this));
-      this._setSelection();
+    redraw: function() {
+      if (!this._chart || !this._dataView) { return; }
+      this._draw(this._chart, this._dataView);
+    },
+
+    _draw: function(chart, data) {
+      try {
+        this._setDrawn(false);
+        chart.draw(data, this.options || {});
+      } catch(error) {
+        this.$.chartdiv.innerHTML = error;
+      }
     },
 
     /**
@@ -303,55 +317,73 @@ Data can be provided in one of three ways:
      *
      * Call this after the chart is drawn (google-chart-render event).
      *
-     * @return {string} Returns image URI.
+     * @return {?string} Returns image URI.
      */
     get imageURI() {
-      return this._chartObject.getImageURI();
+      if (!this._chart) { return null; }
+      return this._chart.getImageURI();
     },
 
-    // Handles changes to the DataView object attribute.
-    _viewChanged: function() {
-      if (!this.view) return;
-      this._dataView = Promise.resolve(this.view);
-      this.drawChart();
+    /**
+     * Handles changes to the `view` attribute.
+     *
+     * @param {!google.visualization.DataView|undefined} view The new view value
+     */
+    _viewChanged: function(view) {
+      if (!view) { return; }
+      this._dataView = view;
     },
 
     // Handles changes to the rows & columns attributes.
     _rowsOrColumnsChanged: function() {
       var rows = this.rows, cols = this.cols;
-      if (!rows || !cols) return;
-      this._dataView = this.$.loader.dataTable()
+      if (!rows || !cols) { return; }
+      this.$.loader.dataTable()
         .then(function(dataTable) {
           cols.forEach(function(col) {
             dataTable.addColumn(col);
           });
           dataTable.addRows(rows);
-          return this.$.loader.dataView(dataTable);
+          return dataTable;
+        }.bind(this))
+        .then(this.$.loader.dataView.bind(this.$.loader))
+        .then(function(dataView) {
+          this._dataView = dataView;
+        }.bind(this))
+        .catch(function(reason) {
+          this.$.chartdiv.innerHTML = reason;
         }.bind(this));
-      this.drawChart();
     },
 
-    // Handles changes to the data attribute.
-    _dataChanged: function() {
-      var data = this.data;
-      if (!data) return;
+    /**
+     * Handles changes to the `data` attribute.
+     *
+     * @param {
+     *     !google.visualization.DataTable|
+     *     !Array<!Array>|
+     *     !{cols: !Array, rows: (!Array<!Array>|undefined)}|
+     *     string|
+     *     undefined} data The new data value
+     */
+    _dataChanged: function(data) {
+      var dataPromise;
+      if (!data) { return; }
       if (typeof data == 'string' || data instanceof String) {
         // Load data asynchronously, from external URL.
         var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
-        data = request.send({url: data, handleAs: 'json'})
-            .then(function(xhr) { return xhr.response; });
+        dataPromise = request.send({
+          url: /** @type string */(data), handleAs: 'json'
+        }).then(function(xhr) { return xhr.response; });
       } else {
         // Data is all ready to be processed.
-        data = Promise.resolve(data);
+        dataPromise = Promise.resolve(data);
       }
-      this._dataView = data
-        .then(function(data) {
-          return this.$.loader.dataTable(data);
-        }.bind(this))
-        .then(function(dataTable) {
-          return this.$.loader.dataView(dataTable);
+      dataPromise
+        .then(this.$.loader.dataTable.bind(this.$.loader))
+        .then(this.$.loader.dataView.bind(this.$.loader))
+        .then(function(dataView) {
+          this._dataView = dataView;
         }.bind(this));
-      this.drawChart();
     }
   });
 })();
