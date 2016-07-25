@@ -95,6 +95,25 @@ suite('<google-chart>', function() {
         }
       });
     });
+    test('can change deep options', function(done) {
+      chart.options = {'title': 'Old Title'};
+      var spyRedraw = sinon.spy(chart, 'redraw');
+      var expectedTitle = 'New Title';
+      var initialDraw = true;
+      chart.addEventListener('google-chart-ready', function() {
+        if (initialDraw) {
+          initialDraw = false;
+          chart.set('options.title', 'Debounced Title');
+          chart.set('options.title', expectedTitle);
+          assert.isFalse(spyRedraw.called);
+        } else {
+          assert.equal(chart.$$('text').innerHTML, expectedTitle);
+          assert.isTrue(spyRedraw.calledOnce);
+          chart.redraw.restore();
+          done();
+        }
+      });
+    });
     test('creates png chart uri', function (done) {
       chart.addEventListener('google-chart-ready', function(event) {
         var uri = chart.imageURI;

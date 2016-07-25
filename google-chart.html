@@ -131,12 +131,16 @@ Data can be provided in one of three ways:
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
        * for the options available to each chart type.
        *
+       * This property is observed via a deep object observer.
+       * If you would like to make changes to a sub-property, be sure to use the
+       * Polymer method `set`: `googleChart.set('options.vAxis.logScale', true)`
+       * (Note: Missing parent properties are not automatically created.)
+       *
        * @attribute options
        * @type {!Object|undefined}
        */
       options: {
-        type: Object,
-        observer: 'redraw'
+        type: Object
       },
 
       /**
@@ -260,7 +264,10 @@ Data can be provided in one of three ways:
       },
     },
 
-    observers: ['_draw(_chart, _dataView)'],
+    observers: [
+      '_draw(_chart, _dataView)',
+      '_subOptionChanged(options.*)'
+    ],
 
     listeners: {
       'google-chart-select': '_updateSelection',
@@ -291,6 +298,14 @@ Data can be provided in one of three ways:
             this._setDrawn(false);
             this._chart = chart;
           }.bind(this));
+    },
+
+    _subOptionChanged: function(optionChangeDetails) {
+      this.options = optionChangeDetails.base;
+      // Debounce to allow for multiple option changes in one redraw
+      this.debounce('optionChangeRedraw', function() {
+        this.redraw();
+      }, 5);
     },
 
     _setSelection: function() {
