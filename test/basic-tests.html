@@ -117,6 +117,25 @@ suite('<google-chart>', function() {
     });
   });
 
+  suite('Events', function() {
+    setup(function() {
+      chart.data = [ ['Data', 'Value'], ['Something', 1] ];
+    });
+
+    test('can be added', function(done) {
+      chart.events = ['onmouseover'];
+      chart.addEventListener('google-chart-ready', function() {
+        google.visualization.events.trigger(
+            chart._chart, 'onmouseover', {'row': 1, 'column': 5});
+      });
+      chart.addEventListener('google-chart-onmouseover', function(e) {
+        assert.equal(e.detail.data.row, 1);
+        assert.equal(e.detail.data.column, 5);
+        done();
+      });
+    });
+  });
+
   suite('Data Source Types', function() {
     test('[rows] and [cols]', function (done) {
       chart.cols = [

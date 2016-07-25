@@ -142,6 +142,49 @@
     }());
   </script>
 
+  <p>Here's a pie chart listening for `onmouseover`:</p>
+
+  <style>
+    #mouseover-demo {
+      position: relative;
+      height: 300px;
+    }
+
+    #mouseover-chart {
+      float: left;
+    }
+
+    #mouseover-display {
+      display: inline-block;
+      position: relative;
+      top: 50%;
+    }
+  </style>
+  <div id="mouseover-demo">
+    <google-chart
+      id="mouseover-chart"
+      type="pie"
+      options='{"title": "Distribution of days in 2001H1"}'
+      cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+      rows='[ ["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30] ]'
+      events='["onmouseover"]'>
+    </google-chart>
+    <div id="mouseover-display">
+      Moused over row: <span id="mouseover-label">None</span>.
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var chart = document.getElementById('mouseover-chart');
+      var label = document.getElementById('mouseover-label');
+
+      chart.addEventListener('google-chart-onmouseover', function(e) {
+        label.textContent = e.detail.data.row;
+      });
+    }());
+  </script>
+
   <p>Here's a chart defined using <code>data</code>, rather than <code>rows</code> and <code>cols</code>:</p>
 
   <google-chart
