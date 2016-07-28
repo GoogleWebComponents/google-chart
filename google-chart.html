@@ -101,6 +101,24 @@ Data can be provided in one of three ways:
       },
 
       /**
+       * Enumerates the chart events that should be fired.
+       *
+       * Charts support a variety of events. By default, this element only
+       * fires on `ready` and `select`. If you would like to be notified of
+       * other chart events, use this property to list them.
+       * Events `ready` and `select` are always fired.
+       * Changes to this property are _not_ observed. Events are attached only
+       * at chart construction time.
+       *
+       * @attribute events
+       * @type !Array
+       */
+      events: {
+        type: Array,
+        value: function() { return []; }
+      },
+
+      /**
        * Sets the options for the chart.
        *
        * Example:
@@ -113,12 +131,16 @@ Data can be provided in one of three ways:
        * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
        * for the options available to each chart type.
        *
+       * This property is observed via a deep object observer.
+       * If you would like to make changes to a sub-property, be sure to use the
+       * Polymer method `set`: `googleChart.set('options.vAxis.logScale', true)`
+       * (Note: Missing parent properties are not automatically created.)
+       *
        * @attribute options
        * @type {!Object|undefined}
        */
       options: {
-        type: Object,
-        observer: 'redraw'
+        type: Object
       },
 
       /**
@@ -242,7 +264,10 @@ Data can be provided in one of three ways:
       },
     },
 
-    observers: ['_draw(_chart, _dataView)'],
+    observers: [
+      '_draw(_chart, _dataView)',
+      '_subOptionChanged(options.*)'
+    ],
 
     listeners: {
       'google-chart-select': '_updateSelection',
@@ -261,11 +286,26 @@ Data can be provided in one of three ways:
     _typeChanged: function() {
       this.$.loader.create(this.type, this.$.chartdiv)
           .then(function(chart) {
-            this.$.loader.fireOnChartEvent(chart, 'select');
-            this.$.loader.fireOnChartEvent(chart, 'ready');
+            var loader = this.$.loader;
+            Object.keys(this.events.concat(['select', 'ready'])
+                .reduce(function(set, eventName) {
+                  set[eventName] = true;
+                  return set;
+                }, {}))
+                .forEach(function(eventName) {
+                  loader.fireOnChartEvent(chart, eventName);
+                });
             this._setDrawn(false);
             this._chart = chart;
           }.bind(this));
+    },
+
+    _subOptionChanged: function(optionChangeDetails) {
+      this.options = optionChangeDetails.base;
+      // Debounce to allow for multiple option changes in one redraw
+      this.debounce('optionChangeRedraw', function() {
+        this.redraw();
+      }, 5);
     },
 
     _setSelection: function() {
