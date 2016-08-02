@@ -265,6 +265,8 @@
      *   no arguments.
      * - Anything else
      *
+     * See <a href="https://developers.google.com/chart/interactive/docs/reference#datatable-class">the docs</a> for more details.
+     *
      * @param {Array|{cols: !Array, rows: (!Array<!Array>|undefined)}|undefined} data
      *     the data with which we should use to construct the new DataTable object
      * @return {!Promise<!google.visualization.DataTable>} promise for the created DataTable
@@ -295,6 +297,8 @@
     /**
      * Creates a DataView object from a DataTable for use with a chart.
      *
+     * See <a href="https://developers.google.com/chart/interactive/docs/reference#dataview-class">the docs</a> for more details.
+     *
      * @param {!google.visualization.DataTable} data the DataTable to use
      * @return {!Promise<!google.visualization.DataView>} promise for the created DataView
      */
@@ -303,6 +307,21 @@
         return new viz.DataView(data);
       });
     },
+
+    /**
+     * Creates a Query object to be sent to a DataSource protocol implementation.
+     *
+     * See <a href="https://developers.google.com/chart/interactive/docs/reference#query-classes">the docs</a> for more details.
+     *
+     * @param {string} url the URL of the DataSource protocol implementer
+     * @param {!Object=} opt_options options for the Query object
+     * @return {!Promise<!google.visualization.Query>} promise for the created DataView
+     */
+    query: function(url, opt_options) {
+      return this._corePackage.then(function(viz) {
+        return new viz.Query(url, opt_options);
+      });
+    }
   });
 })();
 </script>
