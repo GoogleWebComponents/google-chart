@@ -210,6 +210,18 @@ suite('<google-chart>', function() {
         chart.data = dataTable;
       });
     });
+    test('[data] is DataTable from DataSource Query', function(done) {
+      chart.addEventListener('google-chart-ready', function() {
+        done();
+      });
+      document.createElement('google-chart-loader')
+        .query('query.json')
+        .then(function(q) {
+          q.send(function(res) {
+            chart.data = res.getDataTable();
+          });
+        });
+    });
     test('[data] is JSON URL for 2D Array', function(done) {
       setDataAndWaitForRender('test-data-array.json', done);
     });

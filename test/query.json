@@ -1,0 +1,13 @@
+google.visualization.Query.setResponse({
+  "status":"ok",
+  "reqId":"0",
+  "table":{
+    "cols":[
+      {"label":"Data","type":"string"},
+      {"label":"Value","type":"number"}
+    ],
+    "rows":[
+      {"c":[{"v":"Something"},{"v":1}]}
+    ]
+  }
+})
