@@ -6,13 +6,13 @@
 (function() {
   "use strict";
 
-  /** @type string Most charts use this package. */
+  /** @type {string} Most charts use this package. */
   var DEFACTO_CHART_PACKAGE = 'corechart';
 
   /**
    * A collection of chart type details.
    *
-   * @type !Object<string, {ctor: string, pkg: (string|undefined)}>
+   * @type {!Object<string, {ctor: string, pkg: (string|undefined)}>}
    */
   var CHART_CONSTRUCTORS = {
     'area': {
@@ -86,11 +86,11 @@
     return google[type.startsWith('md-') ? 'charts' : 'visualization'];
   }
 
-  /** @type !Object<string, boolean> set-like object of gviz packages to load */
+  /** @type {!Object<string, boolean>} set-like object of gviz packages to load */
   var packagesToLoad = {};
-  /** @type !Object<string, !Promise> promises for the various packages */
+  /** @type {!Object<string, !Promise>} promises for the various packages */
   var promises = {};
-  /** @type !Object<string, function(!Object)> resolves for the package promises */
+  /** @type {!Object<string, function(!Object)>} resolves for the package promises */
   var resolves = {};
 
   Polymer({
@@ -102,7 +102,7 @@
        * This is an array consisting of any Google Visualization package names.
        *
        * @attribute packages
-       * @type !Array<string>
+       * @type {!Array<string>}
        */
       packages: {
         type: Array,
@@ -116,7 +116,7 @@
        * This is mainly used by the `google-chart` element internally.
        *
        * @attribute type
-       * @type string
+       * @type {string}
        */
       type: {
         type: String,
