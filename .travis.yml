@@ -3,7 +3,6 @@ sudo: required
 dist: trusty
 node_js: stable
 addons:
-  firefox: latest
   apt:
     sources:
     - google-chrome
@@ -14,4 +13,4 @@ before_script:
 - npm install web-component-tester
 - export PATH=$PWD/node_modules/.bin:$PATH
 - bower install
-script: xvfb-run -a wct --simpleOutput -l firefox -l chrome
+script: xvfb-run -a wct --simpleOutput -l chrome
