@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
+<link rel="import" href="../promise-polyfill/promise-polyfill.html">
 <link rel="import" href="charts-loader.html">
 
 <script>
@@ -87,7 +87,7 @@
    * @return {!Object} the namespace that contains the chart's constructor
    */
   function namespaceForType(type) {
-    return google[type.startsWith('md-') ? 'charts' : 'visualization'];
+    return google[type.indexOf('md-') === 0 ? 'charts' : 'visualization'];
   }
 
   /** @type {!Object<string, boolean>} set-like object of gviz packages to load */
