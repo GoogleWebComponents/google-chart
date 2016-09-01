@@ -324,7 +324,17 @@
     cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
   </google-chart>
-  
+
+  <p>Here's a material line chart:</p>
+
+  <google-chart
+    id="line-chart-md"
+    type="md-line"
+    options='{"title": "Days in a month"}'
+    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
+  </google-chart>
+
   <p>Here's a organization chart:</p>
   
   <google-chart
@@ -354,6 +364,19 @@
 
   <google-chart
     type="scatter"
+    options='{"legend": "none"}'
+    data='[["A", "B"],
+           [20, 45],
+           [31, 66],
+           [50, 80],
+           [77, 50],
+           [68, 15]]'>
+  </google-chart>
+
+  <p>Here's a material scatter chart:</p>
+
+  <google-chart
+    type="md-scatter"
     options='{"legend": "none"}'
     data='[["A", "B"],
            [20, 45],
