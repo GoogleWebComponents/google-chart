@@ -162,7 +162,10 @@
           return;
         }
         packagesToLoad = {};
-        google.charts.load('current', {'packages': packages});
+        google.charts.load('current', {
+          'packages': packages,
+          'language': document.documentElement.lang || 'en'
+        });
         google.charts.setOnLoadCallback(function() {
           packages.forEach(function(pkg) {
             this.fire('loaded', pkg);
