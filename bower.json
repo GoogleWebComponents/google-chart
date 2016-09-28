@@ -8,7 +8,7 @@
     "Wes Alvaro",
     "Sérgio Gomes"
   ],
-  "license": "Apache2",
+  "license": "Apache-2.0",
   "ignore": [
     "/.*",
     "/test/"
