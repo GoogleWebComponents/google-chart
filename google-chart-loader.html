@@ -134,6 +134,16 @@
         type: String,
         observer: '_loadPackageForType',
       },
+      /**
+       * Version of the Google Visualization API to use.
+       *
+       * @attribute version
+       * @type {string}
+       */
+      version: {
+        type: String,
+        value: 'current'
+      }
     },
 
     /**
@@ -162,7 +172,7 @@
           return;
         }
         packagesToLoad = {};
-        google.charts.load('current', {
+        google.charts.load(this.version, {
           'packages': packages,
           'language': document.documentElement.lang || 'en'
         });
