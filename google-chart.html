@@ -59,7 +59,7 @@ on the `html` tag of your document.
 <dom-module id="google-chart">
   <link rel="import" type="css" href="google-chart.css">
   <template>
-    <google-chart-loader id="loader" type="[[type]]"></google-chart-loader>
+    <google-chart-loader id="loader" type="[[type]]" version="[[version]]"></google-chart-loader>
     <div id="chartdiv"></div>
   </template>
 </dom-module>
@@ -268,6 +268,17 @@ on the `html` tag of your document.
         readOnly: true,
         value: false
       },
+
+      /**
+       * Version of the Google Visualization API to use.
+       *
+       * @attribute version
+       * @type String  
+       */
+      version: {
+        type: String,
+        value: 'current'
+      }
     },
 
     observers: [
