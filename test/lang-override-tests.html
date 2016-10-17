@@ -1,0 +1,47 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at https://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at https://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at https://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at https://polymer.github.io/PATENTS.txt
+-->
+<!doctype html>
+<html>
+<head>
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../google-chart.html">
+</head>
+
+<body>
+
+<test-fixture id="chart-fixture">
+  <template>
+    <google-chart></google-chart>
+  </template>
+</test-fixture>
+
+<script>
+suite('<google-chart lang="XX">', function() {
+  var chart;
+  setup(function() {
+    chart = fixture('chart-fixture');
+    chart.options = {hAxis: {format: 'MMM yy'}};
+    chart.data = [ ['Date', 'Value'], [new Date(2008, 0, 1), 1] ];
+  });
+
+  test('can change language', function(done) {
+    chart.lang = 'ja';  // Switch to Japanese language
+    chart.addEventListener('google-chart-ready', function() {
+      assert.isAtLeast(chart.innerHTML.indexOf('1月'), 0);  // Check for kanji
+      done();
+    });
+  });
+});
+</script>
+
+</body>
+</html>

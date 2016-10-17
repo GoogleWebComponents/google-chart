@@ -39,6 +39,18 @@ suite('<google-chart>', function() {
       }
     }, 50);
   };
+  suite('Default Language', function() {
+    setup(function() {
+      chart.data = [ ['Date', 'Value'], [new Date(2008, 0, 1), 1] ];
+      chart.options = {hAxis: {format: 'MMM yy'}};
+    });
+    test('default language is English', function(done) {
+      chart.addEventListener('google-chart-ready', function() {
+        assert.isAtLeast(chart.innerHTML.indexOf('Jan'), 0)
+        done();
+      });
+    });
+  });
   suite('Default Functionality', function() {
     setup(function() {
       chart.data = [ ['Data', 'Value'], ['Something', 1] ];
@@ -133,6 +145,17 @@ suite('<google-chart>', function() {
       });
 
       document.body.appendChild(secondChart);
+    });
+    test('can load packages dynamically', function(done) {
+      var initialDraw = true;
+      chart.addEventListener('google-chart-ready', function() {
+        assert.isTrue(chart.drawn);
+        chart.type = 'table'
+        waitCheckAndDone(function() {
+          // A TD element indicates the chart type change was drawn:
+          return chart.$$('td');
+        }, done);
+      });
     });
   });
 

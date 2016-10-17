@@ -6,8 +6,42 @@
 (function() {
   "use strict";
 
-  /** @type {string} Most charts use this package. */
+
+  /** @const {string} Most charts use this package. */
   var DEFACTO_CHART_PACKAGE = 'corechart';
+
+  /**
+   * @const {string} Language of the chart library to load.
+   * This value is overridden by the `html`, `google-chart`, or the
+   * `google-chart-loader` tag's `lang` attribute.
+   */
+  var DEFAULT_CHART_LANG = 'en';
+
+  /**
+   * @type {?string} Chart library language override.
+   */
+  var overrideLang = null;
+
+  /**
+   * @const {string} Version of the chart library to load.
+   * This value is overridden by the `google-chart` or
+   * `google-chart-loader` tag's `version` attribute.
+   */
+  var DEFAULT_CHART_VERSION = '45';  // September 12, 2016 release
+
+  /**
+   * @type {?string} Chart library version override.
+   */
+  var overrideVersion = null;
+
+  /**
+   * @type {boolean} Whether the language and version pair are locked.
+   * As of version 45, `google.charts.load` may be called multiple times.
+   * However, the same version and language must be used.
+   * When `load` is first called, this bit is toggled.
+   * Further changes to lang and version are ignored.
+   */
+  var libraryLocked = false;
 
   /**
    * A collection of chart type details.
@@ -134,6 +168,46 @@
         type: String,
         observer: '_loadPackageForType',
       },
+      version: {
+        type: String,
+        observer: '_setOverrideVersion',
+      },
+      lang: {
+        type: String,
+        observer: '_setOverrideLang',
+      }
+    },
+
+    /**
+     * Sets the version of the Google Visualization library to load.
+     * @param {string} version the version override.
+     * @private
+     */
+    _setOverrideVersion: function(version) {
+      if (overrideVersion && overrideVersion != version) {
+        if (libraryLocked) {
+          console.error('Library already loaded; version may not be changed.');
+          return;
+        }
+        console.warn('Override version was ', overrideVersion, ' now ', version);
+      }
+      overrideVersion = version;
+    },
+
+    /**
+     * Sets the language of the Google Visualization library to load.
+     * @param {string} lang the language override.
+     * @private
+     */
+    _setOverrideLang: function(lang) {
+      if (overrideLang && overrideLang != lang) {
+        if (libraryLocked) {
+          console.error('Library already loaded; lang may not be changed.');
+          return;
+        }
+        console.warn('Override language was ', overrideLang, ' now ', lang);
+      }
+      overrideLang = lang;
     },
 
     /**
@@ -157,22 +231,28 @@
      */
     _loadPackagesDebounce: function() {
       this.debounce('loadPackages', function() {
+        // Assign back to the override to ignore changes to the `html` tag lang.
+        overrideLang = (
+            overrideLang || document.documentElement.lang || DEFAULT_CHART_LANG
+        );
+        overrideVersion = overrideVersion || DEFAULT_CHART_VERSION
         var packages = Object.keys(packagesToLoad);
         if (!packages.length) {
           return;
         }
         packagesToLoad = {};
-        google.charts.load('current', {
+        libraryLocked = true;
+        google.charts.load(overrideVersion, {
           'packages': packages,
-          'language': document.documentElement.lang || 'en'
+          'language': overrideLang,
+          'callback': function() {
+            packages.forEach(function(pkg) {
+              this.fire('loaded', pkg);
+              resolves[pkg](google.visualization);
+            }.bind(this));
+          }.bind(this)
         });
-        google.charts.setOnLoadCallback(function() {
-          packages.forEach(function(pkg) {
-            this.fire('loaded', pkg);
-            resolves[pkg](google.visualization);
-          }.bind(this));
-        }.bind(this));
-      }, 100);
+      }, 10);
     },
 
     /**
@@ -183,8 +263,7 @@
      * @private
      */
     _loadPackages: function(pkgs) {
-      var returns = [];
-      pkgs.forEach(function(pkg) {
+      return Promise.all(pkgs.map(function(pkg) {
         if (!promises[pkg]) {
           packagesToLoad[pkg] = true;
           promises[pkg] = new Promise(function(resolve) {
@@ -192,9 +271,8 @@
           });
           this._loadPackagesDebounce();
         }
-        returns.push(promises[pkg]);
-      }.bind(this));
-      return Promise.all(returns);
+        return promises[pkg];
+      }.bind(this)));
     },
 
     /**
