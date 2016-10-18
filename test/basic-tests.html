@@ -173,8 +173,8 @@ suite('<google-chart>', function() {
       chart.cols = [ { 'type': 'date' } ];
       chart.rows = [ ['Date(1789, 3, 30)'] ];
       waitCheckAndDone(function() {
-        return chart.$$('#chartdiv').innerHTML ==
-          'Error: Type mismatch. Value Date(1789, 3, 30) ' +
+        return chart.$$('#google-visualization-errors-0').innerText ==
+          'Type mismatch. Value Date(1789, 3, 30) ' +
           'does not match type date in column index 0';
       }, done);
     });
