@@ -1,0 +1,144 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-request.html">
+<link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
+<link rel="import" href="google-chart-loader.html">
+
+<dom-module id="google-chart-data">
+  <template>
+    <google-chart-loader id="loader"></google-chart-loader>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'google-chart-data',
+  properties: {
+    /**
+     * Sets the data columns for this object.
+     *
+     * When specifying data with `cols` you must also specify `rows`, and
+     * not specify `data`.
+     *
+     * Example:
+     * <pre>[{label: "Categories", type: "string"},
+     *  {label: "Value", type: "number"}]</pre>
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google Visualization API reference (addColumn)</a>
+     * for column definition format.
+     *
+     * @attribute cols
+     * @type {!Array|undefined}
+     */
+    cols: {
+      type: Array,
+      observer: '_rowsOrColumnsChanged',
+    },
+
+    /**
+     * Sets the data rows for this object.
+     *
+     * When specifying data with `rows` you must also specify `cols`, and
+     * not specify `data`.
+     *
+     * Example:
+     * <pre>[["Category 1", 1.0],
+     *  ["Category 2", 1.1]]</pre>
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google Visualization API reference (addRow)</a>
+     * for row format.
+     *
+     * @attribute rows
+     * @type {!Array<!Array>|undefined}
+     */
+    rows: {
+      type: Array,
+      observer: '_rowsOrColumnsChanged',
+    },
+
+    /**
+     * Sets the entire dataset for this object.
+     * Can be used to provide the data directly, or to provide a URL from
+     * which to request the data.
+     *
+     * The data format can be a two-dimensional array or the DataTable format
+     * expected by Google Charts.
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable">Google Visualization API reference (DataTable constructor)</a>
+     * for data table format details.
+     *
+     * When specifying data with `data` you must not specify `cols` or `rows`.
+     *
+     * Example:
+     * <pre>[["Categories", "Value"],
+     *  ["Category 1", 1.0],
+     *  ["Category 2", 1.1]]</pre>
+     *
+     * @attribute data
+     * @type {!google.visualization.DataTable|
+     *        !Array<!Array>|
+     *        !{cols: !Array, rows: (!Array<!Array>|undefined)}|
+     *        string|
+     *        undefined}
+     */
+    data: {
+      type: Object,
+      observer: '_dataChanged'
+    },
+    view: {
+      type: Object,
+      readOnly: true,
+      notify: true
+    }
+  },
+
+  _toView(dataTablePromise) {
+    dataTablePromise
+      .then(this.$.loader.dataView.bind(this.$.loader))
+      .then(function(dataView) {
+        this._setView(dataView);
+      }.bind(this))
+      .catch(function(reason) {
+        this.fire('google-chart-data-error', reason);
+      }.bind(this));
+  },
+
+  /**
+   * Handles changes to the `rows` & `columns` attributes.
+   */
+  _rowsOrColumnsChanged() {
+    var rows = this.rows, cols = this.cols;
+    if (!rows || !cols) { return; }
+    this._toView(this.$.loader.dataTable()
+      .then(function(dataTable) {
+        cols.forEach(function(col) {
+          dataTable.addColumn(col);
+        });
+        dataTable.addRows(rows);
+        return dataTable;
+      }.bind(this)));
+  },
+
+  /**
+   * Handles changes to the `data` attribute.
+   *
+   * @param {
+   *     !google.visualization.DataTable|
+   *     !Array<!Array>|
+   *     !{cols: !Array, rows: (!Array<!Array>|undefined)}|
+   *     string|
+   *     undefined} data The new data value
+   */
+  _dataChanged(data) {
+    var dataPromise;
+    if (!data) { return; }
+    if (typeof data == 'string' || data instanceof String) {
+      // Load data asynchronously, from external URL.
+      var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
+      dataPromise = request.send({
+        url: /** @type string */(data), handleAs: 'json'
+      }).then(function(xhr) { return xhr.response; });
+    } else {
+      // Data is all ready to be processed.
+      dataPromise = Promise.resolve(data);
+    }
+    this._toView(dataPromise.then(this.$.loader.dataTable.bind(this.$.loader)));
+  }
+});
+</script>

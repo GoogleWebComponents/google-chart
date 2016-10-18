@@ -1,7 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-ajax/iron-request.html">
-<link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
 <link rel="import" href="google-chart-loader.html">
+<link rel="import" href="google-chart-data.html">
 
 <!--
 `google-chart` encapsulates Google Charts as a web component, allowing you to easily visualize
@@ -59,6 +58,7 @@ on the `html` tag of your document.
 <dom-module id="google-chart">
   <link rel="import" type="css" href="google-chart.css">
   <template>
+    <google-chart-data rows="[[rows]]" cols="[[cols]]" data="[[data]]" view="{{view}}"></google-chart-data>
     <google-chart-loader id="loader" type="[[type]]"></google-chart-loader>
     <div id="chartdiv"></div>
   </template>
@@ -165,8 +165,7 @@ on the `html` tag of your document.
        * @type {!Array|undefined}
        */
       cols: {
-        type: Array,
-        observer: '_rowsOrColumnsChanged',
+        type: Array
       },
 
       /**
@@ -185,8 +184,7 @@ on the `html` tag of your document.
        * @type {!Array<!Array>|undefined}
        */
       rows: {
-        type: Array,
-        observer: '_rowsOrColumnsChanged',
+        type: Array
       },
 
       /**
@@ -208,14 +206,14 @@ on the `html` tag of your document.
        *
        * @attribute data
        * @type {!google.visualization.DataTable|
+       *        !google.visualization.DataView|
        *        !Array<!Array>|
        *        !{cols: !Array, rows: (!Array<!Array>|undefined)}|
        *        string|
        *        undefined}
        */
       data: {
-        type: Object,
-        observer: '_dataChanged'
+        type: Object
       },
 
       /**
@@ -230,8 +228,7 @@ on the `html` tag of your document.
        * @type {!google.visualization.DataView|undefined}
        */
       view: {
-        type: Object,
-        observer: '_viewChanged'
+        type: Object
       },
 
       /**
@@ -271,42 +268,41 @@ on the `html` tag of your document.
     },
 
     observers: [
-      '_draw(_chart, _dataView)',
+      '_draw(_chart, view)',
       '_subOptionChanged(options.*)'
     ],
 
     listeners: {
       'google-chart-select': '_updateSelection',
-      'google-chart-ready': '_onChartReady'
+      'google-chart-ready': '_onChartReady',
+      'google-chart-data-error': '_onDataError'
     },
 
     /** @type Object Internal Google Visualization chart object */
     _chart: null,
-    /** @type google.visualization.DataView Internal data state */
-    _dataView: null,
     /** @type Array Internal selection state */
     _selection: null,
 
     // The chart type was changed.
     // We need to create a new chart and redraw.
-    _typeChanged: function() {
+    _typeChanged() {
       this.$.loader.create(this.type, this.$.chartdiv)
-          .then(function(chart) {
-            var loader = this.$.loader;
-            Object.keys(this.events.concat(['select', 'ready'])
-                .reduce(function(set, eventName) {
-                  set[eventName] = true;
-                  return set;
-                }, {}))
-                .forEach(function(eventName) {
-                  loader.fireOnChartEvent(chart, eventName);
-                });
-            this._setDrawn(false);
-            this._chart = chart;
-          }.bind(this));
+        .then(function(chart) {
+          var loader = this.$.loader;
+          Object.keys(this.events.concat(['select', 'ready'])
+              .reduce(function(set, eventName) {
+                set[eventName] = true;
+                return set;
+              }, {}))
+              .forEach(function(eventName) {
+                loader.fireOnChartEvent(chart, eventName);
+              });
+          this._setDrawn(false);
+          this._chart = chart;
+        }.bind(this));
     },
 
-    _subOptionChanged: function(optionChangeDetails) {
+    _subOptionChanged(optionChangeDetails) {
       this.options = optionChangeDetails.base;
       // Debounce to allow for multiple option changes in one redraw
       this.debounce('optionChangeRedraw', function() {
@@ -314,7 +310,7 @@ on the `html` tag of your document.
       }, 5);
     },
 
-    _setSelection: function() {
+    _setSelection() {
       // Note: Some charts (e.g. TreeMap) must have a selection.
       if (!this.drawn || !this.selection || this.selection === this._selection) {
         return;
@@ -326,14 +322,20 @@ on the `html` tag of your document.
       this._selection = this.selection;
     },
 
-    _updateSelection: function() {
+    _updateSelection() {
       this.selection = this._selection = this._chart.getSelection();
     },
 
-    _onChartReady: function() {
+    _onChartReady() {
+      google.visualization.errors.removeAll(this.$.chartdiv);
       this._setDrawn(true);
       this._selection = null;
       this._setSelection();
+    },
+
+    _onDataError(error) {
+      google.visualization.errors.addError(
+          this.$.chartdiv, error.detail.message);
     },
 
     /**
@@ -344,12 +346,12 @@ on the `html` tag of your document.
      *
      * @method redraw
      */
-    redraw: function() {
-      if (!this._chart || !this._dataView) { return; }
-      this._draw(this._chart, this._dataView);
+    redraw() {
+      if (!this._chart || !this.view) { return; }
+      this._draw(this._chart, this.view);
     },
 
-    _draw: function(chart, data) {
+    _draw(chart, data) {
       try {
         this._setDrawn(false);
         chart.draw(data, this.options || {});
@@ -369,68 +371,6 @@ on the `html` tag of your document.
       if (!this._chart) { return null; }
       return this._chart.getImageURI();
     },
-
-    /**
-     * Handles changes to the `view` attribute.
-     *
-     * @param {!google.visualization.DataView|undefined} view The new view value
-     */
-    _viewChanged: function(view) {
-      if (!view) { return; }
-      this._dataView = view;
-    },
-
-    // Handles changes to the rows & columns attributes.
-    _rowsOrColumnsChanged: function() {
-      var rows = this.rows, cols = this.cols;
-      if (!rows || !cols) { return; }
-      this.$.loader.dataTable()
-        .then(function(dataTable) {
-          cols.forEach(function(col) {
-            dataTable.addColumn(col);
-          });
-          dataTable.addRows(rows);
-          return dataTable;
-        }.bind(this))
-        .then(this.$.loader.dataView.bind(this.$.loader))
-        .then(function(dataView) {
-          this._dataView = dataView;
-        }.bind(this))
-        .catch(function(reason) {
-          this.$.chartdiv.innerHTML = reason;
-        }.bind(this));
-    },
-
-    /**
-     * Handles changes to the `data` attribute.
-     *
-     * @param {
-     *     !google.visualization.DataTable|
-     *     !Array<!Array>|
-     *     !{cols: !Array, rows: (!Array<!Array>|undefined)}|
-     *     string|
-     *     undefined} data The new data value
-     */
-    _dataChanged: function(data) {
-      var dataPromise;
-      if (!data) { return; }
-      if (typeof data == 'string' || data instanceof String) {
-        // Load data asynchronously, from external URL.
-        var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
-        dataPromise = request.send({
-          url: /** @type string */(data), handleAs: 'json'
-        }).then(function(xhr) { return xhr.response; });
-      } else {
-        // Data is all ready to be processed.
-        dataPromise = Promise.resolve(data);
-      }
-      dataPromise
-        .then(this.$.loader.dataTable.bind(this.$.loader))
-        .then(this.$.loader.dataView.bind(this.$.loader))
-        .then(function(dataView) {
-          this._dataView = dataView;
-        }.bind(this));
-    }
   });
 })();
 </script>
