@@ -1,0 +1,91 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="google-chart-loader.html">
+
+<dom-module id="google-chart-query">
+  <template>
+    <google-chart-loader id="loader"></google-chart-loader>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'google-chart-query',
+  properties: {
+    url: {
+      type: String,
+      observer: '_urlChanged',
+    },
+    query: {
+      type: String,
+      value: null
+    },
+    refresh: Number,
+    /**
+     * @attribute data
+     * @type {!google.visualization.DataTable}
+     */
+    data: {
+      type: Object,
+      notify: true,
+      readOnly: true
+    },
+    lastResponse: {
+      type: Object,
+      readOnly: true
+    },
+    loading: {
+      type: Boolean,
+      notify: true,
+      readOnly: true,
+      value: false
+    }
+  },
+  observers: [
+    '_debounceQuery(_queryObject, query)'
+  ],
+  _queryObject: null,
+
+  _urlChanged(url) {
+    this.$.loader.query(url).then(function(queryObject) {
+      this._queryObject = queryObject;
+    }.bind(this))
+  },
+
+  _doQuery(queryObject, queryString) {
+    if (queryString) {
+      queryObject.setQuery(queryString);
+    }
+    if (this.refresh) {
+      queryObject.setRefreshInterval(this.refresh);
+    }
+    this.send();
+  },
+
+  _debounceQuery(queryObject, queryString) {
+    this.debounce('query', function() {
+      this._doQuery(queryObject, queryString);
+    }.bind(this), 100);
+  },
+
+  _handleQueryResponse(res) {
+    this._setLoading(false);
+    if (res.isError()) {
+      return;
+    }
+    this._setData(res.getDataTable());
+    this.fire('google-chart-query-response', res);
+  },
+
+  send() {
+    this._queryObject.send(this._handleQueryResponse.bind(this));
+    this._setLoading(true);
+  },
+
+  abort() {
+    if (this._queryObject) {
+      this._queryObject.abort();
+      this._setLoading(false);
+    }
+  }
+});
+</script>

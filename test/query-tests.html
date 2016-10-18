@@ -1,0 +1,65 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at https://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at https://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at https://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at https://polymer.github.io/PATENTS.txt
+-->
+<!doctype html>
+<html>
+<head>
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../google-chart-query.html">
+</head>
+
+<body>
+
+<test-fixture id="chart-fixture">
+  <template>
+    <google-chart-query
+      url="https://spreadsheets.google.com/pub?key=rCaVQNfFDMhOM6ENNYeYZ9Q"></google-chart-query>
+  </template>
+</test-fixture>
+
+<script>
+suite('<google-chart-query>', function() {
+  var query;
+  setup(function() {
+    query = fixture('chart-fixture');
+  });
+  test('without a query string', function(done) {
+    query.addEventListener('data-changed', function() {
+      assert.isAtLeast(query.data.getNumberOfRows(), 1);
+      assert.isAtLeast(query.data.getNumberOfColumns(), 1);
+      done();
+    });
+  });
+  test('with a query string', function(done) {
+    query.query = 'LIMIT 3';
+    query.addEventListener('data-changed', function() {
+      assert.isAtMost(query.data.getNumberOfRows(), 3);
+      assert.isAtLeast(query.data.getNumberOfColumns(), 1);
+      done();
+    });
+  });
+  test('with a low refresh interval', function(done) {
+    query.refresh = 1;
+    query.query = 'LIMIT 1';
+    var changes = 0;
+    query.addEventListener('data-changed', function() {
+      assert.isAtMost(query.data.getNumberOfRows(), 1);
+      if (++changes == 2) {
+        query.abort();
+        done();
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>
