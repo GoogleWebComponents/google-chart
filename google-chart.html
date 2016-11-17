@@ -2,6 +2,7 @@
 <link rel="import" href="../iron-ajax/iron-request.html">
 <link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
 <link rel="import" href="google-chart-loader.html">
+<link rel="import" href="shared-styles.html">
 
 <!--
 `google-chart` encapsulates Google Charts as a web component, allowing you to easily visualize
@@ -57,9 +58,8 @@ on the `html` tag of your document.
 @demo
 -->
 <dom-module id="google-chart">
-  <link rel="stylesheet" type="text/css" href="google-chart.css">
-
   <template>
+    <style include="shared-styles"></style>
     <google-chart-loader id="loader" type="[[type]]"></google-chart-loader>
     <div id="chartdiv"></div>
   </template>
