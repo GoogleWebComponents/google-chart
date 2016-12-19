@@ -360,6 +360,22 @@
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
   </google-chart>
 
+  <p>Here's a sankey diagram:</p>
+
+  <google-chart
+    type="sankey"
+    options='{"title": "Distribution of days in 2001H1"}'
+    cols='[{"label": "From", "type": "string"},
+           {"label": "To", "type": "string"},
+           {"label": "Weight", "type": "number"}]'
+    rows='[[ "A", "X", 5 ],
+           [ "A", "Y", 7 ],
+           [ "A", "Z", 6 ],
+           [ "B", "X", 2 ],
+           [ "B", "Y", 9 ],
+           [ "B", "Z", 4 ]]'>
+  </google-chart>
+
   <p>Here's a scatter chart:</p>
 
   <google-chart

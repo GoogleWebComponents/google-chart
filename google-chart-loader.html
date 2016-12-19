@@ -57,6 +57,10 @@
     'pie': {
       ctor: 'PieChart',
     },
+    'sankey': {
+      ctor: 'Sankey',
+      pkg: 'sankey',
+    },
     'scatter': {
       ctor: 'ScatterChart',
     },
@@ -206,6 +210,10 @@
      */
     _loadPackageForType: function(type) {
       var chartData = CHART_CONSTRUCTORS[type];
+      if (!chartData) {
+        return Promise.reject(
+            'This chart type is not yet supported: ' + type);
+      }
       return this._loadPackages([chartData.pkg || DEFACTO_CHART_PACKAGE])
         .then(function() {
           return namespaceForType(type)[chartData.ctor];
