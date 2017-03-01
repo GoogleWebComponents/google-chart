@@ -1,0 +1,613 @@
+<link href="https://polygit.org/components/iron-ajax/iron-ajax.html" rel="import">
+<link href="https://polygit.org/components/iron-media-query/iron-media-query.html" rel="import">
+<link href="https://polygit.org/components/iron-resizable-behavior/iron-resizable-behavior.html" rel="import">
+<link href="https://polygit.org/components/paper-button/paper-button.html" rel="import">
+
+<link href="../google-chart-control.html" rel="import">
+<link href="../google-chart-dashboard.html" rel="import">
+<link href="../google-chart-data.html" rel="import">
+<link href="../google-chart-query.html" rel="import">
+<link href="../google-chart.html" rel="import">
+
+<dom-module id="google-chart-demo">
+  <template>
+    <google-chart-data
+        data="{{daysInMonth}}"
+        cols='[
+          {"label": "Month", "type": "string"},
+          {"label": "Days", "type": "number"}]'
+        rows='[
+          ["Jan", 31],
+          ["Feb", 28],
+          ["Mar", 31],
+          ["Apr", 30],
+          ["May", 31],
+          ["Jun", 30]]'></google-chart-data>
+    <style>
+      google-chart {
+        height: 300px;
+        width: 500px;
+      }
+      .column-layout {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+    </style>
+
+    <h2>The Simplest Chart</h2>
+    <google-chart data='[["Data","Value"],["Something", 1]]'></google-chart>
+
+    <h2 id="google-chart-data">Using <code>google-chart-data</code></h2>
+
+    <h3>Inside a chart</h3>
+    <p>Changes to the data are detected by the chart.</p>
+    <google-chart>
+      <google-chart-data value='[
+          ["", "Germany", "USA", "Brazil", "Canada", "France", "RU"],
+          ["", 700, 300, 400, 500, 600, 800]]'></google-chart-data>
+    </google-chart>
+
+    <h3>Outside the chart (shared)</h3>
+    <p>Data can be shared between multiple charts.</p>
+    <google-chart type="bar" data="[[daysInMonth]]"></google-chart>
+    <google-chart type="column" data="[[daysInMonth]]"></google-chart>
+
+    <h2 id="demo-formats">Data Format Examples</h2>
+
+    <h3>Rows &amp; Columns</h3>
+    <google-chart>
+      <google-chart-data
+          cols='[{"label":"Year", "type":"string"},
+                    {"label":"Things", "type":"number"},
+                    {"label":"Stuff", "type":"number"}]'
+          rows='[["2004", 1000, 400],
+                 ["2005", 1170, 460],
+                 ["2006", 660, 1120],
+                 ["2007", 1030, 540]]'></google-chart-data>
+    </google-chart>
+
+    <h3>2D Array</h3>
+    <google-chart>
+      <google-chart-data
+          value='[["Year", "Things", "Stuff"],
+                  ["2004", 1000, 400],
+                  ["2005", 1170, 460],
+                  ["2006", 660, 1120],
+                  ["2007", 1030, 540]]'></google-chart-data>
+    </google-chart>
+
+    <h3>DataTable Format</h3>
+    <google-chart>
+      <google-chart-data
+          value='{"cols":[
+                    {"label":"Year", "type":"string"},
+                    {"label":"Things", "type":"number"},
+                    {"label":"Stuff", "type":"number"}
+                  ],
+                  "rows":[
+                    {"c":[{"v":"2004"},{"v":1000},{"v":400}]},
+                    {"c":[{"v":"2005"},{"v":1170},{"v":460}]},
+                    {"c":[{"v":"2006"},{"v":660},{"v":1120}]},
+                    {"c":[{"v":"2007"},{"v":1030},{"v":540}]}
+                  ]
+                 }'></google-chart-data>
+    </google-chart>
+
+    <h3>AJAX Request</h3>
+
+    <h4>2D Array with heavy styling</h4>
+    <google-chart>
+      <iron-ajax auto url="chart-data.json" handle-as="json" last-response="{{styled2D}}"></iron-ajax>
+      <google-chart-data value="[[styled2D]]"></google-chart-data>
+    </google-chart>
+
+    <h4>DataTable Format</h4>
+    <google-chart>
+      <iron-ajax auto url="country-data.json" handle-as="json" last-response="{{ajaxDTformat}}"></iron-ajax>
+      <google-chart-data value="[[ajaxDTformat]]"></google-chart-data>
+    </google-chart>
+
+    <h3>Google Visualization Query</h3>
+
+    <h4>On the <code>google-chart</code></h4>
+    <google-chart
+        src="https://docs.google.com/spreadsheets/d/1XWJLkAwch5GXAt_7zOFDcg8Wm8Xv29_8PWuuW15qmAE/gviz/tq?gid=0&headers=1"
+        query="SELECT A, H, O, Q, R, U LIMIT 5 OFFSET 8"></google-chart>
+
+    <h4>With <code>google-chart-query</code></h3>
+    <p>
+      The <code>google-chart-query</code> works in the same way as a <code>google-chart-data</code> element.
+    </p>
+    <google-chart>
+      <google-chart-query
+          src="https://docs.google.com/spreadsheets/d/1XWJLkAwch5GXAt_7zOFDcg8Wm8Xv29_8PWuuW15qmAE/gviz/tq?gid=0&headers=1"
+          query="SELECT A, H, O, Q, R, U LIMIT 5 OFFSET 8"></google-chart-query>
+    </google-chart>
+
+
+    <h2>Chart gallery</h2>
+
+    <h3 id="area">Area Chart</h3>
+    <google-chart type="area" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="area-stepped">Area Chart (Stepped)</h3>
+    <google-chart type="area-stepped" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="bar">Bar Chart</h3>
+    <google-chart type="bar" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="bar-md">Bar Chart (Material)</h3>
+    <google-chart type="bar-md" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="bubble">Bubble Chart</h3>
+    <google-chart type="bubble">
+      <google-chart-data
+          value='[["ID", "Life Expectancy", "Fertility Rate", "Region", "Population"],
+             ["CAN", 80.66, 1.67, "North America", 33739900],
+             ["DEU", 79.84, 1.36, "Europe",        81902307],
+             ["DNK", 78.6,  1.84, "Europe",        5523095],
+             ["EGY", 72.73, 2.78, "Middle East",   79716203],
+             ["GBR", 80.05, 2,    "Europe",        61801570],
+             ["IRN", 72.49, 1.7,  "Middle East",   73137148],
+             ["IRQ", 68.09, 4.77, "Middle East",   31090763],
+             ["ISR", 81.55, 2.96, "Middle East",   7485600],
+             ["RUS", 68.6,  1.54, "Europe",        141850000],
+             ["USA", 78.09, 2.05, "North America", 307007000]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="candlestick">Candlestick Chart</h3>
+    <google-chart type="candlestick">
+      <google-chart-data
+          value='[["Day", "low", "start", "end", "high"],
+                  ["Mon", 20, 28, 38, 45],
+                  ["Tue", 31, 38, 55, 66],
+                  ["Wed", 50, 55, 77, 80],
+                  ["Thu", 77, 77, 66, 50],
+                  ["Fri", 68, 66, 22, 15]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="column">Column Chart (default <code>type</code>)</h3>
+    <google-chart type="column" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="combo">Combo Chart</h3>
+    <google-chart
+        type="combo"
+        options='{"seriesType": "bars",
+                  "series": {"2": {"type": "line"}}}'>
+      <google-chart-data
+          value='[["Day", "A", "B", "C"],
+                  ["Mon", 20, 45, 28],
+                  ["Tue", 31, 66, 38],
+                  ["Wed", 50, 80, 55],
+                  ["Thu", 77, 50, 77],
+                  ["Fri", 68, 15, 66]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="geo">Geo Chart</h3>
+    <google-chart type="geo">
+      <google-chart-data
+          value='[["Country", "Popularity"],
+                  ["Germany", 200],
+                  ["United States", 300],
+                  ["Brazil", 400],
+                  ["Canada", 500],
+                  ["France", 600],
+                  ["RU", 700]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="histogram">Histogram</h3>
+    <google-chart
+        type="histogram"
+        data="[[daysInMonth]]"
+        options='{"histogram":{"bucketSize":1}}'></google-chart>
+
+    <h3 id="line">Line Chart</h3>
+    <google-chart type="line" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="line-md">Line Chart (Material)</h3>
+    <google-chart type="line-md" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="org">Org Chart</h3>
+    <google-chart type="org">
+      <google-chart-data
+      cols='[
+             {"label": "Name", "type": "string"},
+             {"label":"Manager", "type":"string"},
+             {"label":"ToolTip", "type":"string"}]'
+      rows='[
+             ["Mike", "", "President"],
+             ["Janet", "Mike", "VP"],
+             ["Alice", "Mike", ""],
+             ["Bob", "Janet", "Bob Sponge"],
+             ["Carol", "Bob", ""]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="pie">Pie Chart</h3>
+    <google-chart type="pie" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="sankey">Sankey Diagram</h3>
+    <google-chart type="sankey">
+      <google-chart-data
+        cols='[{"label": "From", "type": "string"},
+               {"label": "To", "type": "string"},
+               {"label": "Weight", "type": "number"}]'
+        rows='[[ "A", "X", 5 ],
+               [ "A", "Y", 7 ],
+               [ "A", "Z", 6 ],
+               [ "B", "X", 2 ],
+               [ "B", "Y", 9 ],
+               [ "B", "Z", 4 ]]'></google-chart-data>
+    </google-chart>
+
+    <google-chart-data
+        data="{{scatterChartData}}"
+        value='[["A", "B"],
+                [20, 45],
+                [31, 66],
+                [50, 80],
+                [77, 50],
+                [68, 15]]'></google-chart-data>
+
+    <h3 id="scatter">Scatter Chart</h3>
+    <google-chart type="scatter" data="[[scatterChartData]]"></google-chart>
+
+    <h3 id="scatter-md">Scatter Chart (Material)</h3>
+    <google-chart type="scatter-md" data="[[scatterChartData]]"></google-chart>
+
+    <h3 id="table">Table</h3>
+    <google-chart type="table" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="timeline">Timeline</h3>
+    <google-chart type="timeline">
+      <google-chart-data
+          value='{
+                  "cols": [
+                    {"label": "Name", "type": "string"},
+                    {"label": "Start", "type": "date"},
+                    {"label": "End", "type": "date"}
+                  ],
+                  "rows": [
+                    {"c": [
+                           {"v": "Washington"},
+                           {"v": "Date(1789, 3, 30)"},
+                           {"v": "Date(1797, 2, 4)"}
+                          ]},
+                    {"c": [
+                           {"v": "Adams"},
+                           {"v": "Date(1797, 2, 4)"},
+                           {"v": "Date(1801, 2, 4)"}
+                          ]},
+                    {"c": [
+                           {"v": "Jefferson"},
+                           {"v": "Date(1801, 2, 4)"},
+                           {"v": "Date(1809, 2, 4)"}
+                          ]}
+                  ]}'></google-chart-data>
+    </google-chart>
+
+    <h3 id="wordtree">Word Tree</h3>
+    <google-chart type="wordtree">
+      <google-chart-data
+          value='[["Phrases"],
+                  ["cats are better than dogs"],
+                  ["cats eat kibble"],
+                  ["cats are better than hamsters"],
+                  ["cats are awesome"],
+                  ["cats are people too"],
+                  ["cats eat mice"],
+                  ["cats meowing"],
+                  ["cats in the cradle"],
+                  ["cats eat mice"],
+                  ["cats in the cradle lyrics"],
+                  ["cats eat kibble"],
+                  ["cats for adoption"],
+                  ["cats are family"],
+                  ["cats eat mice"],
+                  ["cats are better than kittens"],
+                  ["cats are evil"],
+                  ["cats are weird"],
+                  ["cats eat mice"]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="gauge">Gauges</h3>
+    <google-chart type="gauge">
+      <google-chart-data
+        value='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'></google-chart-data>
+    </google-chart>
+
+    <h4>Animated</h4>
+    <p>The values will change every 3 seconds.</p>
+    <google-chart type="gauge">
+      <google-chart-data value="[[animatedGaugeData]]"></google-chart-data>
+    </google-chart>
+
+    <h3 id="treemap">Tree Map</h3>
+    <google-chart id="treemap" type="treemap">
+      <google-chart-data
+        value='[["Location", "Parent", "Value"],
+                ["Global", null, 0],
+                ["America", "Global", 0],
+                ["Europe", "Global", 0],
+                ["Asia", "Global", 0],
+                ["Australia", "Global", 0],
+                ["Africa", "Global", 0],
+                ["Brazil", "America", 11],
+                ["USA", "America", 52],
+                ["Mexico", "America", 24],
+                ["Canada", "America", 16],
+                ["France", "Europe", 42],
+                ["Germany", "Europe", 31],
+                ["Sweden", "Europe", 22],
+                ["Italy", "Europe", 17],
+                ["UK", "Europe", 21],
+                ["China", "Asia", 36],
+                ["Japan", "Asia", 20],
+                ["India", "Asia", 40],
+                ["Laos", "Asia", 4],
+                ["Mongolia", "Asia", 1],
+                ["Israel", "Asia", 12],
+                ["Iran", "Asia", 18],
+                ["Pakistan", "Asia", 11],
+                ["Egypt", "Africa", 21],
+                ["S. Africa", "Africa", 30],
+                ["Sudan", "Africa", 12],
+                ["Congo", "Africa", 10],
+                ["Zaire", "Africa", 8]]'></google-chart-data>
+    </google-chart>
+    <paper-button on-tap="_treeMapGoUpAndDraw">Go Up And Draw</paper-button>
+
+    <h2>Advanced Topics</h2>
+
+    <h3 id="demo-view">Using the <code>view</code> Attribute</h3>
+    <p>
+      The value for <code>view</code> is the result from <code>DataView.toJSON</code>.
+    </p>
+
+    <h4>On the data</h4>
+    <google-chart-data
+        data="{{chartViews}}"
+        cols='[
+               {"label":"Country","type":"string"},
+               {"label":"Animal","type":"string"},
+               {"label":"Population","type":"number"},
+               {"label":"Size","type":"number"}
+              ]'
+        rows='[
+               ["USA", "Dog", 700, 800],
+               ["RU", "Cat", 300, 600],
+               ["England", "Bird", 400, 500],
+               ["Mexico", "Fish", 500, 400],
+               ["Japan", "Fox", 600, 300],
+               ["China", "Dragon", 800, 700]]'
+        view='{"columns":[0,2,3]}'></google-chart-data>
+    <google-chart data="[[chartViews]]"></google-chart>
+
+    <h4>On the charts</h4>
+    <google-chart data="[[chartViews]]" view='{"columns":[0,1]}'></google-chart>
+    <google-chart data="[[chartViews]]" view='{"columns":[0,2]}'></google-chart>
+
+    <h3>Making Dashboards with <code>google-chart-dashboard</code></h3>
+    
+    <h4 id="demo-dashboard">Sharing data</h4>
+    <p>The dashboard detects and distributes data changes.</p>
+    <google-chart-dashboard>
+      <div class="column-layout">
+        <google-chart></google-chart>
+        <google-chart type="bar"></google-chart>
+      </div>
+      <google-chart-data value='[
+          ["", "Germany", "USA", "Brazil", "Canada", "France", "RU"],
+          ["", 700, 300, 400, 500, 600, 800]]'></google-chart-data>
+    </google-chart-dashboard>
+
+    <h4 id="demo-control">Control Charts with <code>google-chart-control</code></h4>
+    <google-chart-dashboard>
+      <div class="column-layout">
+        <google-chart type="pie" view='{"columns": [0,3]}'></google-chart>
+        <div>
+          <google-chart-control label="Donuts eaten"></google-chart-control>
+          <google-chart-control index="2"></google-chart-control>
+        </div>
+      </div>
+      <google-chart-data value='[
+          ["Name", "Gender", "Age", "Donuts eaten"],
+          ["Michael" , "Male", 12, 5],
+          ["Elisa", "Female", 20, 7],
+          ["Robert", "Male", 7, 3],
+          ["John", "Male", 54, 2],
+          ["Jessica", "Female", 22, 6],
+          ["Aaron", "Male", 3, 1],
+          ["Margareth", "Female", 42, 8]]'></google-chart-data>
+    </google-chart-dashboard>
+
+    <h3>Resizing Charts</h3>
+
+    <h4>Via <code>iron-media-query</code></h4>
+    <p>
+      Using this element allows you to easily create different views for desktop and mobile.
+    </p>
+    <iron-media-query
+        query="(min-width: 1024px)"
+        on-query-matches-changed="_onQueryMatchChange"></iron-media-query>
+    <google-chart id="mqChart" data="[[daysInMonth]]"></google-chart>    
+
+    <style>
+      /* Desktop */
+      @media screen and (min-width: 1024px) {
+        #mqChart {
+          width: 800px;
+        }
+      }
+    </style>
+
+    <h4>Via <code>iron-resize</code></h4>
+    <p>
+      When you need precise control over the size of the chart, you'll want to use the <code>iron-resizable-behavior</code>.
+    </p>
+    <div class="column-layout demo-resize-auto">
+      <google-chart id="irbChart" data="[[daysInMonth]]"></google-chart>
+      <div>
+        Hello, world!
+      </div>
+    </div>
+    <style>
+      .demo-resize-auto {
+        flex-wrap: nowrap;
+        height: 300px;
+        width: 50%;
+      }
+      .demo-resize-auto > google-chart {
+        flex: 1;
+        height: 100%;
+      }
+    </style>
+
+    <h3 id="demo-update">Changing Data</h3>
+    <p>
+      This chart's data will be tweaked every 3 seconds.
+    </p>
+    <google-chart options='{"animation": {"duration": "1000"}}'>
+      <google-chart-data
+        id="changingData"
+        cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+        rows="[[changingDataDemoRows]]">
+    </google-chart>
+
+    <h3 id="demo-select">Selection Demo</h3>
+    <div class="column-layout">
+      <google-chart selection="{{selectionDemo}}" data="[[daysInMonth]]"></google-chart>
+      <div>
+        Selected row: [[selectionDemoRow]]
+      </div>
+    </div>
+
+    <h3 id="demo-action">Action Demo</h3>
+    <p>
+      We can create actions for the tooltips.
+    </p>
+    <div class="column-layout">
+      <google-chart
+          data="[[daysInMonth]]"
+          type="pie"
+          options='{"tooltip":{"trigger":"selection"}}'
+          actions='["Foo Bar",
+                    {"id": "foo", "text": "Hello!"}]'
+          on-google-chart-action="_setActionDemoId"></google-chart>
+      <div>
+        Action ID: [[actionDemoId]]
+      </div>
+    </div>
+
+    <h3 id="demo-event">Event Demo</h3>
+    <p>
+      We just listen for <code>mouseover</code> on this chart to update the text.
+    </p>
+    <div class="column-layout">
+      <google-chart
+          data="[[daysInMonth]]"
+          events='["onmouseover"]'
+          on-google-chart-onmouseover="_setEventDemoRow"
+          on-google-chart-ready="_setImageURI"
+          on-google-chart-select="_setImageURI"></google-chart>
+      <div>
+        Moused over row: [[eventDemoRow]]
+      </div>
+    </div>
+
+    <h3>Chart Image Data URI</h3>
+    <p>Mirrors the above event demo chart using its image URI.</p>
+    <img id="chartImageURI">
+
+  </template>
+  <script>
+    function getRandomGaugeValue(offset, factor) {
+      return offset + Math.round(factor * Math.random());
+    }
+    function getRandomValue() {
+      return Math.random() * 10;
+    }
+    Polymer({
+      is: 'google-chart-demo',
+      behaviors: [Polymer.IronResizableBehavior],
+      properties: {
+        selectionDemo: {
+          type: Array,
+          value: () => [{row:1}],
+          observer: '_selectionChanged'
+        },
+        actionDemoId: {
+          type: String,
+          value: 'None',
+        },
+        eventDemoRow: {
+          type: Number,
+          value: 'None',
+        },
+        animatedGaugeData: {
+          type: Array,
+          value: () => [
+            ['Label', 'Value'],
+            ['Memory', 80],
+            ['CPU', 55],
+            ['Network', 68],
+          ],
+        },
+        changingDataDemoRows: {
+          type: Array,
+          value: () => [
+            ['Col1', 5.0],
+            ['Col2', 5.0],
+            ['Col3', 5.0],
+          ],
+        },
+      },
+      listeners: {
+        'google-chart-select': '_onSelect',
+        'iron-resize': '_onIronResize',
+      },
+      changeDataInterval: 3000,
+      ready() {
+        this.async(this._changeData, this.changeDataInterval);
+      },
+      _onSelect(evt) {
+        console.log('Selection!', evt.detail);
+      },
+      _changeData() {
+        this.animatedGaugeData = [
+          ['Label', 'Value'],
+          ['Memory', getRandomGaugeValue(40, 60)],
+          ['CPU', getRandomGaugeValue(40, 60)],
+          ['Network', getRandomGaugeValue(60, 20)]
+        ];
+        this.changingDataDemoRows = [
+          ['Col1', getRandomValue()],
+          ['Col2', getRandomValue()],
+          ['Col3', getRandomValue()],
+        ];
+        this.async(this._changeData, this.changeDataInterval);
+      },
+      _setImageURI(evt) {
+        this.$.chartImageURI.src = evt.target.imageURI;
+      },
+      _setActionDemoId(evt) {
+        this.actionDemoId = evt.detail;
+      },
+      _setEventDemoRow(evt) {
+        this.eventDemoRow = evt.detail.row;
+      },
+      _selectionChanged() {
+        this.selectionDemoRow = this.selectionDemo[0].row;
+      },
+      _treeMapGoUpAndDraw() {
+        this.$.treemap.execute('goUpAndDraw');
+      },
+      _onQueryMatchChange() {
+        this.$.mqChart.draw();
+      },
+      _onIronResize() {
+        this.debounce('resize', () => this.$.irbChart.draw(), 100);
+      },
+    });
+  </script>
+</dom-module>

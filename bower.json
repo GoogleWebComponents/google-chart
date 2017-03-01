@@ -1,12 +1,11 @@
 {
   "name": "google-chart",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "Encapsulates Google Charts into a web component",
   "homepage": "https://googlewebcomponents.github.io/google-chart",
   "main": "google-chart.html",
   "authors": [
     "Wes Alvaro",
-    "Sérgio Gomes"
   ],
   "license": "Apache-2.0",
   "ignore": [
@@ -20,11 +19,10 @@
     "chart",
     "charts",
     "google-visualization",
-    "google"
+    "google",
+    "visualization"
   ],
   "dependencies": {
-    "google-apis": "GoogleWebComponents/google-apis#^1.0.0",
-    "iron-ajax": "PolymerElements/iron-ajax#^1.0.0",
     "polymer": "Polymer/polymer#^1.0.0",
     "promise-polyfill": "polymerlabs/promise-polyfill#^1.0.0"
   },
