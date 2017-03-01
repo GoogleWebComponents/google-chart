@@ -1,0 +1,125 @@
+<link href="../../iron-ajax/iron-ajax.html" rel="import">
+
+<link href="../google-chart.html" rel="import">
+<link href="../google-chart-data.html" rel="import">
+<link href="../google-chart-query.html" rel="import">
+
+<dom-module id="simple-demo">
+  <template>
+    <style>
+      google-chart {
+        height: 300px;
+        width: 500px;
+      }
+    </style>
+
+    <google-chart-data
+        data="{{daysInMonth}}"
+        cols='[
+          {"label": "Month", "type": "string"},
+          {"label": "Days", "type": "number"}]'
+        rows='[
+          ["Jan", 31],
+          ["Feb", 28],
+          ["Mar", 31],
+          ["Apr", 30],
+          ["May", 31],
+          ["Jun", 30]]'></google-chart-data>
+
+    <google-chart
+        data='[["Data","Value"],["Something", 1]]'
+        options='{"title": "Simple Chart"}'></google-chart>
+
+    <h2 id="google-chart-data">Using <code>google-chart-data</code></h2>
+
+    <h3>Inside a chart</h3>
+    <p>Changes to the data are detected by the chart.</p>
+    <google-chart>
+      <google-chart-data value='[
+          ["", "Germany", "USA", "Brazil", "Canada", "France", "RU"],
+          ["", 700, 300, 400, 500, 600, 800]]'></google-chart-data>
+    </google-chart>
+
+    <h3>Outside the chart (shared)</h3>
+    <p>Data can be shared between multiple charts.</p>
+    <google-chart type="bar" data="[[daysInMonth]]"></google-chart>
+    <google-chart type="column" data="[[daysInMonth]]"></google-chart>
+
+    <h2 id="demo-formats">Data Format Examples</h2>
+
+    <h3>Rows &amp; Columns</h3>
+    <google-chart>
+      <google-chart-data
+          cols='[{"label":"Year", "type":"string"},
+                    {"label":"Things", "type":"number"},
+                    {"label":"Stuff", "type":"number"}]'
+          rows='[["2004", 1000, 400],
+                 ["2005", 1170, 460],
+                 ["2006", 660, 1120],
+                 ["2007", 1030, 540]]'></google-chart-data>
+    </google-chart>
+
+    <h3>2D Array</h3>
+    <google-chart>
+      <google-chart-data
+          value='[["Year", "Things", "Stuff"],
+                  ["2004", 1000, 400],
+                  ["2005", 1170, 460],
+                  ["2006", 660, 1120],
+                  ["2007", 1030, 540]]'></google-chart-data>
+    </google-chart>
+
+    <h3>DataTable Format</h3>
+    <google-chart>
+      <google-chart-data
+          value='{"cols":[
+                    {"label":"Year", "type":"string"},
+                    {"label":"Things", "type":"number"},
+                    {"label":"Stuff", "type":"number"}
+                  ],
+                  "rows":[
+                    {"c":[{"v":"2004"},{"v":1000},{"v":400}]},
+                    {"c":[{"v":"2005"},{"v":1170},{"v":460}]},
+                    {"c":[{"v":"2006"},{"v":660},{"v":1120}]},
+                    {"c":[{"v":"2007"},{"v":1030},{"v":540}]}
+                  ]
+                 }'></google-chart-data>
+    </google-chart>
+
+    <h3>AJAX Request</h3>
+
+    <h4>2D Array with heavy styling</h4>
+    <google-chart>
+      <iron-ajax auto url="chart-data.json" handle-as="json" last-response="{{styled2D}}"></iron-ajax>
+      <google-chart-data value="[[styled2D]]"></google-chart-data>
+    </google-chart>
+
+    <h4>DataTable Format</h4>
+    <google-chart>
+      <iron-ajax auto url="country-data.json" handle-as="json" last-response="{{ajaxDTformat}}"></iron-ajax>
+      <google-chart-data value="[[ajaxDTformat]]"></google-chart-data>
+    </google-chart>
+
+    <h3>Google Visualization Query</h3>
+
+    <h4>On the <code>google-chart</code></h4>
+    <google-chart
+        src="https://docs.google.com/spreadsheets/d/1XWJLkAwch5GXAt_7zOFDcg8Wm8Xv29_8PWuuW15qmAE/gviz/tq?gid=0&headers=1"
+        query="SELECT A, H, O, Q, R, U LIMIT 5 OFFSET 8"></google-chart>
+
+    <h4>With <code>google-chart-query</code></h3>
+    <p>
+      The <code>google-chart-query</code> works in the same way as a <code>google-chart-data</code> element.
+    </p>
+    <google-chart>
+      <google-chart-query
+          src="https://docs.google.com/spreadsheets/d/1XWJLkAwch5GXAt_7zOFDcg8Wm8Xv29_8PWuuW15qmAE/gviz/tq?gid=0&headers=1"
+          query="SELECT A, H, O, Q, R, U LIMIT 5 OFFSET 8"></google-chart-query>
+    </google-chart>
+  </template>
+  <script>
+    Polymer({
+      is: 'simple-demo',
+    });
+  </script>
+</dom-module>

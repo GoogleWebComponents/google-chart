@@ -1,12 +1,11 @@
 {
   "name": "google-chart",
-  "version": "1.1.1",
+  "version": "2.1.0",
   "description": "Encapsulates Google Charts into a web component",
   "homepage": "https://googlewebcomponents.github.io/google-chart",
   "main": "google-chart.html",
   "authors": [
-    "Wes Alvaro",
-    "Sérgio Gomes"
+    "Wes Alvaro"
   ],
   "license": "Apache-2.0",
   "ignore": [
@@ -20,16 +19,31 @@
     "chart",
     "charts",
     "google-visualization",
-    "google"
+    "google",
+    "visualization"
   ],
   "dependencies": {
-    "google-apis": "GoogleWebComponents/google-apis#^1.0.0",
-    "iron-ajax": "PolymerElements/iron-ajax#^1.0.0",
-    "polymer": "Polymer/polymer#^1.0.0",
-    "promise-polyfill": "polymerlabs/promise-polyfill#^1.0.0"
+    "polymer": "Polymer/polymer#1.9 - 2"
   },
   "devDependencies": {
-    "iron-component-page": "PolymerElements/iron-component-page#^1.0.2",
-    "web-component-tester": "*"
+    "iron-ajax": "PolymerElements/iron-ajax#1 - 2",
+    "iron-component-page": "PolymerElements/iron-component-page#1 - 2",
+    "iron-media-query": "PolymerElements/iron-media-query#1 - 2",
+    "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#1 - 2",
+    "paper-button": "PolymerElements/paper-button#1 - 2",
+    "promise-polyfill": "polymerlabs/promise-polyfill#1 - 2",
+    "web-component-tester": "Polymer/web-component-tester#^6.4.0"
+  },
+  "variants": {
+    "1.x": {
+      "dependencies": {
+        "polymer": "Polymer/polymer#^1.0.0",
+        "promise-polyfill": "PolymerLabs/promise-polyfill#^1.0.0"
+      },
+      "devDependencies": {
+        "iron-component-page": "PolymerElements/iron-component-page#^1.0.2",
+        "web-component-tester": "*"
+      }
+    }
   }
 }

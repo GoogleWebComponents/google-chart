@@ -1,0 +1,18 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="google-chart-loader.html">
+<link rel="import" href="google-chart.html">
+
+<dom-module id="google-chart-editor">
+  <template>
+    <style>
+      .control {
+        display: none;
+      }
+    </style>
+    <div class="control">
+      <slot name="control"></slot>
+    </div>
+    <slot></slot>
+  </template>
+  <script src="google-chart-editor.js"></script>
+</dom-module>

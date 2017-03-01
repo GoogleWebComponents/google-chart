@@ -1,0 +1,29 @@
+<link href="advanced-demo.html" rel="import">
+<link href="gallery-demo.html" rel="import">
+<link href="simple-demo.html" rel="import">
+
+<dom-module id="google-chart-demo">
+  <template>
+
+    <h2>The Simplest Chart</h2>
+    <simple-demo></simple-demo>
+
+    <h2>Chart gallery</h2>
+    <gallery-demo></gallery-demo>
+
+    <h2>Advanced Topics</h2>
+    <advanced-demo></advanced-demo>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'google-chart-demo',
+      listeners: {
+        'google-chart-select': '_onSelect',
+      },
+      _onSelect(evt) {
+        console.log('Selection!', evt.detail);
+      },
+    });
+  </script>
+</dom-module>
