@@ -5,7 +5,7 @@
   "homepage": "https://googlewebcomponents.github.io/google-chart",
   "main": "google-chart.html",
   "authors": [
-    "Wes Alvaro",
+    "Wes Alvaro"
   ],
   "license": "Apache-2.0",
   "ignore": [
