@@ -26,7 +26,7 @@
     "google-apis": "GoogleWebComponents/google-apis#^1.0.0",
     "iron-ajax": "PolymerElements/iron-ajax#^1.0.0",
     "polymer": "Polymer/polymer#^1.0.0",
-    "promise-polyfill": "polymerlabs/promise-polyfill#^1.0.0"
+    "promise-polyfill": "PolymerLabs/promise-polyfill#^1.0.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.2",
