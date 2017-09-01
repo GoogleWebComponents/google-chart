@@ -233,7 +233,7 @@ on the `html` tag of your document.
        *        undefined}
        */
       data: {
-        type: Object,
+        type: String,
         observer: '_dataChanged'
       },
 
@@ -433,12 +433,25 @@ on the `html` tag of your document.
     _dataChanged: function(data) {
       var dataPromise;
       if (!data) { return; }
-      if (typeof data == 'string' || data instanceof String) {
+
+      var isString = false;
+
+      // Polymer 2 will not call observer if type:Object is set and fails, so
+      // we must parse the string ourselves.
+      try {
+        data = JSON.parse(data);
+      } catch (e) {
+        isString = typeof data == 'string' || data instanceof String;
+      }
+
+      if (isString) {
         // Load data asynchronously, from external URL.
         var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
         dataPromise = request.send({
           url: /** @type string */(data), handleAs: 'json'
-        }).then(function(xhr) { return xhr.response; });
+        }).then(function(xhr) {
+          return xhr.response;
+        });
       } else {
         // Data is all ready to be processed.
         dataPromise = Promise.resolve(data);
