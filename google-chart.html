@@ -367,7 +367,15 @@ on the `html` tag of your document.
       this._draw(this._chart, this._dataView);
     },
 
+    /**
+    * Renders the chart using the provided data.
+    * @param {Object|undefined} chart Internal Google Visualization chart object.
+    * @param {google.visualization.DataView|undefined} data  Internal data state
+    */
     _draw: function(chart, data) {
+      if(chart == null || data == null) {
+        return;
+      }
       try {
         this._setDrawn(false);
         chart.draw(data, this.options || {});
