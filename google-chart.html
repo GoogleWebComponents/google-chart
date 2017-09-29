@@ -373,7 +373,7 @@ on the `html` tag of your document.
     * @param {google.visualization.DataView|undefined} data  Internal data state
     */
     _draw: function(chart, data) {
-      if(chart == undefined || data == undefined) {
+      if(chart == null || data == null) {
         return;
       }
       try {
