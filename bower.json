@@ -13,14 +13,14 @@
     "/test/"
   ],
   "keywords": [
-    "web-component",
-    "web-components",
-    "polymer",
     "chart",
     "charts",
-    "google-visualization",
     "google",
-    "visualization"
+    "google-visualization",
+    "polymer",
+    "visualization",
+    "web-component",
+    "web-components"
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#1.9 - 2"
