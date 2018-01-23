@@ -1,17 +1,19 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="google-chart-loader.html">
 
-<dom-module id="google-chart">
+<dom-module id="google-chart-dashboard">
   <template>
     <style>
       :host {
         display: inline-block;
       }
-      #chart {
+      #dashboard {
         height: 100%;
       }
     </style>
-    <div id="chart">Loading chart...</div>
+    <div id="dashboard">
+      <slot></slot>
+    </div>
   </template>
-  <script src="google-chart.js"></script>
+  <script src="google-chart-dashboard.js"></script>
 </dom-module>

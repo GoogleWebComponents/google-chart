@@ -19,233 +19,153 @@
 
 <body>
 
+<style>
+  google-chart {
+    height: 300px;
+    width: 500px;
+  }
+</style>
 <test-fixture id="chart-fixture">
   <template>
-    <google-chart></google-chart>
+    <google-chart id="chart"></google-chart>
   </template>
 </test-fixture>
 
 <script>
-suite('<google-chart>', function() {
-  var chart;
-  setup(function() {
+suite('<google-chart>', () => {
+  let chart;
+
+  setup(() => {
     chart = fixture('chart-fixture');
   });
-  var waitCheckAndDone = function(check, done) {
-    setTimeout(function() {
-      if (check()) {
-        chart.debounce('done', done, 100);
-      } else {
-        waitCheckAndDone(check, done);
-      }
-    }, 50);
-  };
-  suite('Default Functionality', function() {
-    setup(function() {
+
+  test('is not initially drawn', () => {
+    assert.isFalse(chart.drawn);
+    assert.equal(chart.$$('#chart').innerText, 'Loading chart...');
+    assert.lengthOf(chart.actions, 0);
+    assert.lengthOf(chart.events, 0);
+    assert.lengthOf(chart.selection, 0);
+    assert.deepEqual(chart.options, {});
+    assert.isNotOk(chart.view);
+    assert.isNotOk(chart.error);
+    assert.isNotOk(chart.query);
+    assert.isNotOk(chart.src);
+    assert.isNotOk(chart.data);
+    assert.isOk(chart.wrapper);
+  });
+
+  suite('Simple Functionality', () => {
+    setup(() => {
       chart.data = [ ['Data', 'Value'], ['Something', 1] ];
     });
-    test('fires google-chart-ready event for initial load', function(done) {
-      chart.addEventListener('google-chart-ready', function() {
-        assert.isTrue(chart.drawn);
-        done();
-      });
-    });
-    test('fires google-chart-ready event for redraw call', function(done) {
-      var drawCount = 0;
-      chart.addEventListener('google-chart-ready', function() {
-        assert.isTrue(chart.drawn);
-        ++drawCount;
-        if (drawCount == 4) { done(); }
-        else chart.redraw();
+
+    suite('fires `google-chart-ready` event', () => {
+      test('on initial draw', done => {
+        chart.addEventListener('google-chart-ready', () => {
+          assert.isTrue(chart.drawn);
+          done();
+        });
       });
 
-    });
-    test('default type is column', function() {
-      assert.equal(chart.type, 'column');
-    });
-    test('can change type', function(done) {
-      chart.type = 'line';
-      waitCheckAndDone(function() {
-        // A circle indicates the chart type change was drawn:
-        return chart.$$('circle');
-      }, done);
-    });
-    test('default selection is null', function() {
-      assert.equal(chart.selection, null);
-    });
-    test('can change selection', function(done) {
-      chart.selection = [ {row: 0} ];
-      waitCheckAndDone(function() {
-        // A white stroked rectangle signals the selection was drawn:
-        return chart.$$('rect[stroke="#ffffff"]');
-      }, done);
-    });
-    test('default options are null', function() {
-      assert.equal(chart.options, null);
-    });
-    test('can change options', function(done) {
-      var expectedTitle = 'New Title';
-      var initialDraw = true;
-      chart.addEventListener('google-chart-ready', function() {
-        if (initialDraw) {
-          initialDraw = false;
-          chart.options = {'title': expectedTitle};
-        } else {
-          assert.equal(chart.$$('text').innerHTML, expectedTitle);
-          done();
-        }
+      test('once for each redraw', done => {
+        let drawCount = 0;
+        chart.addEventListener('google-chart-ready', () => {
+          assert.isTrue(chart.drawn);
+          ++drawCount;
+          if (drawCount == 4) {
+            done();
+          } else {
+            chart.draw();
+          }
+        });
       });
     });
-    test('can change deep options', function(done) {
-      chart.options = {'title': 'Old Title'};
-      var spyRedraw = sinon.spy(chart, 'redraw');
-      var expectedTitle = 'New Title';
-      var initialDraw = true;
-      chart.addEventListener('google-chart-ready', function() {
-        if (initialDraw) {
-          initialDraw = false;
-          chart.set('options.title', 'Debounced Title');
-          chart.set('options.title', expectedTitle);
-          assert.isFalse(spyRedraw.called);
-        } else {
-          assert.equal(chart.$$('text').innerHTML, expectedTitle);
-          assert.isTrue(spyRedraw.calledOnce);
-          chart.redraw.restore();
+
+    suite('type', () => {
+      test('default is `column`', () => {
+        assert.equal(chart.type, 'column');
+      });
+
+      test('can be changed', done => {
+        chart.type = 'line';
+        chart.addEventListener('google-chart-ready', () => {
+          // A circle indicates the chart type change was drawn:
+          assert.isOk(chart.$$('circle'));
           done();
-        }
+        });
       });
     });
-    test('creates png chart uri', function (done) {
-      chart.addEventListener('google-chart-ready', function(event) {
-        var uri = chart.imageURI;
+
+    suite('selection', () => {
+      test('default has no rows', () => {
+        assert.lengthOf(chart.selection, 0);
+      });
+
+      test('can be changed', done => {
+        chart.selection = [ {row: 0} ];
+        chart.addEventListener('google-chart-ready', () => {
+          // A white stroked rectangle signals the selection was drawn:
+          assert.isOk(chart.$$('rect[stroke="#ffffff"]'));
+          done();
+        });
+      });
+    });
+
+    suite('options', () => {
+      test('default is an empty Object', () => {
+        assert.deepEqual(chart.options, {});
+      });
+
+      test('can be changed', done => {
+        var expectedTitle = 'New Title';
+        var initialDraw = true;
+        chart.addEventListener('google-chart-ready', () => {
+          if (initialDraw) {
+            initialDraw = false;
+            chart.options = {'title': expectedTitle};
+          } else {
+            //debugger
+            assert.equal(chart.$$('text').innerHTML, expectedTitle);
+            done();
+          }
+        });
+      });
+
+      test('can have subproperties changed', done => {
+        chart.options = {'title': 'Old Title'};
+        const expectedTitle = 'New Title';
+
+        let initialDraw = true;
+        chart.addEventListener('google-chart-ready', () => {
+          if (initialDraw) {
+            initialDraw = false;
+            assert.equal(chart.options.title, 'Old Title');
+            chart.set('options.title', 'Debounced Title');
+            chart.set('options.title', expectedTitle);
+          } else {
+            assert.equal(chart.$$('text').innerHTML, expectedTitle);
+            done();
+          }
+        });
+      });
+    });
+
+    test('creates png chart uri', done => {
+      chart.addEventListener('google-chart-ready', () => {
+        const uri = chart.imageURI;
         assert.isString(uri);
         assert.match(uri, /^data:image\/png;base64/, 'png regexp matches');
         done();
       });
     });
-    test('can render multiple instances', function (done) {
-      var secondChart = document.createElement('google-chart');
+
+    test('can render multiple instances', done => {
+      const secondChart = fixture('chart-fixture');
       secondChart.data = [ ['Data', 'Value'], ['Something', 1] ];
 
       // Ensure second chart is rendered. Clean up test.
-      secondChart.addEventListener('google-chart-ready', function() {
-        document.body.removeChild(secondChart);
+      secondChart.addEventListener('google-chart-ready', () => {
         done();
-      });
-
-      document.body.appendChild(secondChart);
-    });
-  });
-
-  suite('Events', function() {
-    setup(function() {
-      chart.data = [ ['Data', 'Value'], ['Something', 1] ];
-    });
-
-    test('can be added', function(done) {
-      chart.events = ['onmouseover'];
-      chart.addEventListener('google-chart-ready', function() {
-        google.visualization.events.trigger(
-            chart._chart, 'onmouseover', {'row': 1, 'column': 5});
-      });
-      chart.addEventListener('google-chart-onmouseover', function(e) {
-        assert.equal(e.detail.data.row, 1);
-        assert.equal(e.detail.data.column, 5);
-        done();
-      });
-    });
-  });
-
-  suite('Data Source Types', function() {
-    test('[rows] and [cols]', function (done) {
-      chart.cols = [
-        {'label': 'Data', 'type': 'string'},
-        {'label': 'Value', 'type': 'number'}
-      ];
-      chart.rows = [
-        ['Something', 1]
-      ];
-      chart.addEventListener('google-chart-ready', function() {
-        done();
-      });
-    });
-
-    test('[rows] and [cols] with date string repr is broken', function(done) {
-      chart.cols = [ { 'type': 'date' } ];
-      chart.rows = [ ['Date(1789, 3, 30)'] ];
-      waitCheckAndDone(function() {
-        return chart.$$('#chartdiv').innerHTML ==
-          'Error: Type mismatch. Value Date(1789, 3, 30) ' +
-          'does not match type date in column index 0';
-      }, done);
-    });
-    var setDataAndWaitForRender = function(data, done) {
-      chart.data = data;
-      chart.addEventListener('google-chart-ready', function() {
-        done();
-      });
-    };
-    test('[data] is 2D Array', function(done) {
-      setDataAndWaitForRender([ ['Data', 'Value'], ['Something', 1] ], done);
-    });
-    test('[data] is DataTable Object format', function(done) {
-      setDataAndWaitForRender({
-        'cols': [
-          {'label': 'Data', 'type': 'string'},
-          {'label': 'Value', 'type': 'number'}
-        ],
-        'rows': [
-          {'c': ['Someting', 1]}
-        ]
-      }, done);
-    });
-    test('[data] is DataTable', function(done) {
-      chart.addEventListener('google-chart-ready', function() {
-        done();
-      });
-      var loader = document.createElement('google-chart-loader');
-      loader.dataTable([
-        ['Data', 'Value'],
-        ['Something', 1]
-      ]).then(function(dataTable) {
-        chart.data = dataTable;
-      });
-    });
-    test('[data] is DataTable from DataSource Query', function(done) {
-      chart.addEventListener('google-chart-ready', function() {
-        done();
-      });
-      document.createElement('google-chart-loader')
-        .query('query.json')
-        .then(function(q) {
-          q.send(function(res) {
-            chart.data = res.getDataTable();
-          });
-        });
-    });
-    test('[data] is JSON URL for 2D Array', function(done) {
-      setDataAndWaitForRender('test-data-array.json', done);
-    });
-    test('[data] is JSON URL for DataTable Object format', function(done) {
-      setDataAndWaitForRender('test-data-object.json', done);
-    });
-    test('[view] is DataView', function(done) {
-      chart.addEventListener('google-chart-ready', function() {
-        done();
-      });
-      var loader = document.createElement('google-chart-loader');
-      loader.dataTable([
-        ['Data', 'Value'],
-        ['Something', 1]
-      ])
-      .then(loader.dataView.bind(loader))
-      .then(function(dataView) {
-        chart.view = dataView;
-      });
-    });
-    test('multiple calls to JSON URL', function(done) {
-      setDataAndWaitForRender('test-data-array.json', function() {
-        setDataAndWaitForRender('test-data-object.json', done);
       });
     });
   });

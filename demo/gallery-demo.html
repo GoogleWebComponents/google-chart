@@ -1,0 +1,260 @@
+<link href="../../paper-button/paper-button.html" rel="import">
+
+<link href="../google-chart.html" rel="import">
+<link href="../google-chart-data.html" rel="import">
+
+<dom-module id="gallery-demo">
+  <template>
+    <style>
+      :host { display: block; }
+      google-chart {
+        height: 300px;
+        width: 500px;
+      }
+    </style>
+
+    <google-chart-data
+        data="{{daysInMonth}}"
+        cols='[
+          {"label": "Month", "type": "string"},
+          {"label": "Days", "type": "number"}]'
+        rows='[
+          ["Jan", 31],
+          ["Feb", 28],
+          ["Mar", 31],
+          ["Apr", 30],
+          ["May", 31],
+          ["Jun", 30]]'></google-chart-data>
+
+    <h3 id="area">Area Chart</h3>
+    <google-chart type="area" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="area-stepped">Area Chart (Stepped)</h3>
+    <google-chart type="area-stepped" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="bar">Bar Chart</h3>
+    <google-chart type="bar" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="bar-md">Bar Chart (Material)</h3>
+    <google-chart type="bar-md" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="bubble">Bubble Chart</h3>
+    <google-chart type="bubble">
+      <google-chart-data
+          value='[["ID", "Life Expectancy", "Fertility Rate", "Region", "Population"],
+             ["CAN", 80.66, 1.67, "North America", 33739900],
+             ["DEU", 79.84, 1.36, "Europe",        81902307],
+             ["DNK", 78.6,  1.84, "Europe",        5523095],
+             ["EGY", 72.73, 2.78, "Middle East",   79716203],
+             ["GBR", 80.05, 2,    "Europe",        61801570],
+             ["IRN", 72.49, 1.7,  "Middle East",   73137148],
+             ["IRQ", 68.09, 4.77, "Middle East",   31090763],
+             ["ISR", 81.55, 2.96, "Middle East",   7485600],
+             ["RUS", 68.6,  1.54, "Europe",        141850000],
+             ["USA", 78.09, 2.05, "North America", 307007000]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="candlestick">Candlestick Chart</h3>
+    <google-chart type="candlestick">
+      <google-chart-data
+          value='[["Day", "low", "start", "end", "high"],
+                  ["Mon", 20, 28, 38, 45],
+                  ["Tue", 31, 38, 55, 66],
+                  ["Wed", 50, 55, 77, 80],
+                  ["Thu", 77, 77, 66, 50],
+                  ["Fri", 68, 66, 22, 15]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="column">Column Chart (default <code>type</code>)</h3>
+    <google-chart type="column" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="combo">Combo Chart</h3>
+    <google-chart
+        type="combo"
+        options='{"seriesType": "bars",
+                  "series": {"2": {"type": "line"}}}'>
+      <google-chart-data
+          value='[["Day", "A", "B", "C"],
+                  ["Mon", 20, 45, 28],
+                  ["Tue", 31, 66, 38],
+                  ["Wed", 50, 80, 55],
+                  ["Thu", 77, 50, 77],
+                  ["Fri", 68, 15, 66]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="geo">Geo Chart</h3>
+    <google-chart type="geo">
+      <google-chart-data
+          value='[["Country", "Popularity"],
+                  ["Germany", 200],
+                  ["United States", 300],
+                  ["Brazil", 400],
+                  ["Canada", 500],
+                  ["France", 600],
+                  ["RU", 700]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="histogram">Histogram</h3>
+    <google-chart
+        type="histogram"
+        data="[[daysInMonth]]"
+        options='{"histogram":{"bucketSize":1}}'></google-chart>
+
+    <h3 id="line">Line Chart</h3>
+    <google-chart type="line" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="line-md">Line Chart (Material)</h3>
+    <google-chart type="line-md" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="org">Org Chart</h3>
+    <google-chart type="org">
+      <google-chart-data
+      cols='[
+             {"label": "Name", "type": "string"},
+             {"label":"Manager", "type":"string"},
+             {"label":"ToolTip", "type":"string"}]'
+      rows='[
+             ["Mike", "", "President"],
+             ["Janet", "Mike", "VP"],
+             ["Alice", "Mike", ""],
+             ["Bob", "Janet", "Bob Sponge"],
+             ["Carol", "Bob", ""]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="pie">Pie Chart</h3>
+    <google-chart type="pie" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="sankey">Sankey Diagram</h3>
+    <google-chart type="sankey">
+      <google-chart-data
+        cols='[{"label": "From", "type": "string"},
+               {"label": "To", "type": "string"},
+               {"label": "Weight", "type": "number"}]'
+        rows='[[ "A", "X", 5 ],
+               [ "A", "Y", 7 ],
+               [ "A", "Z", 6 ],
+               [ "B", "X", 2 ],
+               [ "B", "Y", 9 ],
+               [ "B", "Z", 4 ]]'></google-chart-data>
+    </google-chart>
+
+    <google-chart-data
+        data="{{scatterChartData}}"
+        value='[["A", "B"],
+                [20, 45],
+                [31, 66],
+                [50, 80],
+                [77, 50],
+                [68, 15]]'></google-chart-data>
+
+    <h3 id="scatter">Scatter Chart</h3>
+    <google-chart type="scatter" data="[[scatterChartData]]"></google-chart>
+
+    <h3 id="scatter-md">Scatter Chart (Material)</h3>
+    <google-chart type="scatter-md" data="[[scatterChartData]]"></google-chart>
+
+    <h3 id="table">Table</h3>
+    <google-chart type="table" data="[[daysInMonth]]"></google-chart>
+
+    <h3 id="timeline">Timeline</h3>
+    <google-chart type="timeline">
+      <google-chart-data
+          value='{
+                  "cols": [
+                    {"label": "Name", "type": "string"},
+                    {"label": "Start", "type": "date"},
+                    {"label": "End", "type": "date"}
+                  ],
+                  "rows": [
+                    {"c": [
+                           {"v": "Washington"},
+                           {"v": "Date(1789, 3, 30)"},
+                           {"v": "Date(1797, 2, 4)"}
+                          ]},
+                    {"c": [
+                           {"v": "Adams"},
+                           {"v": "Date(1797, 2, 4)"},
+                           {"v": "Date(1801, 2, 4)"}
+                          ]},
+                    {"c": [
+                           {"v": "Jefferson"},
+                           {"v": "Date(1801, 2, 4)"},
+                           {"v": "Date(1809, 2, 4)"}
+                          ]}
+                  ]}'></google-chart-data>
+    </google-chart>
+
+    <h3 id="wordtree">Word Tree</h3>
+    <google-chart type="wordtree">
+      <google-chart-data
+          value='[["Phrases"],
+                  ["cats are better than dogs"],
+                  ["cats eat kibble"],
+                  ["cats are better than hamsters"],
+                  ["cats are awesome"],
+                  ["cats are people too"],
+                  ["cats eat mice"],
+                  ["cats meowing"],
+                  ["cats in the cradle"],
+                  ["cats eat mice"],
+                  ["cats in the cradle lyrics"],
+                  ["cats eat kibble"],
+                  ["cats for adoption"],
+                  ["cats are family"],
+                  ["cats eat mice"],
+                  ["cats are better than kittens"],
+                  ["cats are evil"],
+                  ["cats are weird"],
+                  ["cats eat mice"]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="gauge">Gauges</h3>
+    <google-chart type="gauge">
+      <google-chart-data
+        value='[["Label", "Value"],["Memory", 80],["CPU", 55],["Network", 68]]'></google-chart-data>
+    </google-chart>
+
+    <h3 id="treemap">Tree Map</h3>
+    <google-chart id="treemap" type="treemap">
+      <google-chart-data
+        value='[["Location", "Parent", "Value"],
+                ["Global", null, 0],
+                ["America", "Global", 0],
+                ["Europe", "Global", 0],
+                ["Asia", "Global", 0],
+                ["Australia", "Global", 0],
+                ["Africa", "Global", 0],
+                ["Brazil", "America", 11],
+                ["USA", "America", 52],
+                ["Mexico", "America", 24],
+                ["Canada", "America", 16],
+                ["France", "Europe", 42],
+                ["Germany", "Europe", 31],
+                ["Sweden", "Europe", 22],
+                ["Italy", "Europe", 17],
+                ["UK", "Europe", 21],
+                ["China", "Asia", 36],
+                ["Japan", "Asia", 20],
+                ["India", "Asia", 40],
+                ["Laos", "Asia", 4],
+                ["Mongolia", "Asia", 1],
+                ["Israel", "Asia", 12],
+                ["Iran", "Asia", 18],
+                ["Pakistan", "Asia", 11],
+                ["Egypt", "Africa", 21],
+                ["S. Africa", "Africa", 30],
+                ["Sudan", "Africa", 12],
+                ["Congo", "Africa", 10],
+                ["Zaire", "Africa", 8]]'></google-chart-data>
+    </google-chart>
+    <paper-button on-tap="_treeMapGoUpAndDraw">Go Up And Draw</paper-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'gallery-demo',
+      _treeMapGoUpAndDraw() {
+        this.$.treemap.execute('goUpAndDraw');
+      },
+    });
+  </script>
+</dom-module>

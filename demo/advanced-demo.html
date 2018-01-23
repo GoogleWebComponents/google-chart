@@ -1,0 +1,397 @@
+
+<link href="../../iron-media-query/iron-media-query.html" rel="import">
+<link href="../../iron-resizable-behavior/iron-resizable-behavior.html" rel="import">
+<link href="../../paper-button/paper-button.html" rel="import">
+
+<link href="../google-chart-control.html" rel="import">
+<link href="../google-chart-dashboard.html" rel="import">
+<link href="../google-chart-data.html" rel="import">
+<link href="../google-chart-editor.html" rel="import">
+<link href="../google-chart-query.html" rel="import">
+<link href="../google-chart.html" rel="import">
+
+<dom-module id="advanced-demo">
+  <template>
+    <style>
+      google-chart {
+        height: 300px;
+        width: 500px;
+      }
+      .column-layout {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+    </style>
+
+    <google-chart-data
+        data="{{daysInMonth}}"
+        cols='[
+          {"label": "Month", "type": "string"},
+          {"label": "Days", "type": "number"}]'
+        rows='[
+          ["Jan", 31],
+          ["Feb", 28],
+          ["Mar", 31],
+          ["Apr", 30],
+          ["May", 31],
+          ["Jun", 30]]'></google-chart-data>
+
+    <h3 id="demo-view">Using the <code>view</code> Attribute</h3>
+    <p>
+      The value for <code>view</code> is the result from <code>DataView.toJSON</code>.
+    </p>
+
+    <h4>On the data</h4>
+    <google-chart>
+      <google-chart-data
+        data="{{dataView}}"
+        cols='[
+               {"label":"Country","type":"string"},
+               {"label":"Animal","type":"string"},
+               {"label":"Population","type":"number"},
+               {"label":"Size","type":"number"}
+              ]'
+        rows='[
+               ["USA", "Dog", 700, 800],
+               ["RU", "Cat", 300, 600],
+               ["England", "Bird", 400, 500],
+               ["Mexico", "Fish", 500, 400],
+               ["Japan", "Fox", 600, 300],
+               ["China", "Dragon", 800, 700]]'
+        view='{"columns":[0,2,3]}'></google-chart-data>
+    </google-chart>
+
+    <h4>On the charts</h4>
+    <google-chart data="[[dataView]]" view='{"columns":[0,1]}'></google-chart>
+    <google-chart data="[[dataView]]" view='{"columns":[0,2]}'></google-chart>
+
+    <h4>Customizing with JavaScript</h4>
+    <google-chart>
+      <google-chart-data
+        data="{{customDataView}}"
+        cols='[
+               {"label":"Country","type":"string"},
+               {"label":"Animal","type":"string"},
+               {"label":"Population","type":"number"},
+               {"label":"Size","type":"number"}
+              ]'
+        rows='[
+               ["USA", "Dog", 700, 800],
+               ["RU", "Cat", 300, 600],
+               ["England", "Bird", 400, 500],
+               ["Mexico", "Fish", 500, 400],
+               ["Japan", "Fox", 600, 300],
+               ["China", "Dragon", 800, 700]]'
+        view='{}'></google-chart-data>
+    </google-chart>
+
+    <h3>Making Dashboards with <code>google-chart-dashboard</code></h3>
+
+    <h4 id="demo-control">Control Charts with <code>google-chart-control</code></h4>
+    <google-chart-dashboard>
+      <div class="column-layout">
+        <google-chart type="pie" view='{"columns": [0,3]}'></google-chart>
+        <div>
+          <google-chart-control label="Donuts eaten"></google-chart-control>
+          <google-chart-control type="category" label="Phone"></google-chart-control>
+          <google-chart-control index="2"></google-chart-control>
+          <google-chart-control type="filter" label="Name"></google-chart-control>
+        </div>
+      </div>
+      <google-chart-data value='[
+          ["Name", "Phone", "Age", "Donuts eaten"],
+          ["Michael" , "iOS", 12, 5],
+          ["Elisa", "iOS", 20, 7],
+          ["Robert", "iOS", 7, 3],
+          ["John", "Android", 54, 2],
+          ["Jessica", "Android", 22, 6],
+          ["Aaron", "Android", 3, 1],
+          ["Margareth", "Android", 42, 8]]'></google-chart-data>
+    </google-chart-dashboard>
+
+    <h4 id="demo-unbound">Unbound Charts and Controls</h4>
+    <p>
+      Uncontrolled charts are drawn with the full dataset.
+      Unconnected controls are hidden.
+    </p>
+    <google-chart-dashboard>
+      <div class="column-layout">
+        <google-chart></google-chart>
+        <google-chart-control index="2"></google-chart-control>
+        <!-- Uncontrolled charts are drawn with the full data set. -->
+        <google-chart group="uncontrolled"></google-chart>
+        <google-chart type="bar" group="uncontrolled"></google-chart>
+        <!-- Unconnected controls are hidden. -->
+        <google-chart-control group="unconnected"></google-chart-control>
+      </div>
+      <google-chart-data
+        cols='[
+               {"label":"Country","type":"string"},
+               {"label":"Population","type":"number"},
+               {"label":"Size","type":"number"}
+              ]'
+        rows='[
+               ["USA", 700, 800],
+               ["RU", 300, 600],
+               ["England", 400, 500],
+               ["Mexico", 500, 400],
+               ["Japan", 600, 300],
+               ["China", 800, 700]]'></google-chart-data>
+    </google-chart-dashboard>
+
+    <h3>Resizing Charts</h3>
+
+    <h4>Via <code>iron-media-query</code></h4>
+    <p>
+      Using this element allows you to easily create different views for desktop and mobile.
+    </p>
+    <iron-media-query
+        query="(min-width: 1024px)"
+        on-query-matches-changed="_onQueryMatchChange"></iron-media-query>
+    <google-chart id="mqChart" data="[[daysInMonth]]"></google-chart>    
+
+    <style>
+      /* Desktop */
+      @media screen and (min-width: 1024px) {
+        #mqChart {
+          width: 800px;
+        }
+      }
+    </style>
+
+    <h4>Via <code>iron-resize</code></h4>
+    <p>
+      When you need precise control over the size of the chart, you'll want to use the <code>iron-resizable-behavior</code>.
+    </p>
+    <div class="column-layout demo-resize-auto">
+      <google-chart id="irbChart" data="[[daysInMonth]]"></google-chart>
+      <div>
+        Hello, world!
+      </div>
+    </div>
+    <style>
+      .demo-resize-auto {
+        flex-wrap: nowrap;
+        height: 300px;
+        width: 50%;
+      }
+      .demo-resize-auto > google-chart {
+        flex: 1;
+        height: 100%;
+      }
+    </style>
+
+    <h3 id="demo-update">Changing Data</h3>
+    <p>
+      These charts' values will change every 3 seconds.
+    </p>
+
+    <google-chart type="gauge">
+      <google-chart-data value="[[animatedGaugeData]]"></google-chart-data>
+    </google-chart>
+
+    <google-chart options='{"animation": {"duration": "1000"}}'>
+      <google-chart-data
+        id="changingData"
+        cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+        rows="[[changingDataDemoRows]]">
+    </google-chart>
+
+    <h3 id="demo-select">Selection Demo</h3>
+    <div class="column-layout">
+      <google-chart selection="{{selectionDemo}}" data="[[daysInMonth]]"></google-chart>
+      <div>
+        Selected row: [[selectionDemoRow]]
+      </div>
+    </div>
+
+    <h3 id="demo-action">Action Demo</h3>
+    <p>
+      We can create actions for the tooltips.
+    </p>
+    <div class="column-layout">
+      <google-chart
+          data="[[daysInMonth]]"
+          type="pie"
+          options='{"tooltip":{"trigger":"selection"}}'
+          actions='["Foo Bar",
+                    {"id": "foo", "text": "Hello!"}]'
+          on-google-chart-action="_setActionDemoId"></google-chart>
+      <div>
+        Action ID: [[actionDemoId]]
+      </div>
+    </div>
+
+    <h3 id="demo-event">Event Demo</h3>
+    <p>
+      We just listen for <code>mouseover</code> on this chart to update the text.
+    </p>
+    <div class="column-layout">
+      <google-chart
+          data="[[daysInMonth]]"
+          events='["onmouseover"]'
+          on-google-chart-onmouseover="_setEventDemoRow"
+          on-google-chart-ready="_setImageURI"
+          on-google-chart-select="_setImageURI"></google-chart>
+      <div>
+        Moused over row: [[eventDemoRow]]
+      </div>
+    </div>
+
+    <h3 id="image-uri">Chart Image Data URI</h3>
+    <p>
+      Mirrors the above event demo chart (also on select) using its image URI.
+    </p>
+    <img id="chartImageURI">
+
+    <h3 id="chart-editor">Tweaking charts with a <code>google-chart-editor</code></h3>
+    <p>
+      A <code>ChartEditor</code> can be placed around a <code>google-chart</code> with
+      a <code>google-chart-editor</code> element.
+      Its <code>options</code>, <code>type</code>, and <code>src</code> property changes
+      are reflected to the contained chart as well as to the element's properties.
+      A <code>google-chart-editor</code> may contain anything but only the first
+      <code>google-chart</code> element will be used for editing purposes.
+    </p>
+
+    <h4>Data Source via URL text box</h4>
+    <google-chart-editor id="chartEditor">
+      <google-chart
+          src="https://docs.google.com/spreadsheets/d/1XWJLkAwch5GXAt_7zOFDcg8Wm8Xv29_8PWuuW15qmAE/gviz/tq?gid=0&headers=1"
+          query="SELECT A, H, O, Q, R, U LIMIT 5 OFFSET 8"></google-chart>
+    </google-chart-editor>
+    <paper-button on-tap="_openChartEditor">Open Editor</paper-button>
+
+    <h4>Data Source via custom element</h4>
+    <google-chart-editor id="chartEditorSourceInput">
+      <div slot="control">
+        Which would you like?
+        <select value="{{sourceInput::change}}">
+          <option value="foo">Foo</option>
+          <option value="bar">Bar</option>
+        </select>
+      </div>
+
+      <google-chart
+          src="[[editorSrc]]"
+          query="[[editorQuery]]"></google-chart>
+    </google-chart-editor>
+    <paper-button on-tap="_openChartEditorSourceInput">Open Editor</paper-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'advanced-demo',
+      behaviors: [Polymer.IronResizableBehavior],
+      properties: {
+        customDataView: {
+          type: Object,
+          observer: '_observeCustomDataView',
+        },
+        selectionDemo: {
+          type: Array,
+          value: () => [{row:1}],
+          observer: '_selectionChanged'
+        },
+        sourceInput: {
+          type: String,
+          value: 'foo',
+          observer: '_sourceInputChanged',
+        },
+        actionDemoId: {
+          type: String,
+          value: 'None',
+        },
+        eventDemoRow: {
+          type: Number,
+          value: 'None',
+        },
+        animatedGaugeData: {
+          type: Array,
+          value: () => [
+            ['Label', 'Value'],
+            ['Memory', 80],
+            ['CPU', 55],
+            ['Network', 68],
+          ],
+        },
+        changingDataDemoRows: {
+          type: Array,
+          value: () => [
+            ['Col1', 5.0],
+            ['Col2', 5.0],
+            ['Col3', 5.0],
+          ],
+        },
+      },
+      listeners: {
+        'iron-resize': '_onIronResize',
+        'google-chart-statechange': '_onStateChange',
+      },
+      changeDataInterval: 3000,
+      ready() {
+        this.async(this._changeData, this.changeDataInterval);
+      },
+      _changeData() {
+        const getRandomGaugeValue =
+            (offset, factor) => offset + Math.round(factor * Math.random());
+        const getRandomValue = () => Math.random() * 10;
+        this.animatedGaugeData = [
+          ['Label', 'Value'],
+          ['Memory', getRandomGaugeValue(40, 60)],
+          ['CPU', getRandomGaugeValue(40, 60)],
+          ['Network', getRandomGaugeValue(60, 20)]
+        ];
+        this.changingDataDemoRows = [
+          ['Col1', getRandomValue()],
+          ['Col2', getRandomValue()],
+          ['Col3', getRandomValue()],
+        ];
+        this.async(this._changeData, this.changeDataInterval);
+      },
+      _setImageURI(evt) {
+        this.$.chartImageURI.src = evt.target.imageURI;
+      },
+      _setActionDemoId(evt) {
+        this.actionDemoId = evt.detail;
+      },
+      _setEventDemoRow(evt) {
+        this.eventDemoRow = evt.detail.row;
+      },
+      _selectionChanged() {
+        this.selectionDemoRow = this.selectionDemo[0].row;
+      },
+      _onQueryMatchChange() {
+        this.$.mqChart.draw();
+      },
+      _onIronResize() {
+        this.debounce('resize', () => this.$.irbChart.draw(), 100);
+      },
+      _onStateChange(evt) {
+        console.log('Statechange! ', evt.detail);
+      },
+      _observeCustomDataView(dataView) {
+        dataView.setColumns([1, 2, 3]);
+        return dataView;
+      },
+      _openChartEditor() {
+        this.$.chartEditor.opened = true;
+      },
+      _openChartEditorSourceInput() {
+        this.$.chartEditorSourceInput.opened = true;
+      },
+      _sourceInputChanged(sourceKey) {
+        switch (sourceKey) {
+          case 'foo':
+            this.editorSrc = 'https://docs.google.com/spreadsheets/d/1XWJLkAwch5GXAt_7zOFDcg8Wm8Xv29_8PWuuW15qmAE/gviz/tq?gid=0&headers=1';
+            this.editorQuery = 'SELECT A, H, O, Q, R, U LIMIT 5 OFFSET 8';
+            break;
+          case 'bar':
+            this.editorSrc = 'http://spreadsheets.google.com/tq?key=pCQbetd-CptGXxxQIG7VFIQ&pub=1';
+            this.editorQuery = 'SELECT A, D WHERE D > 100 ORDER BY D';
+            break;
+        }
+      },
+    });
+  </script>
+</dom-module>
