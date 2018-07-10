@@ -1,0 +1,41 @@
+{
+  "description": "Encapsulates Google Charts into a web component. Compatiable with Polymer 3.",
+  "keywords": [
+    "web-component",
+    "web-components",
+    "polymer",
+    "chart",
+    "charts",
+    "google-visualization",
+    "google",
+    "polymer 3",
+    "load"
+  ],
+  "homepage": "https://github.com/MichaelScript/google-chart",
+  "name": "google-chart-polymer-3",
+  "version": "3.0.0",
+  "resolutions": {
+    "inherits": "2.0.3",
+    "samsam": "1.1.3",
+    "supports-color": "3.1.2",
+    "type-detect": "1.0.0",
+    "@webcomponents/webcomponentsjs": "2.0.0-beta.2"
+  },
+  "main": "google-chart.js",
+  "contributors": [
+    "Wes Alvaro",
+    "Sérgio Gomes",
+    "Scott Lindeneau",
+    "Michael Green"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@polymer/iron-ajax": "^3.0.0-pre.18",
+    "@polymer/polymer": "^3.0.0"
+  },
+  "devDependencies": {
+    "@polymer/iron-component-page": "^3.0.0-pre.18",
+    "@polymer/promise-polyfill": "^3.0.0-pre.18",
+    "wct-browser-legacy": "^0.0.1-pre.11"
+  }
+}

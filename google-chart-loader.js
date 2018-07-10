@@ -1,10 +1,21 @@
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="charts-loader.html">
-
-<script>
-(function() {
-  "use strict";
-
+import '@polymer/polymer/polymer-legacy.js';
+import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
+import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+import { loadScript } from './charts-loader.js';
+let isLoaded = false;
+let script_tag = undefined;
+function loadGCharts(callback){
+  if(isLoaded){
+    callback();
+  }else{
+  if(script_tag != undefined){
+    let temp = script_tag.onload;
+    script_tag.onload = ()=>{
+      temp();
+      callback();
+    }
+  }else{
+  script_tag = loadScript("https://www.gstatic.com/charts/loader.js",()=>{
   /** @type {string} Most charts use this package. */
   var DEFACTO_CHART_PACKAGE = 'corechart';
 
@@ -357,5 +368,10 @@
       });
     }
   });
-})();
-</script>
+  isLoaded = true;
+  callback();
+  });
+}
+}
+}
+export {loadGCharts}

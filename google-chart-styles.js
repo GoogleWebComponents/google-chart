@@ -1,4 +1,7 @@
-<dom-module id="google-chart-styles">
+const $_documentContainer = document.createElement('template');
+$_documentContainer.setAttribute('style', 'display: none;');
+
+$_documentContainer.innerHTML = `<dom-module id="google-chart-styles">
   <template>
     <style>
       :host {
@@ -21,4 +24,6 @@
       }
     </style>
   </template>
-</dom-module>
+</dom-module>`;
+
+document.head.appendChild($_documentContainer.content);

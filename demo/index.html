@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>google-chart Demo</title>
 
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
-  <link rel="import" href="../google-chart.html">
+  <!-- <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script> -->
+  <!-- <script type="module" src="../../../@polymer/promise-polyfill/promise-polyfill-lite.js"></script> -->
+  <script type="module" src="../google-chart.js"></script>
   <style>
     code {
       color: #007000;
@@ -56,13 +56,13 @@
     rows='[ ["Col1", 5.0],["Col2", 5.0],["Col3", 5.0] ]'>
   </google-chart>
 
-  <script>
-    var media = window.matchMedia('(min-width: 1024px)');
+  <script type="module">
+var media = window.matchMedia('(min-width: 1024px)');
 
-    media.addListener(function() {
-      document.getElementById('resizing-chart').redraw();
-    });
-  </script>
+media.addListener(function() {
+  document.getElementById('resizing-chart').redraw();
+});
+</script>
 
   <p>Here's a chart that changes data every 3 seconds:</p>
 
@@ -76,21 +76,19 @@
     rows='[ ["Col1", 5.0],["Col2", 5.0],["Col3", 5.0] ]'>
   </google-chart>
 
-  <script>
-    (function() {
-      function getRandomValue() {
-        return Math.random() * 10;
-      }
+  <script type="module">
+function getRandomValue() {
+  return Math.random() * 10;
+}
 
-      var chart = document.getElementById('mutating-chart');
+var chart = document.getElementById('mutating-chart');
 
-      window.setInterval(function() {
-        chart.rows = [["Col1", getRandomValue()],
-                      ["Col2", getRandomValue()],
-                      ["Col3", getRandomValue()]];
-      }, 3000);
-    }());
-  </script>
+window.setInterval(function() {
+  chart.rows = [["Col1", getRandomValue()],
+                ["Col2", getRandomValue()],
+                ["Col3", getRandomValue()]];
+}, 3000);
+</script>
 
   <p>Here's a pie chart with an area selection:</p>
 
@@ -124,8 +122,9 @@
     </div>
   </div>
 
-  <script>
-    (function() {
+  <script type="module">
+    import {initGCharts} from "../google-chart.js"
+    initGCharts(()=>{
       var chart = document.getElementById('selection-chart');
       var label = document.getElementById('selection-label');
 
@@ -140,8 +139,8 @@
         var newSelection = e.detail.value[0];  // From the event details
         label.textContent = newSelection ? newSelection.row : 'None';
       });
-    }());
-  </script>
+    });
+</script>
 
   <p>Here's a pie chart listening for `onmouseover`:</p>
 
@@ -175,16 +174,14 @@
     </div>
   </div>
 
-  <script>
-    (function() {
-      var chart = document.getElementById('mouseover-chart');
-      var label = document.getElementById('mouseover-label');
+  <script type="module">
+var chart = document.getElementById('mouseover-chart');
+var label = document.getElementById('mouseover-label');
 
-      chart.addEventListener('google-chart-onmouseover', function(e) {
-        label.textContent = e.detail.data.row;
-      });
-    }());
-  </script>
+chart.addEventListener('google-chart-onmouseover', function(e) {
+  label.textContent = e.detail.data.row;
+});
+</script>
 
   <p>Here's a chart defined using <code>data</code>, rather than <code>rows</code> and <code>cols</code>:</p>
 
@@ -430,8 +427,9 @@
 
   <google-chart id="timeline" type="timeline"></google-chart>
 
-  <script>
-    (function() {
+  <script type="module">
+    import {initGCharts} from "../google-chart.js"
+    initGCharts(()=>{
       var chart = document.getElementById('timeline');
       document.createElement('google-chart-loader').dataTable([
         ['Name', 'Start', 'End'],
@@ -441,8 +439,8 @@
       ]).then(function(dataTable) {
         chart.data = dataTable;
       });
-    }());
-  </script>
+    })
+</script>
 
   <p>Here's a wordtree:</p>
 
@@ -498,24 +496,22 @@
                 "minorTicks": 5}'>
   </google-chart>
 
-  <script>
-    (function() {
-      function getRandomGaugeValue(offset, factor) {
-        return offset + Math.round(factor * Math.random());
-      }
+  <script type="module">
+function getRandomGaugeValue(offset, factor) {
+  return offset + Math.round(factor * Math.random());
+}
 
-      var gauge = document.getElementById('mutating-gauge');
+var gauge = document.getElementById('mutating-gauge');
 
-      window.setInterval(function() {
-        gauge.data = [
-          ['Label', 'Value'],
-          ['Memory', getRandomGaugeValue(40, 60)],
-          ['CPU', getRandomGaugeValue(40, 60)],
-          ['Network', getRandomGaugeValue(60, 20)]
-        ];
-      }, 3000);
-    }());
-  </script>
+window.setInterval(function() {
+  gauge.data = [
+    ['Label', 'Value'],
+    ['Memory', getRandomGaugeValue(40, 60)],
+    ['CPU', getRandomGaugeValue(40, 60)],
+    ['Network', getRandomGaugeValue(60, 20)]
+  ];
+}, 3000);
+</script>
 
   <p>Here's a treemap:</p>
 
@@ -560,8 +556,9 @@
       type="bar">
   </google-chart>
 
-  <script>
-    (function() {
+  <script type="module">
+    import {initGCharts} from "../google-chart.js"
+    initGCharts(()=>{
       var chart = document.getElementById('source-datatable');
       document.createElement('google-chart-loader').dataTable([
         ['Label', 'Value'],
@@ -571,8 +568,8 @@
       ]).then(function(dataTable) {
         chart.data = dataTable;
       });
-    }());
-  </script>
+    })
+</script>
 
   <p>Here is a chart using a filtered DataView as its source:</p>
 
@@ -583,8 +580,9 @@
 
   <p>DataViews can be altered, but you'll need to call the <code>redraw</code> method afterward.</p>
 
-  <script>
-    (function() {
+  <script type="module">
+    import {initGCharts} from "../google-chart.js"
+    initGCharts(()=>{
       var chart = document.getElementById('source-dataview');
       var loader = document.createElement('google-chart-loader');
       loader.dataTable([
@@ -605,23 +603,21 @@
           setInterval(setRandomRow, 3000);
         });
       });
-    }());
-  </script>
+    })
+</script>
 
   <p>Here's an image of the line chart:</p>
 
   <img id="line-chart-img">
 
-  <script>
-    (function() {
-      var chart = document.getElementById('line-chart');
-      var img = document.getElementById('line-chart-img');
+  <script type="module">
+var chart = document.getElementById('line-chart');
+var img = document.getElementById('line-chart-img');
 
-      chart.addEventListener('google-chart-ready', function() {
-        img.src = chart.imageURI;
-      });
-    }());
-  </script>
+chart.addEventListener('google-chart-ready', function() {
+  img.src = chart.imageURI;
+});
+</script>
 
 </body>
 </html>

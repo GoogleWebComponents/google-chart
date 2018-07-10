@@ -10,11 +10,11 @@
 <!doctype html>
 <html>
 <head>
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-  <script src="../../web-component-tester/browser.js"></script>
+<!--   <script src="@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+  <script src="../../../wct-browser-legacy/browser.js"></script> -->
 
-  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
-  <link rel="import" href="../google-chart.html">
+  <!-- <script type="module" src="../../../@polymer/promise-polyfill/promise-polyfill-lite.js"></script> -->
+  <script type="module" src="../google-chart.js"></script>
 </head>
 
 <body>
@@ -25,7 +25,9 @@
   </template>
 </test-fixture>
 
-<script>
+<script type="module">
+import '../../../@polymer/promise-polyfill/promise-polyfill-lite.js';
+import '../google-chart.js';
 suite('<google-chart>', function() {
   var chart;
   setup(function() {
