@@ -13,7 +13,7 @@
   ],
   "homepage": "https://github.com/MichaelScript/google-chart",
   "name": "google-chart-polymer-3",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "resolutions": {
     "inherits": "2.0.3",
     "samsam": "1.1.3",
