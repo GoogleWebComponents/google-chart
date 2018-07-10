@@ -1,6 +1,6 @@
 import '@polymer/polymer/polymer-legacy.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+// import '@polymer/promise-polyfill/promise-polyfill-lite.js';
 import { loadScript } from './charts-loader.js';
 let isLoaded = false;
 let script_tag = undefined;
