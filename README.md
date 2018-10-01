@@ -7,6 +7,8 @@ See https://elements.polymer-project.org/elements/google-chart
 
 [![Build Status](https://travis-ci.org/GoogleWebComponents/google-chart.svg?branch=master)](https://travis-ci.org/GoogleWebComponents/google-chart)
 
+Fork of Google's Google Charts web components.
+
 ## Google Chart Polymer 3
 Google chart web component that is compatible with Polymer 3 and
 has an initialization script to ensure the web component has finished
@@ -16,7 +18,7 @@ Install with `npm install --save google-chart-polymer-3` or `yarn add google-cha
 
 ## Usage
 Usage is similar to the polymer 2 version of google-chart however you now
-have a wrapper to ensure that the custom elements are on the page before
+have a wrapper to ensure that the custom elements are on the page before (there might have been another reason but I forget)
 you are able to draw anything onto the canvas. See `http://127.0.0.1:8081/components/google-chart/demo/` after running `polymer serve`
 
 ```
