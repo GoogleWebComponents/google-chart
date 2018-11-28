@@ -312,31 +312,10 @@ on the `html` tag of your document.
       this.$.loader.create(this.type, this.$.chartdiv)
           .then(function(chart) {
 
-            // get all gchart stylesheets
-            var stylesheets =
-                Polymer.dom(document.head)
-                    .querySelectorAll('link[rel="stylesheet"][type="text/css"]');
-            var gchartStylesheets = Array.from(stylesheets).filter(
-              function(element) {
-                return element.id.indexOf('load-css-') == 0;
-            });
-
-            // clone necessary attributes
-            var clonedSheets = gchartStylesheets.map(
-              function(stylesheet) {
-                var link = document.createElement('link');
-                link.setAttribute('rel', 'stylesheet');
-                link.setAttribute('type', 'text/css');
-                link.setAttribute('href', stylesheet.getAttribute('href'));
-                return link;
-              }
-            );
-
-            // append them to this local dom (for sdom support)
-            clonedSheets.forEach(
-              function(stylesheet) {
-                Polymer.dom(this.$.styles).appendChild(stylesheet);
-            }.bind(this));
+            // only add link stylesheet elements if there are none already
+            if (!this.$.styles.children.length) {
+              this._localizeGlobalStylesheets();
+            }
 
             var loader = this.$.loader;
             Object.keys(this.events.concat(['select', 'ready'])
@@ -497,6 +476,33 @@ on the `html` tag of your document.
         .then(function(dataView) {
           this._dataView = dataView;
         }.bind(this));
+    },
+
+    /**
+     * Queries global document head for google charts link#load-css-* and clones
+     * them into the local root's div#styles element for shadow dom support.
+     */
+    _localizeGlobalStylesheets: function() {
+      // get all gchart stylesheets
+      var stylesheets = Polymer.dom(document.head)
+          .querySelectorAll('link[rel="stylesheet"][type="text/css"]');
+
+      var stylesheetsArray = Array.from(stylesheets);
+
+      for (var i = 0; i < stylesheetsArray.length; i++) {
+        var sheetLinkEl = stylesheetsArray[i];
+        var isGchartStylesheet = sheetLinkEl.id.indexOf('load-css-') == 0;
+
+        if (isGchartStylesheet) {
+          // clone necessary stylesheet attributes
+          var clonedLinkEl = document.createElement('link');
+          clonedLinkEl.setAttribute('rel', 'stylesheet');
+          clonedLinkEl.setAttribute('type', 'text/css');
+          clonedLinkEl.setAttribute('href', sheetLinkEl.getAttribute('href'));
+
+          Polymer.dom(this.$.styles).appendChild(clonedLinkEl);
+        }
+      }
     }
   });
 })();
