@@ -58,6 +58,7 @@ on the `html` tag of your document.
 -->
 <dom-module id="google-chart">
   <template>
+    <div id="styles"></div>
     <style include="google-chart-styles"></style>
     <google-chart-loader id="loader" type="[[type]]"></google-chart-loader>
     <div id="chartdiv"></div>
@@ -310,6 +311,33 @@ on the `html` tag of your document.
     _typeChanged: function() {
       this.$.loader.create(this.type, this.$.chartdiv)
           .then(function(chart) {
+
+            // get all gchart stylesheets
+            var stylesheets =
+                Polymer.dom(document.head)
+                    .querySelectorAll('link[rel="stylesheet"][type="text/css"]');
+            var gchartStylesheets = Array.from(stylesheets).filter(
+              function(element) {
+                return element.id.indexOf('load-css-') == 0;
+            });
+
+            // clone necessary attributes
+            var clonedSheets = gchartStylesheets.map(
+              function(stylesheet) {
+                var link = document.createElement('link');
+                link.setAttribute('rel', 'stylesheet');
+                link.setAttribute('type', 'text/css');
+                link.setAttribute('href', stylesheet.getAttribute('href'));
+                return link;
+              }
+            );
+
+            // append them to this local dom (for sdom support)
+            clonedSheets.forEach(
+              function(stylesheet) {
+                Polymer.dom(this.$.styles).appendChild(stylesheet);
+            }.bind(this));
+
             var loader = this.$.loader;
             Object.keys(this.events.concat(['select', 'ready'])
                 .reduce(function(set, eventName) {
