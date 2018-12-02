@@ -23,7 +23,6 @@
     "google"
   ],
   "dependencies": {
-    "google-apis": "GoogleWebComponents/google-apis#1 - 2",
     "iron-ajax": "PolymerElements/iron-ajax#1 - 2",
     "polymer": "Polymer/polymer#1.9 - 2"
   },
