@@ -119,9 +119,10 @@
    * @type {!Promise}
    */  
   var loaderPromise = new Promise(function(resolve, reject) {
-    // Resolve immediately if the loader script has been added already. Adding
-    // it again throws an error.
-    if (document.querySelector('script[src="' + CHARTS_LOADER_URL + '"]')) {
+    // Resolve immediately if the loader script has been added already and
+    // `google.charts.load` is avialable. Adding the loader script twice throws
+    // an error.
+    if (google && google.charts && typeof google.charts.load === 'function') {
       resolve();
     } else {
       var loaderScript = document.createElement('script');
