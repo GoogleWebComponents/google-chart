@@ -122,7 +122,8 @@
     // Resolve immediately if the loader script has been added already and
     // `google.charts.load` is avialable. Adding the loader script twice throws
     // an error.
-    if (google && google.charts && typeof google.charts.load === 'function') {
+    if (typeof google !== 'undefined' && google.charts &&
+        typeof google.charts.load === 'function') {
       resolve();
     } else {
       var loaderScript = document.createElement('script');
