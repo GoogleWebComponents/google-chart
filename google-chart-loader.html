@@ -1,9 +1,11 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="charts-loader.html">
 
 <script>
 (function() {
   "use strict";
+
+  /** `charts-loader` provides access to the Google Charts loading API. */
+  var CHARTS_LOADER_URL = 'https://www.gstatic.com/charts/loader.js';
 
   /** @type {string} Most charts use this package. */
   var DEFACTO_CHART_PACKAGE = 'corechart';
@@ -112,6 +114,25 @@
     return google[type.indexOf('md-') === 0 ? Namespace.CHARTS : Namespace.VIS];
   }
 
+  /** 
+   * Promise that resolves when the gviz loader script is loaded. 
+   * @type {!Promise}
+   */  
+  var loaderPromise = new Promise(function(resolve, reject) {
+    // Resolve immediately if the loader script has been added already and
+    // `google.charts.load` is avialable. Adding the loader script twice throws
+    // an error.
+    if (typeof google !== 'undefined' && google.charts &&
+        typeof google.charts.load === 'function') {
+      resolve();
+    } else {
+      var loaderScript = document.createElement('script');
+      loaderScript.src = CHARTS_LOADER_URL;
+      loaderScript.onload = resolve;
+      loaderScript.onerror = reject;
+      document.head.appendChild(loaderScript);
+    }
+  });
   /** @type {!Object<string, boolean>} set-like object of gviz packages to load */
   var packagesToLoad = {};
   /** @type {!Object<string, !Promise>} promises for the various packages */
@@ -176,14 +197,16 @@
           return;
         }
         packagesToLoad = {};
-        google.charts.load('current', {
-          'packages': packages,
-          'language': document.documentElement.lang || 'en'
-        });
-        google.charts.setOnLoadCallback(function() {
-          packages.forEach(function(pkg) {
-            this.fire('loaded', pkg);
-            resolves[pkg](google.visualization);
+        loaderPromise.then(function() {
+          google.charts.load('current', {
+            'packages': packages,
+            'language': document.documentElement.lang || 'en',
+          });
+          google.charts.setOnLoadCallback(function() {
+            packages.forEach(function(pkg) {
+              this.fire('loaded', pkg);
+              resolves[pkg](google.visualization);
+            }.bind(this));
           }.bind(this));
         }.bind(this));
       }, 100);
