@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>google-chart Demo</title>
 
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
-  <link rel="import" href="../google-chart.html">
+  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+
   <style>
     code {
       color: #007000;
@@ -56,7 +55,9 @@
     rows='[ ["Col1", 5.0],["Col2", 5.0],["Col3", 5.0] ]'>
   </google-chart>
 
-  <script>
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
     var media = window.matchMedia('(min-width: 1024px)');
 
     media.addListener(function() {
@@ -76,20 +77,20 @@
     rows='[ ["Col1", 5.0],["Col2", 5.0],["Col3", 5.0] ]'>
   </google-chart>
 
-  <script>
-    (function() {
-      function getRandomValue() {
-        return Math.random() * 10;
-      }
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
+    function getRandomValue() {
+      return Math.random() * 10;
+    }
 
-      var chart = document.getElementById('mutating-chart');
+    var chart = document.getElementById('mutating-chart');
 
-      window.setInterval(function() {
-        chart.rows = [["Col1", getRandomValue()],
-                      ["Col2", getRandomValue()],
-                      ["Col3", getRandomValue()]];
-      }, 3000);
-    }());
+    window.setInterval(function() {
+      chart.rows = [["Col1", getRandomValue()],
+                    ["Col2", getRandomValue()],
+                    ["Col3", getRandomValue()]];
+    }, 3000);
   </script>
 
   <p>Here's a pie chart with an area selection:</p>
@@ -124,23 +125,23 @@
     </div>
   </div>
 
-  <script>
-    (function() {
-      var chart = document.getElementById('selection-chart');
-      var label = document.getElementById('selection-label');
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
+    var chart = document.getElementById('selection-chart');
+    var label = document.getElementById('selection-label');
 
-      label.textContent = chart.selection[0].row;
+    label.textContent = chart.selection[0].row;
 
-      chart.addEventListener('google-chart-select', function(e) {
-        var newSelection = e.detail.chart.getSelection()[0];  // From the event details
-        label.textContent = newSelection ? newSelection.row : 'None';
-      });
+    chart.addEventListener('google-chart-select', function(e) {
+      var newSelection = e.detail.chart.getSelection()[0];  // From the event details
+      label.textContent = newSelection ? newSelection.row : 'None';
+    });
 
-      chart.addEventListener('selection-changed', function(e) {
-        var newSelection = e.detail.value[0];  // From the event details
-        label.textContent = newSelection ? newSelection.row : 'None';
-      });
-    }());
+    chart.addEventListener('selection-changed', function(e) {
+      var newSelection = e.detail.value[0];  // From the event details
+      label.textContent = newSelection ? newSelection.row : 'None';
+    });
   </script>
 
   <p>Here's a pie chart listening for `onmouseover`:</p>
@@ -175,15 +176,15 @@
     </div>
   </div>
 
-  <script>
-    (function() {
-      var chart = document.getElementById('mouseover-chart');
-      var label = document.getElementById('mouseover-label');
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
+    var chart = document.getElementById('mouseover-chart');
+    var label = document.getElementById('mouseover-label');
 
-      chart.addEventListener('google-chart-onmouseover', function(e) {
-        label.textContent = e.detail.data.row;
-      });
-    }());
+    chart.addEventListener('google-chart-onmouseover', function(e) {
+      label.textContent = e.detail.data.row;
+    });
   </script>
 
   <p>Here's a chart defined using <code>data</code>, rather than <code>rows</code> and <code>cols</code>:</p>
@@ -430,18 +431,18 @@
 
   <google-chart id="timeline" type="timeline"></google-chart>
 
-  <script>
-    (function() {
-      var chart = document.getElementById('timeline');
-      document.createElement('google-chart-loader').dataTable([
-        ['Name', 'Start', 'End'],
-        ['Washington', new Date(1789, 3, 30), new Date(1797, 2, 4)],
-        ['Adams', new Date(1797, 2, 4), new Date(1801, 2, 4)],
-        ['Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4)]
-      ]).then(function(dataTable) {
-        chart.data = dataTable;
-      });
-    }());
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
+    var chart = document.getElementById('timeline');
+    document.createElement('google-chart-loader').dataTable([
+      ['Name', 'Start', 'End'],
+      ['Washington', new Date(1789, 3, 30), new Date(1797, 2, 4)],
+      ['Adams', new Date(1797, 2, 4), new Date(1801, 2, 4)],
+      ['Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4)]
+    ]).then(function(dataTable) {
+      chart.data = dataTable;
+    });
   </script>
 
   <p>Here's a wordtree:</p>
@@ -498,23 +499,23 @@
                 "minorTicks": 5}'>
   </google-chart>
 
-  <script>
-    (function() {
-      function getRandomGaugeValue(offset, factor) {
-        return offset + Math.round(factor * Math.random());
-      }
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
+    function getRandomGaugeValue(offset, factor) {
+      return offset + Math.round(factor * Math.random());
+    }
 
-      var gauge = document.getElementById('mutating-gauge');
+    var gauge = document.getElementById('mutating-gauge');
 
-      window.setInterval(function() {
-        gauge.data = [
-          ['Label', 'Value'],
-          ['Memory', getRandomGaugeValue(40, 60)],
-          ['CPU', getRandomGaugeValue(40, 60)],
-          ['Network', getRandomGaugeValue(60, 20)]
-        ];
-      }, 3000);
-    }());
+    window.setInterval(function() {
+      gauge.data = [
+        ['Label', 'Value'],
+        ['Memory', getRandomGaugeValue(40, 60)],
+        ['CPU', getRandomGaugeValue(40, 60)],
+        ['Network', getRandomGaugeValue(60, 20)]
+      ];
+    }, 3000);
   </script>
 
   <p>Here's a treemap:</p>
@@ -560,18 +561,18 @@
       type="bar">
   </google-chart>
 
-  <script>
-    (function() {
-      var chart = document.getElementById('source-datatable');
-      document.createElement('google-chart-loader').dataTable([
-        ['Label', 'Value'],
-        ['Memory', 10],
-        ['CPU', 12],
-        ['Network', 14]
-      ]).then(function(dataTable) {
-        chart.data = dataTable;
-      });
-    }());
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
+    var chart = document.getElementById('source-datatable');
+    document.createElement('google-chart-loader').dataTable([
+      ['Label', 'Value'],
+      ['Memory', 10],
+      ['CPU', 12],
+      ['Network', 14]
+    ]).then(function(dataTable) {
+      chart.data = dataTable;
+    });
   </script>
 
   <p>Here is a chart using a filtered DataView as its source:</p>
@@ -583,44 +584,44 @@
 
   <p>DataViews can be altered, but you'll need to call the <code>redraw</code> method afterward.</p>
 
-  <script>
-    (function() {
-      var chart = document.getElementById('source-dataview');
-      var loader = document.createElement('google-chart-loader');
-      loader.dataTable([
-        ['Label', 'Value'],
-        ['Memory', 10],
-        ['CPU', 12],
-        ['Network', 14]
-      ]).then(function(dataTable) {
-        loader.dataView(dataTable).then(function(dataView) {
-          chart.view = dataView;
-          var setRandomRow = function() {
-            var rowCount = dataTable.getNumberOfRows();
-            var row = Math.floor(Math.random() * rowCount);
-            var row2 = (row + 1) % rowCount;
-            chart.view.setRows([row, row2]);
-            chart.redraw();
-          };
-          setInterval(setRandomRow, 3000);
-        });
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
+    var chart = document.getElementById('source-dataview');
+    var loader = document.createElement('google-chart-loader');
+    loader.dataTable([
+      ['Label', 'Value'],
+      ['Memory', 10],
+      ['CPU', 12],
+      ['Network', 14]
+    ]).then(function(dataTable) {
+      loader.dataView(dataTable).then(function(dataView) {
+        chart.view = dataView;
+        var setRandomRow = function() {
+          var rowCount = dataTable.getNumberOfRows();
+          var row = Math.floor(Math.random() * rowCount);
+          var row2 = (row + 1) % rowCount;
+          chart.view.setRows([row, row2]);
+          chart.redraw();
+        };
+        setInterval(setRandomRow, 3000);
       });
-    }());
+    });
   </script>
 
   <p>Here's an image of the line chart:</p>
 
   <img id="line-chart-img">
 
-  <script>
-    (function() {
-      var chart = document.getElementById('line-chart');
-      var img = document.getElementById('line-chart-img');
+  <script type="module">
+    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
+    import '../google-chart.js';
+    var chart = document.getElementById('line-chart');
+    var img = document.getElementById('line-chart-img');
 
-      chart.addEventListener('google-chart-ready', function() {
-        img.src = chart.imageURI;
-      });
-    }());
+    chart.addEventListener('google-chart-ready', function() {
+      img.src = chart.imageURI;
+    });
   </script>
 
 </body>

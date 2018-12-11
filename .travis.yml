@@ -5,12 +5,12 @@ node_js: stable
 addons:
   apt:
     sources:
-    - google-chrome
+      - google-chrome
     packages:
-    - google-chrome-stable
+      - google-chrome-stable
 before_script:
-- npm install bower
-- npm install web-component-tester
-- export PATH=$PWD/node_modules/.bin:$PATH
-- bower install
-script: xvfb-run -a wct --simpleOutput -l chrome
+  - npm install
+  - npm install web-component-tester
+  - 'export PATH=$PWD/node_modules/.bin:$PATH'
+script: xvfb-run -a wct --module-resolution=node --npm --simpleOutput -l chrome
+
