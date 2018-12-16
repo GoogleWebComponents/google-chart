@@ -120,8 +120,6 @@ Polymer({
      *
      * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
      * for details.
-     *
-     * @type string
      */
     type: {
       type: String,
@@ -139,7 +137,7 @@ Polymer({
      * Changes to this property are _not_ observed. Events are attached only
      * at chart construction time.
      *
-     * @type !Array
+     * @type {!Array<string>}
      */
     events: {
       type: Array,
@@ -227,7 +225,7 @@ Polymer({
      *
      * @type {!google.visualization.DataTable|
      *        !Array<!Array>|
-     *        !{cols: !Array, rows: (!Array<!Array>|undefined)}|
+     *        {cols: !Array, rows: (!Array<!Array>|undefined)}|
      *        string|
      *        undefined}
      */
@@ -276,8 +274,6 @@ Polymer({
 
     /**
      * Whether the chart is currently rendered.
-     *
-     * @type boolean
      */
     drawn: {
       type: Boolean,
@@ -296,18 +292,18 @@ Polymer({
     'google-chart-ready': '_onChartReady'
   },
 
-  /** @type Object Internal Google Visualization chart object */
+  /** @type {?Object} Internal Google Visualization chart object */
   _chart: null,
 
-  /** @type google.visualization.DataView Internal data state */
+  /** @type {?google.visualization.DataView} Internal data state */
   _dataView: null,
 
-  /** @type Array Internal selection state */
+  /** @type {?Array} Internal selection state */
   _selection: null,
 
-  // The chart type was changed.
-  // We need to create a new chart and redraw.
+  /** Reacts to chart type change. */
   _typeChanged: function() {
+    // We need to create a new chart and redraw.
     this.$.loader.create(this.type, this.$.chartdiv)
         .then(function(chart) {
 
@@ -330,6 +326,7 @@ Polymer({
         }.bind(this));
   },
 
+  /** Reacts to `options` subproperty change. */
   _subOptionChanged: function(optionChangeDetails) {
     this.options = optionChangeDetails.base;
     // Debounce to allow for multiple option changes in one redraw
@@ -338,6 +335,7 @@ Polymer({
     }, 5);
   },
 
+  /** Sets the selectiton on the chart. */
   _setSelection: function() {
     // Note: Some charts (e.g. TreeMap) must have a selection.
     if (!this.drawn || !this.selection || this.selection === this._selection) {
@@ -350,10 +348,12 @@ Polymer({
     this._selection = this.selection;
   },
 
+  /** Updates current selection. */
   _updateSelection: function() {
     this.selection = this._selection = this._chart.getSelection();
   },
 
+  /** Reacts to chart ready event. */
   _onChartReady: function() {
     this._setDrawn(true);
     this._selection = null;
@@ -375,8 +375,8 @@ Polymer({
 
   /**
   * Renders the chart using the provided data.
-  * @param {Object|undefined} chart Internal Google Visualization chart object.
-  * @param {google.visualization.DataView|undefined} data  Internal data state
+  * @param {?Object|undefined} chart Internal Google Visualization chart object.
+  * @param {?google.visualization.DataView|undefined} data  Internal data state
   */
   _draw: function(chart, data) {
     if(chart == null || data == null) {
@@ -412,7 +412,7 @@ Polymer({
     this._dataView = view;
   },
 
-  // Handles changes to the rows & columns attributes.
+  /** Handles changes to the rows & columns attributes. */
   _rowsOrColumnsChanged: function() {
     var rows = this.rows, cols = this.cols;
     if (!rows || !cols) { return; }
@@ -439,7 +439,7 @@ Polymer({
    * @param {
    *     !google.visualization.DataTable|
    *     !Array<!Array>|
-   *     !{cols: !Array, rows: (!Array<!Array>|undefined)}|
+   *     {cols: !Array, rows: (!Array<!Array>|undefined)}|
    *     string|
    *     undefined} data The new data value
    */
@@ -452,6 +452,10 @@ Polymer({
     // Polymer 2 will not call observer if type:Object is set and fails, so
     // we must parse the string ourselves.
     try {
+      /**
+       * @suppress {checkTypes} `JSON.parse` expects a string but here it tries to deserialize
+       * the value of the `data` property which might be a serialized array.
+       */
       data = JSON.parse(data);
     } catch (e) {
       isString = typeof data == 'string' || data instanceof String;
@@ -461,7 +465,7 @@ Polymer({
       // Load data asynchronously, from external URL.
       var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
       dataPromise = request.send({
-        url: /** @type string */(data), handleAs: 'json'
+        url: /** @type {string} */ (data), handleAs: 'json'
       }).then(function(xhr) {
         return xhr.response;
       });
