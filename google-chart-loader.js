@@ -153,7 +153,6 @@ Polymer({
      *
      * This is an array consisting of any Google Visualization package names.
      *
-     * @attribute packages
      * @type {!Array<string>}
      */
     packages: {
@@ -167,7 +166,6 @@ Polymer({
      * This may be any of the supported `google-chart` types.
      * This is mainly used by the `google-chart` element internally.
      *
-     * @attribute type
      * @type {string}
      */
     type: {

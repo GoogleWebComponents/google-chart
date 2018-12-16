@@ -121,7 +121,6 @@ Polymer({
      * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
      * for details.
      *
-     * @attribute type
      * @type string
      */
     type: {
@@ -140,7 +139,6 @@ Polymer({
      * Changes to this property are _not_ observed. Events are attached only
      * at chart construction time.
      *
-     * @attribute events
      * @type !Array
      */
     events: {
@@ -166,7 +164,6 @@ Polymer({
      * Polymer method `set`: `googleChart.set('options.vAxis.logScale', true)`
      * (Note: Missing parent properties are not automatically created.)
      *
-     * @attribute options
      * @type {!Object|undefined}
      */
     options: {
@@ -185,7 +182,6 @@ Polymer({
      * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google Visualization API reference (addColumn)</a>
      * for column definition format.
      *
-     * @attribute cols
      * @type {!Array|undefined}
      */
     cols: {
@@ -205,7 +201,6 @@ Polymer({
      * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google Visualization API reference (addRow)</a>
      * for row format.
      *
-     * @attribute rows
      * @type {!Array<!Array>|undefined}
      */
     rows: {
@@ -230,7 +225,6 @@ Polymer({
      *  ["Category 1", 1.0],
      *  ["Category 2", 1.1]]</pre>
      *
-     * @attribute data
      * @type {!google.visualization.DataTable|
      *        !Array<!Array>|
      *        !{cols: !Array, rows: (!Array<!Array>|undefined)}|
@@ -250,7 +244,6 @@ Polymer({
      *
      * When specifying data with `view` you must not specify `data`, `cols` or `rows`.
      *
-     * @attribute view
      * @type {!google.visualization.DataView|undefined}
      */
     view: {
@@ -273,7 +266,6 @@ Polymer({
      *   [{row:0,column:1}, {row:1, column:null}]
      * </pre>
      *
-     * @attribute selection
      * @type {!Array|undefined}
      */
     selection: {
