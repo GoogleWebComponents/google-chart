@@ -116,8 +116,8 @@ function namespaceForType(type) {
   return google[type.indexOf('md-') === 0 ? Namespace.CHARTS : Namespace.VIS];
 }
 
-/** 
- * Promise that resolves when the gviz loader script is loaded. 
+/**
+ * Promise that resolves when the gviz loader script is loaded.
  * @type {!Promise}
  */
 var loaderPromise = new Promise(function(resolve, reject) {
@@ -129,7 +129,8 @@ var loaderPromise = new Promise(function(resolve, reject) {
     resolve();
   } else {
     // `charts-loader` provides access to the Google Charts loading API.
-    var loaderScript = document.createElement('script');
+    var loaderScript =
+        /** @type {!HTMLScriptElement} */ (document.createElement('script'));
     loaderScript.src = 'https://www.gstatic.com/charts/loader.js';
     loaderScript.onload = resolve;
     loaderScript.onerror = reject;
@@ -263,6 +264,8 @@ Polymer({
    * @param {string} type the type of chart to create
    * @param {!Element} el the element in which to create the chart
    * @return {!Promise<!Object>} promise for the created chart object
+   * @suppress {checkTypes} This function accidentally overrides `create` from
+   *     Polymer_LegacyElementMixin.
    */
   create: function(type, el) {
     return this._loadPackageForType(type).then(function(ctor) {
@@ -325,7 +328,7 @@ Polymer({
    *
    * See <a href="https://developers.google.com/chart/interactive/docs/reference#datatable-class">the docs</a> for more details.
    *
-   * @param {Array|{cols: !Array, rows: (!Array<!Array>|undefined)}|undefined} data
+   * @param {!Array|{cols: !Array, rows: (!Array<!Array>|undefined)}|undefined} data
    *     the data with which we should use to construct the new DataTable object
    * @return {!Promise<!google.visualization.DataTable>} promise for the created DataTable
    */
