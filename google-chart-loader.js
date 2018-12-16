@@ -9,9 +9,6 @@ subject to an additional IP rights grant found at https://polymer.github.io/PATE
 */
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 
-/** `charts-loader` provides access to the Google Charts loading API. */
-var CHARTS_LOADER_URL = 'https://www.gstatic.com/charts/loader.js';
-
 /** @type {string} Most charts use this package. */
 var DEFACTO_CHART_PACKAGE = 'corechart';
 
@@ -131,8 +128,9 @@ var loaderPromise = new Promise(function(resolve, reject) {
       typeof google.charts.load === 'function') {
     resolve();
   } else {
+    // `charts-loader` provides access to the Google Charts loading API.
     var loaderScript = document.createElement('script');
-    loaderScript.src = CHARTS_LOADER_URL;
+    loaderScript.src = 'https://www.gstatic.com/charts/loader.js';
     loaderScript.onload = resolve;
     loaderScript.onerror = reject;
     document.head.appendChild(loaderScript);
