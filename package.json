@@ -10,6 +10,7 @@
     "google"
   ],
   "homepage": "https://googlewebcomponents.github.io/google-chart",
+  "repository": "GoogleWebComponents/google-chart",
   "name": "@google-web-components/google-chart",
   "version": "3.0.0",
   "resolutions": {
