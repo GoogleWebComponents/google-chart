@@ -1,3 +1,6 @@
+# Polymer 3 Google Chart is now available:
+https://www.webcomponents.org/element/@google-web-components/google-chart
+
 google-chart
 ============
 
