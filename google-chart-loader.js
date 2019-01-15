@@ -21,7 +21,7 @@ var Namespace = {
 /**
  * A collection of chart type details.
  *
- * @type {!Object<string, {ctor: string, pkg: (string|undefined)}>}
+ * @type {!Object<string, {ctor: string, namespace: (!Namespace|undefined), pkg: (string|undefined)}>}
  */
 var CHART_CONSTRUCTORS = {
   'area': {
@@ -122,7 +122,7 @@ function namespaceForType(type) {
  */
 var loaderPromise = new Promise(function(resolve, reject) {
   // Resolve immediately if the loader script has been added already and
-  // `google.charts.load` is avialable. Adding the loader script twice throws
+  // `google.charts.load` is available. Adding the loader script twice throws
   // an error.
   if (typeof google !== 'undefined' && google.charts &&
       typeof google.charts.load === 'function') {
