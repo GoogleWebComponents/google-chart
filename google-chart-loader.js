@@ -21,7 +21,7 @@ var Namespace = {
 /**
  * A collection of chart type details.
  *
- * @type {!Object<string, {ctor: string, pkg: (string|undefined)}>}
+ * @type {!Object<string, {ctor: string, namespace: (!Namespace|undefined), pkg: (string|undefined)}>}
  */
 var CHART_CONSTRUCTORS = {
   'area': {
