@@ -141,7 +141,7 @@ Polymer({
      */
     events: {
       type: Array,
-      value: function() { return []; }
+      value: () => [],
     },
 
     /**
@@ -302,41 +302,40 @@ Polymer({
   _selection: null,
 
   /** Reacts to chart type change. */
-  _typeChanged: function() {
+  _typeChanged() {
     // We need to create a new chart and redraw.
     this.$.loader.create(this.type, this.$.chartdiv)
-        .then(function(chart) {
-
+        .then((chart) => {
           // only add link stylesheet elements if there are none already
           if (!this.$.styles.children.length) {
             this._localizeGlobalStylesheets();
           }
 
-          var loader = this.$.loader;
+          const loader = this.$.loader;
           Object.keys(this.events.concat(['select', 'ready'])
-              .reduce(function(set, eventName) {
+              .reduce((set, eventName) => {
                 set[eventName] = true;
                 return set;
               }, {}))
-              .forEach(function(eventName) {
+              .forEach((eventName) => {
                 loader.fireOnChartEvent(chart, eventName);
               });
           this._setDrawn(false);
           this._chart = chart;
-        }.bind(this));
+        });
   },
 
   /** Reacts to `options` subproperty change. */
-  _subOptionChanged: function(optionChangeDetails) {
+  _subOptionChanged(optionChangeDetails) {
     this.options = optionChangeDetails.base;
     // Debounce to allow for multiple option changes in one redraw
-    this.debounce('optionChangeRedraw', function() {
+    this.debounce('optionChangeRedraw', () => {
       this.redraw();
     }, 5);
   },
 
   /** Sets the selectiton on the chart. */
-  _setSelection: function() {
+  _setSelection() {
     // Note: Some charts (e.g. TreeMap) must have a selection.
     if (!this.drawn || !this.selection || this.selection === this._selection) {
       return;
@@ -349,12 +348,12 @@ Polymer({
   },
 
   /** Updates current selection. */
-  _updateSelection: function() {
+  _updateSelection() {
     this.selection = this._selection = this._chart.getSelection();
   },
 
   /** Reacts to chart ready event. */
-  _onChartReady: function() {
+  _onChartReady() {
     this._setDrawn(true);
     this._selection = null;
     this._setSelection();
@@ -368,7 +367,7 @@ Polymer({
    *
    * @method redraw
    */
-  redraw: function() {
+  redraw() {
     if (!this._chart || !this._dataView) { return; }
     this._draw(this._chart, this._dataView);
   },
@@ -378,7 +377,7 @@ Polymer({
   * @param {?Object|undefined} chart Internal Google Visualization chart object.
   * @param {?google.visualization.DataView|undefined} data  Internal data state
   */
-  _draw: function(chart, data) {
+  _draw(chart, data) {
     if(chart == null || data == null) {
       return;
     }
@@ -407,30 +406,30 @@ Polymer({
    *
    * @param {!google.visualization.DataView|undefined} view The new view value
    */
-  _viewChanged: function(view) {
+  _viewChanged(view) {
     if (!view) { return; }
     this._dataView = view;
   },
 
   /** Handles changes to the rows & columns attributes. */
-  _rowsOrColumnsChanged: function() {
-    var rows = this.rows, cols = this.cols;
+  _rowsOrColumnsChanged() {
+    const rows = this.rows, cols = this.cols;
     if (!rows || !cols) { return; }
     this.$.loader.dataTable()
-      .then(function(dataTable) {
-        cols.forEach(function(col) {
+      .then((dataTable) => {
+        cols.forEach((col) => {
           dataTable.addColumn(col);
         });
         dataTable.addRows(rows);
         return dataTable;
-      }.bind(this))
+      })
       .then(this.$.loader.dataView.bind(this.$.loader))
-      .then(function(dataView) {
+      .then((dataView) => {
         this._dataView = dataView;
-      }.bind(this))
-      .catch(function(reason) {
+      })
+      .catch((reason) => {
         this.$.chartdiv.innerHTML = reason;
-      }.bind(this));
+      });
   },
 
   /**
@@ -443,11 +442,11 @@ Polymer({
    *     string|
    *     undefined} data The new data value
    */
-  _dataChanged: function(data) {
-    var dataPromise;
+  _dataChanged(data) {
+    let dataPromise;
     if (!data) { return; }
 
-    var isString = false;
+    let isString = false;
 
     // Polymer 2 will not call observer if type:Object is set and fails, so
     // we must parse the string ourselves.
@@ -463,12 +462,10 @@ Polymer({
 
     if (isString) {
       // Load data asynchronously, from external URL.
-      var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
+      const request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
       dataPromise = request.send({
         url: /** @type {string} */ (data), handleAs: 'json'
-      }).then(function(xhr) {
-        return xhr.response;
-      });
+      }).then((xhr) => xhr.response);
     } else {
       // Data is all ready to be processed.
       dataPromise = Promise.resolve(data);
@@ -476,29 +473,29 @@ Polymer({
     dataPromise
       .then(this.$.loader.dataTable.bind(this.$.loader))
       .then(this.$.loader.dataView.bind(this.$.loader))
-      .then(function(dataView) {
+      .then((dataView) => {
         this._dataView = dataView;
-      }.bind(this));
+      });
   },
 
   /**
    * Queries global document head for google charts link#load-css-* and clones
    * them into the local root's div#styles element for shadow dom support.
    */
-  _localizeGlobalStylesheets: function() {
+  _localizeGlobalStylesheets() {
     // get all gchart stylesheets
-    var stylesheets = dom(document.head)
+    const stylesheets = dom(document.head)
         .querySelectorAll('link[rel="stylesheet"][type="text/css"]');
 
-    var stylesheetsArray = Array.from(stylesheets);
+    const stylesheetsArray = Array.from(stylesheets);
 
-    for (var i = 0; i < stylesheetsArray.length; i++) {
-      var sheetLinkEl = stylesheetsArray[i];
-      var isGchartStylesheet = sheetLinkEl.id.indexOf('load-css-') == 0;
+    for (let i = 0; i < stylesheetsArray.length; i++) {
+      const sheetLinkEl = stylesheetsArray[i];
+      const isGchartStylesheet = sheetLinkEl.id.indexOf('load-css-') == 0;
 
       if (isGchartStylesheet) {
         // clone necessary stylesheet attributes
-        var clonedLinkEl = document.createElement('link');
+        const clonedLinkEl = document.createElement('link');
         clonedLinkEl.setAttribute('rel', 'stylesheet');
         clonedLinkEl.setAttribute('type', 'text/css');
         clonedLinkEl.setAttribute('href', sheetLinkEl.getAttribute('href'));
