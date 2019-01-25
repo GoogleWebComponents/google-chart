@@ -10,12 +10,12 @@ subject to an additional IP rights grant found at https://polymer.github.io/PATE
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 
 /** @type {string} Most charts use this package. */
-var DEFACTO_CHART_PACKAGE = 'corechart';
+const DEFACTO_CHART_PACKAGE = 'corechart';
 
 /** @enum {string} Namespaces that contain chart constructors. */
-var Namespace = {
+const Namespace = {
   CHARTS: 'charts',
-  VIS: 'visualization'
+  VIS: 'visualization',
 };
 
 /**
@@ -23,7 +23,7 @@ var Namespace = {
  *
  * @type {!Object<string, {ctor: string, namespace: (!Namespace|undefined), pkg: (string|undefined)}>}
  */
-var CHART_CONSTRUCTORS = {
+const CHART_CONSTRUCTORS = {
   'area': {
     ctor: 'AreaChart',
   },
@@ -104,7 +104,7 @@ var CHART_CONSTRUCTORS = {
     ctor: 'WordTree',
     namespace: Namespace.VIS,
     pkg: 'wordtree',
-  }
+  },
 };
 
 /**
@@ -120,7 +120,7 @@ function namespaceForType(type) {
  * Promise that resolves when the gviz loader script is loaded.
  * @type {!Promise}
  */
-var loaderPromise = new Promise(function(resolve, reject) {
+const loaderPromise = new Promise((resolve, reject) => {
   // Resolve immediately if the loader script has been added already and
   // `google.charts.load` is available. Adding the loader script twice throws
   // an error.
@@ -129,7 +129,7 @@ var loaderPromise = new Promise(function(resolve, reject) {
     resolve();
   } else {
     // `charts-loader` provides access to the Google Charts loading API.
-    var loaderScript =
+    const loaderScript =
         /** @type {!HTMLScriptElement} */ (document.createElement('script'));
     loaderScript.src = 'https://www.gstatic.com/charts/loader.js';
     loaderScript.onload = resolve;
@@ -138,11 +138,11 @@ var loaderPromise = new Promise(function(resolve, reject) {
   }
 });
 /** @type {!Object<string, boolean>} set-like object of gviz packages to load */
-var packagesToLoad = {};
+let packagesToLoad = {};
 /** @type {!Object<string, !Promise>} promises for the various packages */
-var promises = {};
+const promises = {};
 /** @type {!Object<string, function(!Object)>} resolves for the package promises */
-var resolves = {};
+const resolves = {};
 
 Polymer({
   is: 'google-chart-loader',
@@ -156,7 +156,7 @@ Polymer({
      */
     packages: {
       type: Array,
-      value: function() { return []; },
+      value: () => [],
       observer: '_loadPackages',
     },
     /**
@@ -182,9 +182,7 @@ Polymer({
     if (promises[DEFACTO_CHART_PACKAGE]) {
       return promises[DEFACTO_CHART_PACKAGE];
     }
-    return this._loadPackages([DEFACTO_CHART_PACKAGE]).then(function(pkgs) {
-      return pkgs[0];
-    });
+    return this._loadPackages([DEFACTO_CHART_PACKAGE]).then((pkgs) => pkgs[0]);
   },
 
   /**
@@ -192,25 +190,25 @@ Polymer({
    * We debounce so that load is only called once.
    * @private
    */
-  _loadPackagesDebounce: function() {
-    this.debounce('loadPackages', function() {
-      var packages = Object.keys(packagesToLoad);
+  _loadPackagesDebounce() {
+    this.debounce('loadPackages', () => {
+      const packages = Object.keys(packagesToLoad);
       if (!packages.length) {
         return;
       }
       packagesToLoad = {};
-      loaderPromise.then(function() {
+      loaderPromise.then(() => {
         google.charts.load('current', {
           'packages': packages,
           'language': document.documentElement.lang || 'en',
         });
-        google.charts.setOnLoadCallback(function() {
-          packages.forEach(function(pkg) {
+        google.charts.setOnLoadCallback(() => {
+          packages.forEach((pkg) => {
             this.fire('loaded', pkg);
             resolves[pkg](google.visualization);
-          }.bind(this));
-        }.bind(this));
-      }.bind(this));
+          });
+        });
+      });
     }, 100);
   },
 
@@ -221,18 +219,18 @@ Polymer({
    * @return {!Promise} Promise resolved when all packages are loaded
    * @private
    */
-  _loadPackages: function(pkgs) {
-    var returns = [];
-    pkgs.forEach(function(pkg) {
+  _loadPackages(pkgs) {
+    const returns = [];
+    pkgs.forEach((pkg) => {
       if (!promises[pkg]) {
         packagesToLoad[pkg] = true;
-        promises[pkg] = new Promise(function(resolve) {
+        promises[pkg] = new Promise((resolve) => {
           resolves[pkg] = resolve;
         });
         this._loadPackagesDebounce();
       }
       returns.push(promises[pkg]);
-    }.bind(this));
+    });
     return Promise.all(returns);
   },
 
@@ -243,15 +241,15 @@ Polymer({
    * @return {!Promise<!Function>} Promise for the chart type constructor
    * @private
    */
-  _loadPackageForType: function(type) {
-    var chartData = CHART_CONSTRUCTORS[type];
+  _loadPackageForType(type) {
+    const chartData = CHART_CONSTRUCTORS[type];
     if (!chartData) {
       return Promise.reject(
           'This chart type is not yet supported: ' + type);
     }
     return this._loadPackages([chartData.pkg || DEFACTO_CHART_PACKAGE])
-      .then(function() {
-        var namespace = google[chartData.namespace] || namespaceForType(type);
+      .then(() => {
+        const namespace = google[chartData.namespace] || namespaceForType(type);
         return namespace[chartData.ctor];
       });
   },
@@ -267,10 +265,8 @@ Polymer({
    * @suppress {checkTypes} This function accidentally overrides `create` from
    *     Polymer_LegacyElementMixin.
    */
-  create: function(type, el) {
-    return this._loadPackageForType(type).then(function(ctor) {
-      return new ctor(el);
-    });
+  create(type, el) {
+    return this._loadPackageForType(type).then((ctor) => new ctor(el));
   },
 
   /**
@@ -289,17 +285,17 @@ Polymer({
    * @param {boolean=} opt_once whether to listen only one time
    * @return {!Promise<void>} promise resolved when listener is attached
    */
-  fireOnChartEvent: function(chart, eventName, opt_once) {
-    return this._corePackage.then(function(viz) {
-      var adder = opt_once ?
+  fireOnChartEvent(chart, eventName, opt_once) {
+    return this._corePackage.then((viz) => {
+      const adder = opt_once ?
           viz.events.addOneTimeListener : viz.events.addListener;
-      adder(chart, eventName, function(event) {
+      adder(chart, eventName, (event) => {
         this.fire('google-chart-' + eventName, {
           chart: chart,
           data: event,
         });
-      }.bind(this));
-    }.bind(this));
+      });
+    });
   },
 
   /**
@@ -332,8 +328,8 @@ Polymer({
    *     the data with which we should use to construct the new DataTable object
    * @return {!Promise<!google.visualization.DataTable>} promise for the created DataTable
    */
-  dataTable: function(data) {
-    return this._corePackage.then(function(viz) {
+  dataTable(data) {
+    return this._corePackage.then((viz) => {
       if (data == null) {
         return new viz.DataTable();
       } else if (data.getNumberOfRows) {
@@ -363,10 +359,8 @@ Polymer({
    * @param {!google.visualization.DataTable} data the DataTable to use
    * @return {!Promise<!google.visualization.DataView>} promise for the created DataView
    */
-  dataView: function(data) {
-    return this._corePackage.then(function(viz) {
-      return new viz.DataView(data);
-    });
+  dataView(data) {
+    return this._corePackage.then((viz) => new viz.DataView(data));
   },
 
   /**
@@ -378,9 +372,7 @@ Polymer({
    * @param {!Object=} opt_options options for the Query object
    * @return {!Promise<!google.visualization.Query>} promise for the created DataView
    */
-  query: function(url, opt_options) {
-    return this._corePackage.then(function(viz) {
-      return new viz.Query(url, opt_options);
-    });
-  }
+  query(url, opt_options) {
+    return this._corePackage.then((viz) => new viz.Query(url, opt_options));
+  },
 });
