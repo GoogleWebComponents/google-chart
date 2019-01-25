@@ -280,6 +280,18 @@ Polymer({
       readOnly: true,
       value: false
     },
+
+    /** @type {?Object} Internal Google Visualization chart object */
+    _chart: {
+      type: Object,
+      value: null,
+    },
+
+    /** @type {?google.visualization.DataView} Internal data state */
+    _dataView: {
+      type: Object,
+      value: null,
+    },
   },
 
   observers: [
@@ -291,12 +303,6 @@ Polymer({
     'google-chart-select': '_updateSelection',
     'google-chart-ready': '_onChartReady'
   },
-
-  /** @type {?Object} Internal Google Visualization chart object */
-  _chart: null,
-
-  /** @type {?google.visualization.DataView} Internal data state */
-  _dataView: null,
 
   /** @type {?Array} Internal selection state */
   _selection: null,
