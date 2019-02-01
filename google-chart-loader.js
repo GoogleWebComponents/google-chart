@@ -117,7 +117,8 @@ function namespaceForType(type) {
 }
 
 /**
- * Promise that resolves when the gviz loader script is loaded.
+ * Promise that resolves when the gviz loader script is loaded, which
+ * provides access to the Google Charts loading API.
  * @type {!Promise}
  */
 var loaderPromise = new Promise(function(resolve, reject) {
@@ -128,13 +129,19 @@ var loaderPromise = new Promise(function(resolve, reject) {
       typeof google.charts.load === 'function') {
     resolve();
   } else {
-    // `charts-loader` provides access to the Google Charts loading API.
-    var loaderScript =
-        /** @type {!HTMLScriptElement} */ (document.createElement('script'));
-    loaderScript.src = 'https://www.gstatic.com/charts/loader.js';
-    loaderScript.onload = resolve;
-    loaderScript.onerror = reject;
-    document.head.appendChild(loaderScript);
+    // Try to find existing loader script.
+    var loaderScript = document.querySelector(
+        'script[src="https://www.gstatic.com/charts/loader.js"]');
+    if (!loaderScript) {
+      // If the loader is not present, add it.
+      loaderScript =
+          /** @type {!HTMLScriptElement} */ (document.createElement('script'));
+      // Specify URL directly to pass JS compiler conformance checks.
+      loaderScript.src = 'https://www.gstatic.com/charts/loader.js';
+      document.head.appendChild(loaderScript);
+    }
+    loaderScript.addEventListener('load', resolve);
+    loaderScript.addEventListener('error', reject);
   }
 });
 /** @type {!Object<string, boolean>} set-like object of gviz packages to load */
