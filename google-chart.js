@@ -9,7 +9,6 @@ subject to an additional IP rights grant found at https://polymer.github.io/PATE
 */
 import '@polymer/iron-ajax/iron-request.js';
 import './google-chart-loader.js';
-import './google-chart-styles.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
@@ -69,6 +68,30 @@ on the `html` tag of your document.
 */
 Polymer({
   _template: html`
+    <style>
+      :host {
+        display: -webkit-flex;
+        display: -ms-flex;
+        display: flex;
+        margin: 0;
+        padding: 0;
+        width: 400px;
+        height: 300px;
+      }
+
+      :host([hidden]) {
+        display: none;
+      }
+
+      :host([type="gauge"]) {
+        width: 300px;
+        height: 300px;
+      }
+
+      #chartdiv {
+        width: 100%;
+      }
+    </style>
     <div id="styles"></div>
     <style include="google-chart-styles"></style>
     <google-chart-loader id="loader" type="[[type]]"></google-chart-loader>
