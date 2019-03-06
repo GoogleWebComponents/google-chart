@@ -271,6 +271,7 @@ Polymer({
    * @param {string} type the type of chart to create
    * @param {!Element} el the element in which to create the chart
    * @return {!Promise<!Object>} promise for the created chart object
+   * @override
    * @suppress {checkTypes} This function accidentally overrides `create` from
    *     Polymer_LegacyElementMixin.
    */
