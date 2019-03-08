@@ -67,6 +67,7 @@ on the `html` tag of your document.
 @demo
 */
 Polymer({
+  /** @override */
   _template: html`
     <style>
       :host {
