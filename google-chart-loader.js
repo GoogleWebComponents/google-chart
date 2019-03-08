@@ -200,7 +200,7 @@ Polymer({
    * @private
    */
   _loadPackagesDebounce: function() {
-    this.debounce('loadPackages', function() {
+    this.debounce('loadPackages', () => {
       var packages = Object.keys(packagesToLoad);
       if (!packages.length) {
         return;

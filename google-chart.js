@@ -334,7 +334,8 @@ Polymer({
   /** Reacts to chart type change. */
   _typeChanged: function() {
     // We need to create a new chart and redraw.
-    this.$.loader.create(this.type, this.$.chartdiv)
+    const loader = /** @type {!GoogleChartLoaderElement} */ (this.$.loader);
+    loader.create(this.type, this.$.chartdiv)
         .then(function(chart) {
 
           // only add link stylesheet elements if there are none already
@@ -342,7 +343,6 @@ Polymer({
             this._localizeGlobalStylesheets();
           }
 
-          var loader = this.$.loader;
           Object.keys(this.events.concat(['select', 'ready'])
               .reduce(function(set, eventName) {
                 set[eventName] = true;
@@ -360,7 +360,7 @@ Polymer({
   _subOptionChanged: function(optionChangeDetails) {
     this.options = optionChangeDetails.base;
     // Debounce to allow for multiple option changes in one redraw
-    this.debounce('optionChangeRedraw', function() {
+    this.debounce('optionChangeRedraw', () => {
       this.redraw();
     }, 5);
   },
@@ -380,7 +380,9 @@ Polymer({
 
   /** Updates current selection. */
   _updateSelection: function() {
-    this.selection = this._selection = this._chart.getSelection();
+    const selection = this._chart.getSelection();
+    this._selection = selection;
+    this.selection = selection;
   },
 
   /** Reacts to chart ready event. */
@@ -416,7 +418,7 @@ Polymer({
       this._setDrawn(false);
       chart.draw(data, this.options || {});
     } catch(error) {
-      this.$.chartdiv.innerHTML = error;
+      this.$.chartdiv.textContent = error;
     }
   },
 
@@ -446,7 +448,8 @@ Polymer({
   _rowsOrColumnsChanged: function() {
     var rows = this.rows, cols = this.cols;
     if (!rows || !cols) { return; }
-    this.$.loader.dataTable()
+    const loader = /** @type {!GoogleChartLoaderElement} */ (this.$.loader);
+    loader.dataTable(undefined)
       .then(function(dataTable) {
         cols.forEach(function(col) {
           dataTable.addColumn(col);
@@ -454,12 +457,12 @@ Polymer({
         dataTable.addRows(rows);
         return dataTable;
       }.bind(this))
-      .then(this.$.loader.dataView.bind(this.$.loader))
+      .then(loader.dataView.bind(loader))
       .then(function(dataView) {
         this._dataView = dataView;
       }.bind(this))
       .catch(function(reason) {
-        this.$.chartdiv.innerHTML = reason;
+        this.$.chartdiv.textContent = reason;
       }.bind(this));
   },
 
@@ -503,9 +506,10 @@ Polymer({
       // Data is all ready to be processed.
       dataPromise = Promise.resolve(data);
     }
+    const loader = /** @type {!GoogleChartLoaderElement} */ (this.$.loader);
     dataPromise
-      .then(this.$.loader.dataTable.bind(this.$.loader))
-      .then(this.$.loader.dataView.bind(this.$.loader))
+      .then(loader.dataTable.bind(loader))
+      .then(loader.dataView.bind(loader))
       .then(function(dataView) {
         this._dataView = dataView;
       }.bind(this));
