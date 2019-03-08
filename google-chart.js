@@ -94,7 +94,6 @@ Polymer({
       }
     </style>
     <div id="styles"></div>
-    <style include="google-chart-styles"></style>
     <google-chart-loader id="loader" type="[[type]]"></google-chart-loader>
     <div id="chartdiv"></div>
   `,
