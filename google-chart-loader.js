@@ -113,7 +113,7 @@ var CHART_CONSTRUCTORS = {
  * @return {!Object} the namespace that contains the chart's constructor
  */
 function namespaceForType(type) {
-  return google[type.indexOf('md-') === 0 ? Namespace.CHARTS : Namespace.VIS];
+  return window.google[type.indexOf('md-') === 0 ? Namespace.CHARTS : Namespace.VIS];
 }
 
 /**
@@ -123,10 +123,13 @@ function namespaceForType(type) {
  */
 var loaderPromise = new Promise(function(resolve, reject) {
   // Resolve immediately if the loader script has been added already and
-  // `google.charts.load` is available. Adding the loader script twice throws
-  // an error.
-  if (typeof google !== 'undefined' && google.charts &&
-      typeof google.charts.load === 'function') {
+  // `window.google.charts.load` is available. Adding the loader script twice
+  // throws an error.
+  // Check for namespace on the window object because JS compiler may inline
+  // this module in a context where `google` contains only elements from the
+  // compiled code.
+  if (window.google && window.google.charts &&
+      typeof window.google.charts.load === 'function') {
     resolve();
   } else {
     // Try to find existing loader script.
@@ -207,14 +210,14 @@ Polymer({
       }
       packagesToLoad = {};
       loaderPromise.then(function() {
-        google.charts.load('current', {
+        window.google.charts.load('current', {
           'packages': packages,
           'language': document.documentElement.lang || 'en',
         });
-        google.charts.setOnLoadCallback(function() {
+        window.google.charts.setOnLoadCallback(function() {
           packages.forEach(function(pkg) {
             this.fire('loaded', pkg);
-            resolves[pkg](google.visualization);
+            resolves[pkg](window.google.visualization);
           }.bind(this));
         }.bind(this));
       }.bind(this));
@@ -258,7 +261,7 @@ Polymer({
     }
     return this._loadPackages([chartData.pkg || DEFACTO_CHART_PACKAGE])
       .then(function() {
-        var namespace = google[chartData.namespace] || namespaceForType(type);
+        var namespace = window.google[chartData.namespace] || namespaceForType(type);
         return namespace[chartData.ctor];
       });
   },
