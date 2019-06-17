@@ -1,0 +1,29 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at https://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at https://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at https://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at https://polymer.github.io/PATENTS.txt
+-->
+<!DOCTYPE html>
+<html lang="de">
+<script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+<script src="../../../wct-browser-legacy/browser.js"></script>
+<script type="module">
+  import {load} from '../google-chart-loader.js';
+
+  // This test has to run separately because Google Charts API is loaded only once per document.
+  suite('custom load test', () => {
+    test('loads Google Charts API with custom settings', async () => {
+      await load({version: '45.2'});
+      // Verify that the library has been loaded with correct settings by
+      // inspecting scripts added to the document.
+      assert.isNotNull(document.querySelector('script[src*="charts/45.2"]'));
+      assert.isNotNull(document.querySelector('script[src*="corechart_module"]'));
+      assert.isNotNull(document.querySelector('script[src*="__de"]'));
+    });
+  });
+</script>
+</html>
