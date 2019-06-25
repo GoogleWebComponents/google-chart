@@ -151,6 +151,44 @@ var promises = {};
 /** @type {!Object<string, function(!Object)>} resolves for the package promises */
 var resolves = {};
 
+/**
+ * @typedef {{
+ *   version: (string|undefined),
+ *   packages: (!Array<string>|undefined),
+ *   language: (string|undefined),
+ *   mapsApiKey: (string|undefined),
+ * }}
+ */
+var LoadSettings;
+
+/**
+ * Loads Google Charts API with the selected settings or using defaults.
+ *
+ * The following settings are available:
+ * - version: which version of library to load, default: 'current',
+ * - packages: which chart packages to load, default: ['corechart'],
+ * - language: what language to load library in, default: `lang` attribute on
+ *   `<html>` or 'en' if not specified,
+ * - mapsApiKey: key to use for maps API.
+ *
+ * @param {!LoadSettings=} settings
+ * @return {!Promise}
+ */
+export async function load(settings = {}) {
+  await loaderPromise;
+  const {
+    version = 'current',
+    packages = [DEFACTO_CHART_PACKAGE],
+    language = document.documentElement.lang || 'en',
+    mapsApiKey,
+  } = settings;
+  return google.charts.load(version, {
+    'packages': packages,
+    'language': language,
+    'mapsApiKey': mapsApiKey,
+  });
+}
+
 Polymer({
   is: 'google-chart-loader',
   properties: {
@@ -206,18 +244,12 @@ Polymer({
         return;
       }
       packagesToLoad = {};
-      loaderPromise.then(function() {
-        google.charts.load('current', {
-          'packages': packages,
-          'language': document.documentElement.lang || 'en',
+      loaderPromise.then(() => load()).then(() => {
+        packages.forEach((pkg) => {
+          this.fire('loaded', pkg);
+          resolves[pkg](google.visualization);
         });
-        google.charts.setOnLoadCallback(function() {
-          packages.forEach(function(pkg) {
-            this.fire('loaded', pkg);
-            resolves[pkg](google.visualization);
-          }.bind(this));
-        }.bind(this));
-      }.bind(this));
+      });
     }, 100);
   },
 
