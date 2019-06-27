@@ -244,7 +244,7 @@ Polymer({
         return;
       }
       packagesToLoad = {};
-      loaderPromise.then(() => load()).then(() => {
+      loaderPromise.then(() => load({packages})).then(() => {
         packages.forEach((pkg) => {
           this.fire('loaded', pkg);
           resolves[pkg](google.visualization);

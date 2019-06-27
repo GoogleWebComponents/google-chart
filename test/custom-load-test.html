@@ -11,18 +11,38 @@
 <html lang="de">
 <script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 <script src="../../../wct-browser-legacy/browser.js"></script>
+
+<test-fixture id="type-table">
+  <template>
+    <google-chart type="table"></google-chart>
+  </template>
+</test-fixture>
+
 <script type="module">
   import {load} from '../google-chart-loader.js';
+  import '../google-chart.js';
 
   // This test has to run separately because Google Charts API is loaded only once per document.
   suite('custom load test', () => {
-    test('loads Google Charts API with custom settings', async () => {
-      await load({version: '45.2'});
+    suiteSetup(() => {
+      return load({version: '45.2'});
+    });
+
+    test('loads Google Charts API with custom settings', () => {
       // Verify that the library has been loaded with correct settings by
       // inspecting scripts added to the document.
       assert.isNotNull(document.querySelector('script[src*="charts/45.2"]'));
       assert.isNotNull(document.querySelector('script[src*="corechart_module"]'));
       assert.isNotNull(document.querySelector('script[src*="__de"]'));
+    });
+
+    test('loads packages for chart type="table"', async () => {
+      const chart = fixture('type-table');
+      chart.data = [ ['Data', 'Value'], ['Something', 1] ];
+      await new Promise((resolve) => {
+        chart.addEventListener('google-chart-ready', resolve);
+      });
+      assert.isAbove(chart.$['chartdiv'].childElementCount, 0);
     });
   });
 </script>
