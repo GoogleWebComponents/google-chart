@@ -47,7 +47,7 @@ customElements.define('new-element', NewElement);
 
 ### More usage examples
 
-See examples in the demo or try this live [JS bin](https://jsbin.com/taximobici/edit?html,output).
+See examples in the demo or try this live [JS bin](https://jsbin.com/verayehesu/edit?html,output).
 
 ## Contributing
 
