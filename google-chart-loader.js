@@ -373,26 +373,7 @@ Polymer({
    * @return {!Promise<!google.visualization.DataTable>} promise for the created DataTable
    */
   dataTable: function(data) {
-    return this._corePackage.then(function(viz) {
-      if (data == null) {
-        return new viz.DataTable();
-      } else if (data.getNumberOfRows) {
-        // Data is already a DataTable
-        return data;
-      } else if (data.cols) {  // data.rows may also be specified
-        // Data is in the form of object DataTable structure
-        return new viz.DataTable(data);
-      } else if (data.length > 0) {
-        // Data is in the form of a two dimensional array.
-        return viz.arrayToDataTable(data);
-      } else if (data.length === 0) {
-        // Chart data was empty.
-        // We return null instead of creating an empty DataTable because most
-        // (if not all) charts will render a sticky error in this situation.
-        return Promise.reject('Data was empty.');
-      }
-      return Promise.reject('Data format was not recognized.');
-    });
+    return dataTable(data);
   },
 
   /**
@@ -424,3 +405,56 @@ Polymer({
     });
   }
 });
+
+/**
+ * Creates a DataTable object for use with a chart.
+ *
+ * Multiple different argument types are supported. This is because the
+ * result of loading the JSON data URL is fed into this function for
+ * DataTable construction and its format is unknown.
+ *
+ * The data argument can be one of a few options:
+ *
+ * - null/undefined: An empty DataTable is created. Columns must be added
+ * - !DataTable: The object is simply returned
+ * - {{cols: !Array, rows: !Array}}: A DataTable in object format
+ * - {{cols: !Array}}: A DataTable in object format without rows
+ * - !Array<!Array>: A DataTable in 2D array format
+ *
+ * Un-supported types:
+ *
+ * - Empty !Array<!Array>: (e.g. `[]`) While technically a valid data
+ *   format, this is rejected as charts will not render empty DataTables.
+ *   DataTables must at least have columns specified. An empty array is most
+ *   likely due to a bug or bad data. If one wants an empty DataTable, pass
+ *   no arguments.
+ * - Anything else
+ *
+ * See <a href="https://developers.google.com/chart/interactive/docs/reference#datatable-class">the docs</a> for more details.
+ *
+ * @param {!Array|{cols: !Array, rows: (!Array<!Array>|undefined)}|undefined} data
+ *     the data with which we should use to construct the new DataTable object
+ * @return {!Promise<!google.visualization.DataTable>} promise for the created DataTable
+ */
+export async function dataTable(data) {
+  // Ensure that `google.visualization` namespace is added to the document.
+  await load();
+  if (data == null) {
+    return new google.visualization.DataTable();
+  } else if (data.getNumberOfRows) {
+    // Data is already a DataTable
+    return /** @type {!google.visualization.DataTable} */ (data);
+  } else if (data.cols) {  // data.rows may also be specified
+    // Data is in the form of object DataTable structure
+    return new google.visualization.DataTable(data);
+  } else if (data.length > 0) {
+    // Data is in the form of a two dimensional array.
+    return google.visualization.arrayToDataTable(data);
+  } else if (data.length === 0) {
+    // Chart data was empty.
+    // We return null instead of creating an empty DataTable because most
+    // (if not all) charts will render a sticky error in this situation.
+    return Promise.reject('Data was empty.');
+  }
+  return Promise.reject('Data format was not recognized.');
+}
