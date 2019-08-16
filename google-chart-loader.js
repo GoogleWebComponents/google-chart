@@ -452,9 +452,9 @@ export async function dataTable(data) {
     return google.visualization.arrayToDataTable(data);
   } else if (data.length === 0) {
     // Chart data was empty.
-    // We return null instead of creating an empty DataTable because most
+    // We throw instead of creating an empty DataTable because most
     // (if not all) charts will render a sticky error in this situation.
-    return Promise.reject('Data was empty.');
+    throw new Error('Data was empty.');
   }
-  return Promise.reject('Data format was not recognized.');
+  throw new Error('Data format was not recognized.');
 }
