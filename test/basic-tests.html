@@ -79,6 +79,27 @@ suite('<google-chart>', function() {
         return chart.$$('rect[stroke="#ffffff"]');
       }, done);
     });
+    test('updates selection', function(done) {
+      chart.data = [
+        ['Data', 'Value'],
+        ['Something 1', 1],
+        ['Something 2', 2],
+        ['Something 3', 3],
+      ];
+      chart.addEventListener('google-chart-select', () => {
+        assert.sameDeepMembers(chart.selection, [ {row: 2, column: 1} ]);
+        done();
+      }, {once: true});
+      chart.selection = [ {row: 0, column: 1} ];
+      chart.addEventListener('google-chart-ready', () => {
+        // Look for something that can be clicked. Find rectangles for legend
+        // and each bar.
+        const rects = chart.$$('#chartdiv')
+            .querySelectorAll('rect[fill="#3366cc"]');
+        // Click on the last bar ('Something 3').
+        rects[3].dispatchEvent(new MouseEvent('click', {bubbles: true}));
+      }, {once: true});
+    });
     test('default options are null', function() {
       assert.equal(chart.options, null);
     });
