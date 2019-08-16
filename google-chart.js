@@ -459,8 +459,8 @@ Polymer({
       const dt = await dataTable({cols});
       dt.addRows(rows);
       this._data = dt;
-    } catch (e) {
-      this.$.chartdiv.textContent = e.message;
+    } catch (reason) {
+      this.$.chartdiv.textContent = reason;
     }
   },
 
