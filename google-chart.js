@@ -8,10 +8,46 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at https://polymer.github.io/PATENTS.txt
 */
 import '@polymer/iron-ajax/iron-request.js';
-import './google-chart-loader.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+import { dataTable, load } from './google-chart-loader.js';
+
+const DEFAULT_EVENTS = ['ready', 'select'];
+
+/**
+ * Constructor names for supported chart types.
+ *
+ * `ChartWrapper` expects a constructor name and assumes `google.visualization`
+ *  as the default namespace.
+ *
+ * @type {!Object<string, (string|undefined)>}
+ */
+const CHART_TYPES = {
+  'area': 'AreaChart',
+  'bar': 'BarChart',
+  'md-bar': 'google.charts.Bar',
+  'bubble': 'BubbleChart',
+  'calendar': 'Calendar',
+  'candlestick': 'CandlestickChart',
+  'column': 'ColumnChart',
+  'combo': 'ComboChart',
+  'gauge': 'Gauge',
+  'geo': 'GeoChart',
+  'histogram': 'Histogram',
+  'line': 'LineChart',
+  'md-line': 'google.charts.Line',
+  'org': 'OrgChart',
+  'pie': 'PieChart',
+  'sankey': 'Sankey',
+  'scatter': 'ScatterChart',
+  'md-scatter': 'google.charts.Scatter',
+  'stepped-area': 'SteppedAreaChart',
+  'table': 'Table',
+  'timeline': 'Timeline',
+  'treemap': 'TreeMap',
+  'wordtree': 'WordTree',
+};
 
 /**
 `google-chart` encapsulates Google Charts as a web component, allowing you to easily visualize
@@ -94,7 +130,6 @@ Polymer({
       }
     </style>
     <div id="styles"></div>
-    <google-chart-loader id="loader" type="[[type]]"></google-chart-loader>
     <div id="chartdiv"></div>
   `,
 
@@ -147,7 +182,7 @@ Polymer({
     type: {
       type: String,
       value: 'column',
-      observer: '_typeChanged'
+      observer: '_typeChanged',
     },
 
     /**
@@ -157,6 +192,7 @@ Polymer({
      * fires on `ready` and `select`. If you would like to be notified of
      * other chart events, use this property to list them.
      * Events `ready` and `select` are always fired.
+     *
      * Changes to this property are _not_ observed. Events are attached only
      * at chart construction time.
      *
@@ -164,7 +200,7 @@ Polymer({
      */
     events: {
       type: Array,
-      value: function() { return []; }
+      value: () => [],
     },
 
     /**
@@ -254,7 +290,7 @@ Polymer({
      */
     data: {
       type: String,
-      observer: '_dataChanged'
+      observer: '_dataChanged',
     },
 
     /**
@@ -269,7 +305,7 @@ Polymer({
      */
     view: {
       type: Object,
-      observer: '_viewChanged'
+      observer: '_viewChanged',
     },
 
     /**
@@ -292,7 +328,7 @@ Polymer({
     selection: {
       type: Array,
       notify: true,
-      observer: '_setSelection'
+      observer: '_setSelection',
     },
 
     /**
@@ -301,94 +337,82 @@ Polymer({
     drawn: {
       type: Boolean,
       readOnly: true,
-      value: false
+      value: false,
     },
 
-    /** @type {?Object} Internal Google Visualization chart object */
-    _chart: {
+    /** Internal data displayed on the chart. */
+    _data: {
       type: Object,
-      value: null,
-    },
-
-    /** @type {?google.visualization.DataView} Internal data state */
-    _dataView: {
-      type: Object,
-      value: null,
     },
   },
 
   observers: [
-    '_draw(_chart, _dataView)',
-    '_subOptionChanged(options.*)'
+    'redraw(_data, options.*)',
   ],
 
-  listeners: {
-    'google-chart-select': '_updateSelection',
-    'google-chart-ready': '_onChartReady'
-  },
+  /**
+   * Internal chart object.
+   * @private {!google.visualization.ChartWrapper|null}
+   */
+  _chartWrapper: null,
 
-  /** @type {?Array} Internal selection state */
-  _selection: null,
+  /** @override */
+  ready() {
+    createChartWrapper(this.$.chartdiv).then((chartWrapper) => {
+      this._chartWrapper = chartWrapper;
+      this._typeChanged();
+      google.visualization.events.addListener(chartWrapper, 'ready', () => {
+        this._setDrawn(true);
+      });
+      this._propagateEvents(DEFAULT_EVENTS, chartWrapper);
+    });
+  },
 
   /** Reacts to chart type change. */
-  _typeChanged: function() {
-    // We need to create a new chart and redraw.
-    const loader = /** @type {!GoogleChartLoaderElement} */ (this.$.loader);
-    loader.create(this.type, this.$.chartdiv)
-        .then(function(chart) {
-
-          // only add link stylesheet elements if there are none already
-          if (!this.$.styles.children.length) {
-            this._localizeGlobalStylesheets();
-          }
-
-          Object.keys(this.events.concat(['select', 'ready'])
-              .reduce(function(set, eventName) {
-                set[eventName] = true;
-                return set;
-              }, {}))
-              .forEach(function(eventName) {
-                loader.fireOnChartEvent(chart, eventName);
-              });
-          this._setDrawn(false);
-          this._chart = chart;
-        }.bind(this));
+  _typeChanged() {
+    if (this._chartWrapper == null) return;
+    this._chartWrapper.setChartType(CHART_TYPES[this.type] || this.type);
+    const lastChart = this._chartWrapper.getChart();
+    google.visualization.events.addOneTimeListener(this._chartWrapper, 'ready', () => {
+      const chart = this._chartWrapper.getChart();
+      if (chart !== lastChart) {
+        this._propagateEvents(this.events.filter((eventName) => !DEFAULT_EVENTS.includes(eventName)), chart);
+      }
+      if (!this.$.styles.children.length) {
+        this._localizeGlobalStylesheets();
+      }
+      if (this.selection) {
+        this._setSelection();
+      }
+    });
+    this.redraw();
   },
 
-  /** Reacts to `options` subproperty change. */
-  _subOptionChanged: function(optionChangeDetails) {
-    this.options = optionChangeDetails.base;
-    // Debounce to allow for multiple option changes in one redraw
-    this.debounce('optionChangeRedraw', () => {
-      this.redraw();
-    }, 5);
+  /**
+   * Adds listeners to propagate events from the chart.
+   *
+   * @param {!Array<string>} events
+   * @private
+   */
+  _propagateEvents(events, eventTarget) {
+    for (const eventName of events) {
+      google.visualization.events.addListener(eventTarget, eventName, (event) => {
+        this.fire(`google-chart-${eventName}`, {
+          chart: this._chartWrapper.getChart(),
+          data: event,
+        });
+      });
+    }
   },
 
   /** Sets the selectiton on the chart. */
-  _setSelection: function() {
-    // Note: Some charts (e.g. TreeMap) must have a selection.
-    if (!this.drawn || !this.selection || this.selection === this._selection) {
-      return;
+  _setSelection() {
+    if (this._chartWrapper == null) return;
+    const chart = this._chartWrapper.getChart();
+    if (chart == null) return;
+    if (chart.setSelection) {
+      chart.setSelection(this.selection);
     }
-
-    if (this._chart.setSelection) {
-      this._chart.setSelection(this.selection);
-    }
-    this._selection = this.selection;
-  },
-
-  /** Updates current selection. */
-  _updateSelection: function() {
-    const selection = this._chart.getSelection();
-    this._selection = selection;
-    this.selection = selection;
-  },
-
-  /** Reacts to chart ready event. */
-  _onChartReady: function() {
-    this._setDrawn(true);
-    this._selection = null;
-    this._setSelection();
   },
 
   /**
@@ -396,73 +420,48 @@ Polymer({
    *
    * Called automatically when data/type/selection attributes change.
    * Call manually to handle view updates, page resizes, etc.
-   *
-   * @method redraw
    */
-  redraw: function() {
-    if (!this._chart || !this._dataView) { return; }
-    this._draw(this._chart, this._dataView);
-  },
+  redraw() {
+    if (this._chartWrapper == null || this._data == null) return;
+    this._chartWrapper.setDataTable(this._data);
+    this._chartWrapper.setOptions(this.options || {});
 
-  /**
-  * Renders the chart using the provided data.
-  * @param {?Object|undefined} chart Internal Google Visualization chart object.
-  * @param {?google.visualization.DataView|undefined} data  Internal data state
-  */
-  _draw: function(chart, data) {
-    if(chart == null || data == null) {
-      return;
-    }
-    try {
-      this._setDrawn(false);
-      chart.draw(data, this.options || {});
-    } catch(error) {
-      this.$.chartdiv.textContent = error;
-    }
+    this._setDrawn(false);
+    this.debounce('draw', () => {
+      this._chartWrapper.draw();
+    }, 5);
   },
 
   /**
    * Returns the chart serialized as an image URI.
    *
-   * Call this after the chart is drawn (google-chart-render event).
+   * Call this after the chart is drawn (google-chart-ready event).
    *
    * @return {?string} Returns image URI.
    */
   get imageURI() {
-    if (!this._chart) { return null; }
-    return this._chart.getImageURI();
+    if (this._chartWrapper == null) return null;
+    const chart = this._chartWrapper.getChart();
+    return chart && chart.getImageURI();
   },
 
-  /**
-   * Handles changes to the `view` attribute.
-   *
-   * @param {!google.visualization.DataView|undefined} view The new view value
-   */
-  _viewChanged: function(view) {
-    if (!view) { return; }
-    this._dataView = view;
+  /** Handles changes to the `view` attribute. */
+  _viewChanged() {
+    if (!this.view) { return; }
+    this._data = this.view.toDataTable();
   },
 
   /** Handles changes to the rows & columns attributes. */
-  _rowsOrColumnsChanged: function() {
-    var rows = this.rows, cols = this.cols;
-    if (!rows || !cols) { return; }
-    const loader = /** @type {!GoogleChartLoaderElement} */ (this.$.loader);
-    loader.dataTable(undefined)
-      .then(function(dataTable) {
-        cols.forEach(function(col) {
-          dataTable.addColumn(col);
-        });
-        dataTable.addRows(rows);
-        return dataTable;
-      }.bind(this))
-      .then(loader.dataView.bind(loader))
-      .then(function(dataView) {
-        this._dataView = dataView;
-      }.bind(this))
-      .catch(function(reason) {
-        this.$.chartdiv.textContent = reason;
-      }.bind(this));
+  async _rowsOrColumnsChanged() {
+    const {rows, cols} = this;
+    if (!rows || !cols) return;
+    try {
+      const dt = await dataTable({cols});
+      dt.addRows(rows);
+      this._data = dt;
+    } catch (reason) {
+      this.$.chartdiv.textContent = reason;
+    }
   },
 
   /**
@@ -475,7 +474,7 @@ Polymer({
    *     string|
    *     undefined} data The new data value
    */
-  _dataChanged: function(data) {
+  _dataChanged(data) {
     var dataPromise;
     if (!data) { return; }
 
@@ -505,13 +504,9 @@ Polymer({
       // Data is all ready to be processed.
       dataPromise = Promise.resolve(data);
     }
-    const loader = /** @type {!GoogleChartLoaderElement} */ (this.$.loader);
-    dataPromise
-      .then(loader.dataTable.bind(loader))
-      .then(loader.dataView.bind(loader))
-      .then(function(dataView) {
-        this._dataView = dataView;
-      }.bind(this));
+    dataPromise.then(dataTable).then((data) => {
+      this._data = data;
+    });
   },
 
   /**
@@ -541,3 +536,14 @@ Polymer({
     }
   }
 });
+
+/**
+ * Creates new `ChartWrapper`.
+ * @param {!Element} container Element in which the chart will be drawn
+ * @return {!Promise<!google.visualization.ChartWrapper>}
+ */
+async function createChartWrapper(container) {
+  // Ensure that `google.visualization` namespace is added to the document.
+  await load();
+  return new google.visualization.ChartWrapper({'container': container});
+}
