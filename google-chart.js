@@ -364,6 +364,9 @@ Polymer({
       google.visualization.events.addListener(chartWrapper, 'ready', () => {
         this._setDrawn(true);
       });
+      google.visualization.events.addListener(chartWrapper, 'select', () => {
+        this.selection = chartWrapper.getChart().getSelection();
+      });
       this._propagateEvents(DEFAULT_EVENTS, chartWrapper);
     });
   },
