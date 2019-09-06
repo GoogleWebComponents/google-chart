@@ -128,6 +128,11 @@ Polymer({
       #chartdiv {
         width: 100%;
       }
+
+      /* Workaround for slow initial ready event for tables. */
+      .google-visualization-table-loadtest {
+        padding-left: 6px;
+      }
     </style>
     <div id="styles"></div>
     <div id="chartdiv"></div>
