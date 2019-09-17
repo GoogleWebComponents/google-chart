@@ -11,7 +11,7 @@ import '@polymer/iron-ajax/iron-request.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
-import { dataTable, load } from './google-chart-loader.js';
+import { createChartWrapper, dataTable } from './loader.js';
 
 const DEFAULT_EVENTS = ['ready', 'select'];
 
@@ -551,14 +551,3 @@ Polymer({
     }
   }
 });
-
-/**
- * Creates new `ChartWrapper`.
- * @param {!Element} container Element in which the chart will be drawn
- * @return {!Promise<!google.visualization.ChartWrapper>}
- */
-async function createChartWrapper(container) {
-  // Ensure that `google.visualization` namespace is added to the document.
-  await load();
-  return new google.visualization.ChartWrapper({'container': container});
-}
