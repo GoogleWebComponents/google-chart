@@ -419,6 +419,13 @@ Polymer({
     const chart = this._chartWrapper.getChart();
     if (chart == null) return;
     if (chart.setSelection) {
+      // Workaround for timeline chart which emits select event on setSelection.
+      // See issue #256.
+      if (this.type === 'timeline') {
+        const oldSelection = JSON.stringify(chart.getSelection());
+        const newSelection = JSON.stringify(this.selection);
+        if (newSelection === oldSelection) return;
+      }
       chart.setSelection(this.selection);
     }
   },
