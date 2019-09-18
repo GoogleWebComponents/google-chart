@@ -158,6 +158,46 @@ suite('<google-chart>', function() {
     });
   });
 
+  suite('Redrawing', () => {
+    let chart;
+    let dt;
+    setup(async () => {
+      chart = fixture('chart-fixture');
+      const loader = document.createElement('google-chart-loader');
+      dt = await loader.dataTable();
+      dt.addColumn('number', 'x');
+      dt.addColumn('number', 'y');
+      dt.addRow([1, 1]);
+    });
+
+    async function countBars(chart) {
+      await new Promise((resolve) => {
+        chart.addEventListener('google-chart-ready', resolve, {once: true});
+      });
+      return Array.from(chart.shadowRoot.querySelectorAll('rect[fill="#3366cc"]')).length;
+    }
+
+    test('redraws after DataTable change', async () => {
+      chart.data = dt;
+      const barsBefore = await countBars(chart);
+
+      dt.addRow([2, 2]);
+      chart.redraw();
+      const barsAfter = await countBars(chart);
+      assert.isAbove(barsAfter, barsBefore);
+    });
+    test('redraws after DataView change', async () => {
+      const view = new google.visualization.DataView(dt);
+      chart.view = view;
+      const barsBefore = await countBars(chart);
+
+      dt.addRow([2, 2]);
+      chart.redraw();
+      const barsAfter = await countBars(chart);
+      assert.isAbove(barsAfter, barsBefore);
+    });
+  });
+
   suite('Events', function() {
     setup(function() {
       chart.data = [ ['Data', 'Value'], ['Something', 1] ];
