@@ -270,6 +270,30 @@ suite('<google-chart>', function() {
       });
     });
   });
+
+  suite('Timeline chart workaround', () => {
+    // Handle `setSelection` on timeline chart that emits `select` event.
+    test('set selection does not loop', async () => {
+      chart.type = 'timeline';
+      chart.cols = [
+        {type: 'string', label: 'President'},
+        {type: 'date', label: 'Start'},
+        {type: 'date', label: 'End'},
+      ];
+      chart.rows = [
+        ['Washington', new Date(1789, 3, 30), new Date(1797, 2, 4)],
+        ['Adams',      new Date(1797, 2, 4),  new Date(1801, 2, 4)],
+        ['Jefferson',  new Date(1801, 2, 4),  new Date(1809, 2, 4)],
+      ];
+      await new Promise((resolve) => {
+        chart.addEventListener('google-chart-ready', resolve, {once: true});
+      });
+      // Set and update the selection.
+      chart.selection = [{row: 0, column: null}];
+      chart.selection = [{row: 1, column: null}];
+      assert.isDefined(chart.selection);
+    });
+  });
 });
 </script>
 
