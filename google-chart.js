@@ -456,7 +456,7 @@ Polymer({
   /** Handles changes to the `view` attribute. */
   _viewChanged() {
     if (!this.view) { return; }
-    this._data = this.view.toDataTable();
+    this._data = this.view;
   },
 
   /** Handles changes to the rows & columns attributes. */
