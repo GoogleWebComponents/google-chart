@@ -24,17 +24,23 @@
 
 <script type="module">
 import '@polymer/promise-polyfill/promise-polyfill-lite.js';
-import '../google-chart.js';
+import { timeOut } from '@polymer/polymer/lib/utils/async.js';
+import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
+import { GoogleChart } from '../google-chart.js';
 import '../google-chart-loader.js';
+
 suite('<google-chart>', function() {
   var chart;
+  var waitCheckAndDoneDebouncer;
   setup(function() {
     chart = fixture('chart-fixture');
+    waitCheckAndDoneDebouncer = null;
   });
   var waitCheckAndDone = function(check, done) {
     setTimeout(function() {
       if (check()) {
-        chart.debounce('done', done, 100);
+        waitCheckAndDoneDebouncer = Debouncer.debounce(
+            waitCheckAndDoneDebouncer, timeOut.after(100), done);
       } else {
         waitCheckAndDone(check, done);
       }
@@ -67,7 +73,7 @@ suite('<google-chart>', function() {
       chart.type = 'line';
       waitCheckAndDone(function() {
         // A circle indicates the chart type change was drawn:
-        return chart.$$('circle');
+        return chart.shadowRoot.querySelector('circle');
       }, done);
     });
     test('default selection is null', function() {
@@ -77,7 +83,7 @@ suite('<google-chart>', function() {
       chart.selection = [ {row: 0} ];
       waitCheckAndDone(function() {
         // A white stroked rectangle signals the selection was drawn:
-        return chart.$$('rect[stroke="#ffffff"]');
+        return chart.shadowRoot.querySelector('rect[stroke="#ffffff"]');
       }, done);
     });
     test('updates selection', function(done) {
@@ -95,7 +101,7 @@ suite('<google-chart>', function() {
       chart.addEventListener('google-chart-ready', () => {
         // Look for something that can be clicked. Find rectangles for legend
         // and each bar.
-        const rects = chart.$$('#chartdiv')
+        const rects = chart.$['chartdiv']
             .querySelectorAll('rect[fill="#3366cc"]');
         // Click on the last bar ('Something 3').
         rects[3].dispatchEvent(new MouseEvent('click', {bubbles: true}));
@@ -112,7 +118,7 @@ suite('<google-chart>', function() {
           initialDraw = false;
           chart.options = {'title': expectedTitle};
         } else {
-          assert.equal(chart.$$('text').innerHTML, expectedTitle);
+          assert.equal(chart.shadowRoot.querySelector('text').innerHTML, expectedTitle);
           done();
         }
       });
@@ -130,7 +136,7 @@ suite('<google-chart>', function() {
           chart.set('options.title', expectedTitle);
           assert.isFalse(spyRedraw.called);
         } else {
-          assert.equal(chart.$$('text').innerHTML, expectedTitle);
+          assert.equal(chart.shadowRoot.querySelector('text').innerHTML, expectedTitle);
           assert.isTrue(spyRedraw.calledOnce);
           chart._chartWrapper.draw.restore();
           done();
@@ -156,6 +162,19 @@ suite('<google-chart>', function() {
       });
 
       document.body.appendChild(secondChart);
+    });
+  });
+
+  suite('Class', () => {
+    test('can be created', async () => {
+      const chart = new GoogleChart();
+      chart.data = [ ['Data', 'Value'], ['Something', 1] ];
+      const ready = new Promise((resolve) => {
+        chart.addEventListener('google-chart-ready', resolve, {once: true});
+      });
+      document.body.appendChild(chart);
+      await ready;
+      document.body.removeChild(chart);
     });
   });
 
@@ -236,7 +255,7 @@ suite('<google-chart>', function() {
       chart.cols = [ { 'type': 'date' } ];
       chart.rows = [ ['Date(1789, 3, 30)'] ];
       waitCheckAndDone(function() {
-        return chart.$$('#chartdiv').innerHTML ==
+        return chart.$['chartdiv'].innerHTML ==
           'Error: Type mismatch. Value Date(1789, 3, 30) ' +
           'does not match type date in column index 0';
       }, done);
