@@ -156,199 +156,39 @@ export class GoogleChart extends PolymerElement {
   /** Polymer element properties. */
   static get properties() {
     return {
-      /**
-       * Sets the type of the chart.
-       *
-       * Should be one of:
-       * - `area`
-       * - `(md-)bar`
-       * - `bubble`
-       * - `calendar`
-       * - `candlestick`
-       * - `column`
-       * - `combo`
-       * - `gauge`
-       * - `geo`
-       * - `histogram`
-       * - `(md-)line`
-       * - `org`
-       * - `pie`
-       * - `sankey`
-       * - `(md-)scatter`
-       * - `stepped-area`
-       * - `table`
-       * - `timeline`
-       * - `treemap`
-       * - `wordtree`
-       *
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
-       * for details.
-       */
       type: {
         type: String,
-        value: 'column',
-        observer: '_typeChanged',
+        observer: GoogleChart.prototype._typeChanged,
       },
-
-      /**
-       * Enumerates the chart events that should be fired.
-       *
-       * Charts support a variety of events. By default, this element only
-       * fires on `ready` and `select`. If you would like to be notified of
-       * other chart events, use this property to list them.
-       * Events `ready` and `select` are always fired.
-       *
-       * Changes to this property are _not_ observed. Events are attached only
-       * at chart construction time.
-       *
-       * @type {!Array<string>}
-       */
-      events: {
-        type: Array,
-        value: () => [],
-      },
-
-      /**
-       * Sets the options for the chart.
-       *
-       * Example:
-       * <pre>{
-       *   title: "Chart title goes here",
-       *   hAxis: {title: "Categories"},
-       *   vAxis: {title: "Values", minValue: 0, maxValue: 2},
-       *   legend: "none"
-       * };</pre>
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
-       * for the options available to each chart type.
-       *
-       * This property is observed via a deep object observer.
-       * If you would like to make changes to a sub-property, be sure to use the
-       * Polymer method `set`: `googleChart.set('options.vAxis.logScale', true)`
-       * (Note: Missing parent properties are not automatically created.)
-       *
-       * @type {!Object|undefined}
-       */
-      options: {
-        type: Object
-      },
-
-      /**
-       * Sets the data columns for this object.
-       *
-       * When specifying data with `cols` you must also specify `rows`, and
-       * not specify `data`.
-       *
-       * Example:
-       * <pre>[{label: "Categories", type: "string"},
-       *  {label: "Value", type: "number"}]</pre>
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google Visualization API reference (addColumn)</a>
-       * for column definition format.
-       *
-       * @type {!Array|undefined}
-       */
+      events: Array,
+      options: Object,
       cols: {
         type: Array,
-        observer: '_rowsOrColumnsChanged',
+        observer: GoogleChart.prototype._rowsOrColumnsChanged,
       },
-
-      /**
-       * Sets the data rows for this object.
-       *
-       * When specifying data with `rows` you must also specify `cols`, and
-       * not specify `data`.
-       *
-       * Example:
-       * <pre>[["Category 1", 1.0],
-       *  ["Category 2", 1.1]]</pre>
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google Visualization API reference (addRow)</a>
-       * for row format.
-       *
-       * @type {!Array<!Array>|undefined}
-       */
       rows: {
         type: Array,
-        observer: '_rowsOrColumnsChanged',
+        observer: GoogleChart.prototype._rowsOrColumnsChanged,
       },
-
-      /**
-       * Sets the entire dataset for this object.
-       * Can be used to provide the data directly, or to provide a URL from
-       * which to request the data.
-       *
-       * The data format can be a two-dimensional array or the DataTable format
-       * expected by Google Charts.
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable">Google Visualization API reference (DataTable constructor)</a>
-       * for data table format details.
-       *
-       * When specifying data with `data` you must not specify `cols` or `rows`.
-       *
-       * Example:
-       * <pre>[["Categories", "Value"],
-       *  ["Category 1", 1.0],
-       *  ["Category 2", 1.1]]</pre>
-       *
-       * @type {!google.visualization.DataTable|
-       *        !Array<!Array>|
-       *        {cols: !Array, rows: (!Array<!Array>|undefined)}|
-       *        string|
-       *        undefined}
-       */
       data: {
+        // Note: type: String, because it is parsed manually in the observer.
         type: String,
-        observer: '_dataChanged',
+        observer: GoogleChart.prototype._dataChanged,
       },
-
-      /**
-       * Sets the entire dataset for this object to a Google DataView.
-       *
-       * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#dataview-class">Google Visualization API reference (DataView)</a>
-       * for details.
-       *
-       * When specifying data with `view` you must not specify `data`, `cols` or `rows`.
-       *
-       * @type {!google.visualization.DataView|undefined}
-       */
       view: {
         type: Object,
-        observer: '_viewChanged',
+        observer: GoogleChart.prototype._viewChanged,
       },
-
-      /**
-       * Selected datapoint(s) in the chart.
-       *
-       * An array of objects, each with a numeric row and/or column property.
-       * `row` and `column` are the zero-based row or column number of an item
-       * in the data table to select.
-       *
-       * To select a whole column, set row to null;
-       * to select a whole row, set column to null.
-       *
-       * Example:
-       * <pre>
-       *   [{row:0,column:1}, {row:1, column:null}]
-       * </pre>
-       *
-       * @type {!Array|undefined}
-       */
       selection: {
         type: Array,
         notify: true,
-        observer: '_setSelection',
+        observer: GoogleChart.prototype._setSelection,
       },
-
-      /**
-       * Whether the chart is currently rendered.
-       */
       drawn: {
         type: Boolean,
         readOnly: true,
-        value: false,
       },
-
-      /** Internal data displayed on the chart. */
-      _data: {
-        type: Object,
-      },
+      _data: Object,
     };
   }
 
@@ -360,6 +200,183 @@ export class GoogleChart extends PolymerElement {
 
   constructor() {
     super();
+
+    /**
+     * Sets the type of the chart.
+     *
+     * Should be one of:
+     * - `area`
+     * - `(md-)bar`
+     * - `bubble`
+     * - `calendar`
+     * - `candlestick`
+     * - `column`
+     * - `combo`
+     * - `gauge`
+     * - `geo`
+     * - `histogram`
+     * - `(md-)line`
+     * - `org`
+     * - `pie`
+     * - `sankey`
+     * - `(md-)scatter`
+     * - `stepped-area`
+     * - `table`
+     * - `timeline`
+     * - `treemap`
+     * - `wordtree`
+     *
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
+     * for details.
+     *
+     * @type {string}
+     */
+    this.type = 'column';
+
+    /**
+     * Enumerates the chart events that should be fired.
+     *
+     * Charts support a variety of events. By default, this element only
+     * fires on `ready` and `select`. If you would like to be notified of
+     * other chart events, use this property to list them.
+     * Events `ready` and `select` are always fired.
+     *
+     * Changes to this property are _not_ observed. Events are attached only
+     * at chart construction time.
+     *
+     * @type {!Array<string>}
+     */
+    this.events = [];
+
+    /**
+     * Sets the options for the chart.
+     *
+     * Example:
+     * <pre>{
+     *   title: "Chart title goes here",
+     *   hAxis: {title: "Categories"},
+     *   vAxis: {title: "Values", minValue: 0, maxValue: 2},
+     *   legend: "none"
+     * };</pre>
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
+     * for the options available to each chart type.
+     *
+     * This property is observed via a deep object observer.
+     * If you would like to make changes to a sub-property, be sure to use the
+     * Polymer method `set`: `googleChart.set('options.vAxis.logScale', true)`
+     * (Note: Missing parent properties are not automatically created.)
+     *
+     * @type {!Object|undefined}
+     */
+    this.options = undefined;
+
+    /**
+     * Sets the data columns for this object.
+     *
+     * When specifying data with `cols` you must also specify `rows`, and
+     * not specify `data`.
+     *
+     * Example:
+     * <pre>[{label: "Categories", type: "string"},
+     *  {label: "Value", type: "number"}]</pre>
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google Visualization API reference (addColumn)</a>
+     * for column definition format.
+     *
+     * @type {!Array|undefined}
+     */
+    this.cols = undefined;
+
+    /**
+     * Sets the data rows for this object.
+     *
+     * When specifying data with `rows` you must also specify `cols`, and
+     * not specify `data`.
+     *
+     * Example:
+     * <pre>[["Category 1", 1.0],
+     *  ["Category 2", 1.1]]</pre>
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google Visualization API reference (addRow)</a>
+     * for row format.
+     *
+     * @type {!Array<!Array>|undefined}
+     */
+    this.rows = undefined;
+
+    /**
+     * Sets the entire dataset for this object.
+     * Can be used to provide the data directly, or to provide a URL from
+     * which to request the data.
+     *
+     * The data format can be a two-dimensional array or the DataTable format
+     * expected by Google Charts.
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable">Google Visualization API reference (DataTable constructor)</a>
+     * for data table format details.
+     *
+     * When specifying data with `data` you must not specify `cols` or `rows`.
+     *
+     * Example:
+     * <pre>[["Categories", "Value"],
+     *  ["Category 1", 1.0],
+     *  ["Category 2", 1.1]]</pre>
+     *
+     * @type {!google.visualization.DataTable|
+     *        !Array<!Array>|
+     *        {cols: !Array, rows: (!Array<!Array>|undefined)}|
+     *        string|
+     *        undefined}
+     */
+    this.data = undefined;
+
+    /**
+     * Sets the entire dataset for this object to a Google DataView.
+     *
+     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#dataview-class">Google Visualization API reference (DataView)</a>
+     * for details.
+     *
+     * When specifying data with `view` you must not specify `data`, `cols` or `rows`.
+     *
+     * @type {!google.visualization.DataView|undefined}
+     */
+    this.view = undefined;
+
+    /**
+     * Selected datapoint(s) in the chart.
+     *
+     * An array of objects, each with a numeric row and/or column property.
+     * `row` and `column` are the zero-based row or column number of an item
+     * in the data table to select.
+     *
+     * To select a whole column, set row to null;
+     * to select a whole row, set column to null.
+     *
+     * Example:
+     * <pre>
+     *   [{row:0,column:1}, {row:1, column:null}]
+     * </pre>
+     *
+     * @type {!Array|undefined}
+     */
+    this.selection = undefined;
+
+
+    /**
+     * Whether the chart is currently rendered.
+     *
+     * @type {boolean}
+     */
+    this.drawn;
+    this._setDrawn(false);
+
+    /**
+     * Internal data displayed on the chart.
+     *
+     * This property has protected visibility because it is used from an observer.
+     *
+     * @protected {!google.visualization.DataTable|
+     *             !google.visualization.DataView|
+     *             undefined}
+     */
+    this._data = undefined;
 
     /**
      * Internal chart object.
