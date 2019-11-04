@@ -1,11 +1,10 @@
 language: node_js
 sudo: required
-dist: trusty
+dist: xenial
 node_js: stable
 addons:
   chrome: stable
 before_script:
-  - npm install
   - npm install web-component-tester
   - 'export PATH=$PWD/node_modules/.bin:$PATH'
 script: xvfb-run -a wct --module-resolution=node --npm --simpleOutput -l chrome
