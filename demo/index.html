@@ -56,7 +56,6 @@
   </google-chart>
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
     var media = window.matchMedia('(min-width: 1024px)');
 
@@ -78,7 +77,6 @@
   </google-chart>
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
     function getRandomValue() {
       return Math.random() * 10;
@@ -126,7 +124,6 @@
   </div>
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
     var chart = document.getElementById('selection-chart');
     var label = document.getElementById('selection-label');
@@ -177,7 +174,6 @@
   </div>
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
     var chart = document.getElementById('mouseover-chart');
     var label = document.getElementById('mouseover-label');
@@ -432,16 +428,15 @@
   <google-chart id="timeline" type="timeline"></google-chart>
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
-    import '../google-chart-loader.js';
-    var chart = document.getElementById('timeline');
-    document.createElement('google-chart-loader').dataTable([
+    import {dataTable} from '../loader.js';
+    const chart = document.getElementById('timeline');
+    dataTable([
       ['Name', 'Start', 'End'],
       ['Washington', new Date(1789, 3, 30), new Date(1797, 2, 4)],
       ['Adams', new Date(1797, 2, 4), new Date(1801, 2, 4)],
       ['Jefferson', new Date(1801, 2, 4), new Date(1809, 2, 4)]
-    ]).then(function(dataTable) {
+    ]).then((dataTable) => {
       chart.data = dataTable;
     });
   </script>
@@ -501,7 +496,6 @@
   </google-chart>
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
     function getRandomGaugeValue(offset, factor) {
       return offset + Math.round(factor * Math.random());
@@ -563,16 +557,15 @@
   </google-chart>
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
-    import '../google-chart-loader.js';
-    var chart = document.getElementById('source-datatable');
-    document.createElement('google-chart-loader').dataTable([
+    import {dataTable} from '../loader.js';
+    const chart = document.getElementById('source-datatable');
+    dataTable([
       ['Label', 'Value'],
       ['Memory', 10],
       ['CPU', 12],
       ['Network', 14]
-    ]).then(function(dataTable) {
+    ]).then((dataTable) => {
       chart.data = dataTable;
     });
   </script>
@@ -587,28 +580,24 @@
   <p>DataViews can be altered, but you'll need to call the <code>redraw</code> method afterward.</p>
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
-    import '../google-chart-loader.js';
-    var chart = document.getElementById('source-dataview');
-    var loader = document.createElement('google-chart-loader');
-    loader.dataTable([
+    import {dataTable} from '../loader.js';
+    const chart = document.getElementById('source-dataview');
+    dataTable([
       ['Label', 'Value'],
       ['Memory', 10],
       ['CPU', 12],
       ['Network', 14]
-    ]).then(function(dataTable) {
-      loader.dataView(dataTable).then(function(dataView) {
-        chart.view = dataView;
-        var setRandomRow = function() {
-          var rowCount = dataTable.getNumberOfRows();
-          var row = Math.floor(Math.random() * rowCount);
-          var row2 = (row + 1) % rowCount;
-          chart.view.setRows([row, row2]);
-          chart.redraw();
-        };
-        setInterval(setRandomRow, 3000);
-      });
+    ]).then((dataTable) => {
+      chart.view = new google.visualization.DataView(dataTable);
+      const setRandomRow = () => {
+        const rowCount = dataTable.getNumberOfRows();
+        const row = Math.floor(Math.random() * rowCount);
+        const row2 = (row + 1) % rowCount;
+        chart.view.setRows([row, row2]);
+        chart.redraw();
+      };
+      setInterval(setRandomRow, 3000);
     });
   </script>
 
@@ -617,7 +606,6 @@
   <img id="line-chart-img">
 
   <script type="module">
-    import '@polymer/promise-polyfill/promise-polyfill-lite.js';
     import '../google-chart.js';
     var chart = document.getElementById('line-chart');
     var img = document.getElementById('line-chart-img');
