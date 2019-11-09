@@ -20,9 +20,11 @@
     "type-detect": "1.0.0"
   },
   "main": "google-chart.js",
+  "module": "google-chart.js",
   "contributors": [
     "Wes Alvaro",
-    "Sérgio Gomes"
+    "Sérgio Gomes",
+    "Rafal Slawik"
   ],
   "license": "Apache-2.0",
   "dependencies": {
