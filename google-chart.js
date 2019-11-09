@@ -7,7 +7,6 @@ The complete set of contributors may be found at https://polymer.github.io/CONTR
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at https://polymer.github.io/PATENTS.txt
 */
-import '@polymer/iron-ajax/iron-request.js';
 import { PolymerElement, html } from '@polymer/polymer';
 import { timeOut } from '@polymer/polymer/lib/utils/async.js';
 import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
@@ -540,12 +539,7 @@ export class GoogleChart extends PolymerElement {
 
     if (isString) {
       // Load data asynchronously, from external URL.
-      var request = /** @type {!IronRequestElement} */ (document.createElement('iron-request'));
-      dataPromise = request.send({
-        url: /** @type {string} */ (data), handleAs: 'json'
-      }).then(function(xhr) {
-        return xhr.response;
-      });
+      dataPromise = fetch(data).then((response) => response.json());
     } else {
       // Data is all ready to be processed.
       dataPromise = Promise.resolve(data);
