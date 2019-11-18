@@ -20,7 +20,7 @@ npm i @google-web-components/google-chart
 <html>
   <head>
     <script type="module">
-      import '@google-web-components/google-chart/google-chart.js';
+      import '@google-web-components/google-chart';
     </script>
   </head>
   <body>
@@ -29,11 +29,27 @@ npm i @google-web-components/google-chart
 </html>
 ```
 
+### In a LitElement
+
+```typescript
+import {LitElement, html, customElement} from 'lit-element';
+import '@google-web-components/google-chart';
+
+@customElement('new-element')
+export class NewElement extends LitElement {
+  render() {
+    return html`
+      <google-chart data='[["Month", "Days"], ["Jan", 31]]'></google-chart>
+    `;
+  }
+}
+```
+
 ### In a Polymer 3 element
 
-```js
+```javascript
 import {PolymerElement, html} from '@polymer/polymer';
-import '@google-web-components/google-chart/google-chart.js';
+import '@google-web-components/google-chart';
 
 class NewElement extends PolymerElement {
   static get template() {
@@ -47,7 +63,7 @@ customElements.define('new-element', NewElement);
 
 ### More usage examples
 
-See examples in the demo or try this live [JS bin](https://jsbin.com/cutocabome/edit?html,output).
+See examples in the demo or try this live [JS bin](https://jsbin.com/zitotejimi/edit?html,output).
 
 ## Contributing
 
