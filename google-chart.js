@@ -99,7 +99,7 @@ on the `html` tag of your document.
 
     <html lang="ja">
 
-@demo
+@demo demo/index.html
 */
 export class GoogleChart extends PolymerElement {
   static get template() {
