@@ -31,7 +31,6 @@
     "@polymer/polymer": "^3.0.0"
   },
   "devDependencies": {
-    "@polymer/iron-component-page": "^3.0.0-pre.18",
     "wct-browser-legacy": "^1.0.1"
   }
 }
