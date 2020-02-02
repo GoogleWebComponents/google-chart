@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "es2015",
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["**/*.js"],
+  "exclude": [
+    "demo",
+    "node_modules",
+    "test",
+    // Exclude deprecated <google-chart-loader>, see https://github.com/GoogleWebComponents/google-chart/issues/272.
+    "google-chart-loader.js"
+  ]
+}
