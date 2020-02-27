@@ -31,6 +31,8 @@
     "@polymer/polymer": "^3.0.0"
   },
   "devDependencies": {
+    "@types/google.visualization": "0.0.51",
+    "typescript": "^3.7.5",
     "wct-browser-legacy": "^1.0.1"
   }
 }
