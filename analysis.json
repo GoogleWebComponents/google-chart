@@ -1,0 +1,761 @@
+{
+  "schema_version": "1.0.0",
+  "elements": [
+    {
+      "description": "`google-chart` encapsulates Google Charts as a web component, allowing you to easily visualize\ndata. From simple line charts to complex hierarchical tree maps, the chart element provides a\nnumber of ready-to-use chart types.\n\n    <google-chart\n      type='pie'\n      options='{\"title\": \"Distribution of days in 2001Q1\"}'\n      cols='[{\"label\":\"Month\", \"type\":\"string\"}, {\"label\":\"Days\", \"type\":\"number\"}]'\n      rows='[[\"Jan\", 31],[\"Feb\", 28],[\"Mar\", 31]]'>\n    </google-chart>\n\nNote: if you're passing JSON as attributes, single quotes are necessary to be valid JSON.\nSee https://www.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties.\n\nHeight and width are specified as style attributes:\n\n    google-chart {\n      height: 300px;\n      width: 50em;\n    }\n\nData can be provided in one of three ways:\n\n- Via the `cols` and `rows` attributes:\n\n      cols='[{\"label\":\"Mth\", \"type\":\"string\"}, {\"label\":\"Days\", \"type\":\"number\"}]'\n      rows='[[\"Jan\", 31],[\"Feb\", 28],[\"Mar\", 31]]'\n\n- Via the `data` attribute, passing in the data directly:\n\n      data='[[\"Month\", \"Days\"], [\"Jan\", 31], [\"Feb\", 28], [\"Mar\", 31]]'\n\n- Via the `data` attribute, passing in the URL to a resource containing the\n  data, in JSON format:\n\n      data='http://example.com/chart-data.json'\n\n- Via the `data` attribute, passing in a Google DataTable object:\n\n      data='{{dataTable}}'\n\n- Via the `view` attribute, passing in a Google DataView object:\n\n      view='{{dataView}}'\n\nYou can display the charts in locales other than \"en\" by setting the `lang` attribute\non the `html` tag of your document.\n\n    <html lang=\"ja\">",
+      "summary": "",
+      "path": "google-chart.js",
+      "properties": [
+        {
+          "name": "type",
+          "type": "string",
+          "description": "Sets the type of the chart.\n\nShould be one of:\n- `area`\n- `(md-)bar`\n- `bubble`\n- `calendar`\n- `candlestick`\n- `column`\n- `combo`\n- `gauge`\n- `geo`\n- `histogram`\n- `(md-)line`\n- `org`\n- `pie`\n- `sankey`\n- `(md-)scatter`\n- `stepped-area`\n- `table`\n- `timeline`\n- `treemap`\n- `wordtree`\n\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/gallery\">Google Visualization API reference (Chart Gallery)</a>\nfor details.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 232,
+              "column": 4
+            },
+            "end": {
+              "line": 232,
+              "column": 13
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "observer": "UNKNOWN"
+            }
+          },
+          "defaultValue": "'column'"
+        },
+        {
+          "name": "events",
+          "type": "!Array.<string>",
+          "description": "Enumerates the chart events that should be fired.\n\nCharts support a variety of events. By default, this element only\nfires on `ready` and `select`. If you would like to be notified of\nother chart events, use this property to list them.\nEvents `ready` and `select` are always fired.\n\nChanges to this property are _not_ observed. Events are attached only\nat chart construction time.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 247,
+              "column": 4
+            },
+            "end": {
+              "line": 247,
+              "column": 15
+            }
+          },
+          "metadata": {
+            "polymer": {}
+          },
+          "defaultValue": "[]"
+        },
+        {
+          "name": "options",
+          "type": "(!Object | undefined)",
+          "description": "Sets the options for the chart.\n\nExample:\n<pre>{\n  title: \"Chart title goes here\",\n  hAxis: {title: \"Categories\"},\n  vAxis: {title: \"Values\", minValue: 0, maxValue: 2},\n  legend: \"none\"\n};</pre>\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/gallery\">Google Visualization API reference (Chart Gallery)</a>\nfor the options available to each chart type.\n\nThis property is observed via a deep object observer.\nIf you would like to make changes to a sub-property, be sure to use the\nPolymer method `set`: `googleChart.set('options.vAxis.logScale', true)`\n(Note: Missing parent properties are not automatically created.)",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 269,
+              "column": 4
+            },
+            "end": {
+              "line": 269,
+              "column": 16
+            }
+          },
+          "metadata": {
+            "polymer": {}
+          },
+          "defaultValue": "undefined"
+        },
+        {
+          "name": "cols",
+          "type": "(!Array | undefined)",
+          "description": "Sets the data columns for this object.\n\nWhen specifying data with `cols` you must also specify `rows`, and\nnot specify `data`.\n\nExample:\n<pre>[{label: \"Categories\", type: \"string\"},\n {label: \"Value\", type: \"number\"}]</pre>\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn\">Google Visualization API reference (addColumn)</a>\nfor column definition format.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 285,
+              "column": 4
+            },
+            "end": {
+              "line": 285,
+              "column": 13
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "observer": "UNKNOWN"
+            }
+          },
+          "defaultValue": "undefined"
+        },
+        {
+          "name": "rows",
+          "type": "(!Array.<!Array> | undefined)",
+          "description": "Sets the data rows for this object.\n\nWhen specifying data with `rows` you must also specify `cols`, and\nnot specify `data`.\n\nExample:\n<pre>[[\"Category 1\", 1.0],\n [\"Category 2\", 1.1]]</pre>\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/reference#addrow\">Google Visualization API reference (addRow)</a>\nfor row format.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 301,
+              "column": 4
+            },
+            "end": {
+              "line": 301,
+              "column": 13
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "observer": "UNKNOWN"
+            }
+          },
+          "defaultValue": "undefined"
+        },
+        {
+          "name": "data",
+          "type": "(!google.visualization.DataTable | !Array.<!Array> | {cols: !Array, rows: (!Array.<!Array> | undefined)} | string | undefined)",
+          "description": "Sets the entire dataset for this object.\nCan be used to provide the data directly, or to provide a URL from\nwhich to request the data.\n\nThe data format can be a two-dimensional array or the DataTable format\nexpected by Google Charts.\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable\">Google Visualization API reference (DataTable constructor)</a>\nfor data table format details.\n\nWhen specifying data with `data` you must not specify `cols` or `rows`.\n\nExample:\n<pre>[[\"Categories\", \"Value\"],\n [\"Category 1\", 1.0],\n [\"Category 2\", 1.1]]</pre>",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 326,
+              "column": 4
+            },
+            "end": {
+              "line": 326,
+              "column": 13
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "observer": "UNKNOWN"
+            }
+          },
+          "defaultValue": "undefined"
+        },
+        {
+          "name": "view",
+          "type": "(!google.visualization.DataView | undefined)",
+          "description": "Sets the entire dataset for this object to a Google DataView.\n\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/reference#dataview-class\">Google Visualization API reference (DataView)</a>\nfor details.\n\nWhen specifying data with `view` you must not specify `data`, `cols` or `rows`.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 338,
+              "column": 4
+            },
+            "end": {
+              "line": 338,
+              "column": 13
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "observer": "UNKNOWN"
+            }
+          },
+          "defaultValue": "undefined"
+        },
+        {
+          "name": "selection",
+          "type": "(!Array | undefined)",
+          "description": "Selected datapoint(s) in the chart.\n\nAn array of objects, each with a numeric row and/or column property.\n`row` and `column` are the zero-based row or column number of an item\nin the data table to select.\n\nTo select a whole column, set row to null;\nto select a whole row, set column to null.\n\nExample:\n<pre>\n  [{row:0,column:1}, {row:1, column:null}]\n</pre>",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 357,
+              "column": 4
+            },
+            "end": {
+              "line": 357,
+              "column": 18
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "notify": true,
+              "observer": "UNKNOWN"
+            }
+          },
+          "defaultValue": "undefined"
+        },
+        {
+          "name": "drawn",
+          "type": "boolean",
+          "description": "Whether the chart is currently rendered.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 365,
+              "column": 4
+            },
+            "end": {
+              "line": 365,
+              "column": 15
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "readOnly": true
+            }
+          }
+        },
+        {
+          "name": "_data",
+          "type": "Object | null | undefined",
+          "description": "Internal data displayed on the chart.\n\nThis property has protected visibility because it is used from an observer.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 377,
+              "column": 4
+            },
+            "end": {
+              "line": 377,
+              "column": 14
+            }
+          },
+          "metadata": {
+            "polymer": {}
+          },
+          "defaultValue": "undefined"
+        },
+        {
+          "name": "_chartWrapper",
+          "type": "?",
+          "description": "Internal chart object.",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 383,
+              "column": 4
+            },
+            "end": {
+              "line": 383,
+              "column": 22
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "readOnly": false
+            }
+          },
+          "defaultValue": "null"
+        },
+        {
+          "name": "_redrawDebouncer",
+          "type": "?",
+          "description": "",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 386,
+              "column": 4
+            },
+            "end": {
+              "line": 386,
+              "column": 25
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "readOnly": false
+            }
+          },
+          "defaultValue": "null"
+        },
+        {
+          "name": "imageURI",
+          "type": "?string",
+          "description": "Returns the chart serialized as an image URI.\n\nCall this after the chart is drawn (google-chart-ready event).",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 486,
+              "column": 2
+            },
+            "end": {
+              "line": 490,
+              "column": 3
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "readOnly": true
+            }
+          }
+        }
+      ],
+      "methods": [
+        {
+          "name": "ready",
+          "description": "",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 390,
+              "column": 2
+            },
+            "end": {
+              "line": 403,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_typeChanged",
+          "description": "Reacts to chart type change.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 406,
+              "column": 2
+            },
+            "end": {
+              "line": 423,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_propagateEvents",
+          "description": "Adds listeners to propagate events from the chart.",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 431,
+              "column": 2
+            },
+            "end": {
+              "line": 443,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "events",
+              "type": "!Array.<string>"
+            },
+            {
+              "name": "eventTarget"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_setSelection",
+          "description": "Sets the selectiton on the chart.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 446,
+              "column": 2
+            },
+            "end": {
+              "line": 460,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "redraw",
+          "description": "Redraws the chart.\n\nCalled automatically when data/type/selection attributes change.\nCall manually to handle view updates, page resizes, etc.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 468,
+              "column": 2
+            },
+            "end": {
+              "line": 477,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_viewChanged",
+          "description": "Handles changes to the `view` attribute.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 493,
+              "column": 2
+            },
+            "end": {
+              "line": 496,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_rowsOrColumnsChanged",
+          "description": "Handles changes to the rows & columns attributes.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 499,
+              "column": 2
+            },
+            "end": {
+              "line": 509,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": []
+        },
+        {
+          "name": "_dataChanged",
+          "description": "Handles changes to the `data` attribute.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 521,
+              "column": 2
+            },
+            "end": {
+              "line": 549,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "data",
+              "type": "(!google.visualization.DataTable | !Array.<!Array> | {cols: !Array, rows: (!Array.<!Array> | undefined)} | string | undefined)",
+              "description": "The new data value"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_localizeGlobalStylesheets",
+          "description": "Queries global document head for google charts link#load-css-* and clones\nthem into the local root's div#styles element for shadow dom support.",
+          "privacy": "private",
+          "sourceRange": {
+            "start": {
+              "line": 557,
+              "column": 2
+            },
+            "end": {
+              "line": 578,
+              "column": 3
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        }
+      ],
+      "staticMethods": [],
+      "demos": [
+        {
+          "url": "demo/index.html",
+          "description": ""
+        }
+      ],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 103,
+          "column": 7
+        },
+        "end": {
+          "line": 579,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "superclass": "PolymerElement",
+      "name": "GoogleChart",
+      "attributes": [
+        {
+          "name": "type",
+          "description": "Sets the type of the chart.\n\nShould be one of:\n- `area`\n- `(md-)bar`\n- `bubble`\n- `calendar`\n- `candlestick`\n- `column`\n- `combo`\n- `gauge`\n- `geo`\n- `histogram`\n- `(md-)line`\n- `org`\n- `pie`\n- `sankey`\n- `(md-)scatter`\n- `stepped-area`\n- `table`\n- `timeline`\n- `treemap`\n- `wordtree`\n\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/gallery\">Google Visualization API reference (Chart Gallery)</a>\nfor details.",
+          "sourceRange": {
+            "start": {
+              "line": 232,
+              "column": 4
+            },
+            "end": {
+              "line": 232,
+              "column": 13
+            }
+          },
+          "metadata": {},
+          "type": "string"
+        },
+        {
+          "name": "events",
+          "description": "Enumerates the chart events that should be fired.\n\nCharts support a variety of events. By default, this element only\nfires on `ready` and `select`. If you would like to be notified of\nother chart events, use this property to list them.\nEvents `ready` and `select` are always fired.\n\nChanges to this property are _not_ observed. Events are attached only\nat chart construction time.",
+          "sourceRange": {
+            "start": {
+              "line": 247,
+              "column": 4
+            },
+            "end": {
+              "line": 247,
+              "column": 15
+            }
+          },
+          "metadata": {},
+          "type": "!Array.<string>"
+        },
+        {
+          "name": "options",
+          "description": "Sets the options for the chart.\n\nExample:\n<pre>{\n  title: \"Chart title goes here\",\n  hAxis: {title: \"Categories\"},\n  vAxis: {title: \"Values\", minValue: 0, maxValue: 2},\n  legend: \"none\"\n};</pre>\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/gallery\">Google Visualization API reference (Chart Gallery)</a>\nfor the options available to each chart type.\n\nThis property is observed via a deep object observer.\nIf you would like to make changes to a sub-property, be sure to use the\nPolymer method `set`: `googleChart.set('options.vAxis.logScale', true)`\n(Note: Missing parent properties are not automatically created.)",
+          "sourceRange": {
+            "start": {
+              "line": 269,
+              "column": 4
+            },
+            "end": {
+              "line": 269,
+              "column": 16
+            }
+          },
+          "metadata": {},
+          "type": "(!Object | undefined)"
+        },
+        {
+          "name": "cols",
+          "description": "Sets the data columns for this object.\n\nWhen specifying data with `cols` you must also specify `rows`, and\nnot specify `data`.\n\nExample:\n<pre>[{label: \"Categories\", type: \"string\"},\n {label: \"Value\", type: \"number\"}]</pre>\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn\">Google Visualization API reference (addColumn)</a>\nfor column definition format.",
+          "sourceRange": {
+            "start": {
+              "line": 285,
+              "column": 4
+            },
+            "end": {
+              "line": 285,
+              "column": 13
+            }
+          },
+          "metadata": {},
+          "type": "(!Array | undefined)"
+        },
+        {
+          "name": "rows",
+          "description": "Sets the data rows for this object.\n\nWhen specifying data with `rows` you must also specify `cols`, and\nnot specify `data`.\n\nExample:\n<pre>[[\"Category 1\", 1.0],\n [\"Category 2\", 1.1]]</pre>\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/reference#addrow\">Google Visualization API reference (addRow)</a>\nfor row format.",
+          "sourceRange": {
+            "start": {
+              "line": 301,
+              "column": 4
+            },
+            "end": {
+              "line": 301,
+              "column": 13
+            }
+          },
+          "metadata": {},
+          "type": "(!Array.<!Array> | undefined)"
+        },
+        {
+          "name": "data",
+          "description": "Sets the entire dataset for this object.\nCan be used to provide the data directly, or to provide a URL from\nwhich to request the data.\n\nThe data format can be a two-dimensional array or the DataTable format\nexpected by Google Charts.\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable\">Google Visualization API reference (DataTable constructor)</a>\nfor data table format details.\n\nWhen specifying data with `data` you must not specify `cols` or `rows`.\n\nExample:\n<pre>[[\"Categories\", \"Value\"],\n [\"Category 1\", 1.0],\n [\"Category 2\", 1.1]]</pre>",
+          "sourceRange": {
+            "start": {
+              "line": 326,
+              "column": 4
+            },
+            "end": {
+              "line": 326,
+              "column": 13
+            }
+          },
+          "metadata": {},
+          "type": "(!google.visualization.DataTable | !Array.<!Array> | {cols: !Array, rows: (!Array.<!Array> | undefined)} | string | undefined)"
+        },
+        {
+          "name": "view",
+          "description": "Sets the entire dataset for this object to a Google DataView.\n\nSee <a href=\"https://google-developers.appspot.com/chart/interactive/docs/reference#dataview-class\">Google Visualization API reference (DataView)</a>\nfor details.\n\nWhen specifying data with `view` you must not specify `data`, `cols` or `rows`.",
+          "sourceRange": {
+            "start": {
+              "line": 338,
+              "column": 4
+            },
+            "end": {
+              "line": 338,
+              "column": 13
+            }
+          },
+          "metadata": {},
+          "type": "(!google.visualization.DataView | undefined)"
+        },
+        {
+          "name": "selection",
+          "description": "Selected datapoint(s) in the chart.\n\nAn array of objects, each with a numeric row and/or column property.\n`row` and `column` are the zero-based row or column number of an item\nin the data table to select.\n\nTo select a whole column, set row to null;\nto select a whole row, set column to null.\n\nExample:\n<pre>\n  [{row:0,column:1}, {row:1, column:null}]\n</pre>",
+          "sourceRange": {
+            "start": {
+              "line": 357,
+              "column": 4
+            },
+            "end": {
+              "line": 357,
+              "column": 18
+            }
+          },
+          "metadata": {},
+          "type": "(!Array | undefined)"
+        },
+        {
+          "name": "drawn",
+          "description": "Whether the chart is currently rendered.",
+          "sourceRange": {
+            "start": {
+              "line": 365,
+              "column": 4
+            },
+            "end": {
+              "line": 365,
+              "column": 15
+            }
+          },
+          "metadata": {},
+          "type": "boolean"
+        }
+      ],
+      "events": [
+        {
+          "type": "CustomEvent",
+          "name": "google-chart-ready",
+          "description": "Fired after a chart type is rendered and ready for interaction.",
+          "metadata": {}
+        },
+        {
+          "type": "CustomEvent",
+          "name": "google-chart-select",
+          "description": "Fired when the user makes a selection in the chart.",
+          "metadata": {}
+        },
+        {
+          "type": "CustomEvent",
+          "name": "selection-changed",
+          "description": "Fired when the `selection` property changes.",
+          "metadata": {}
+        }
+      ],
+      "styling": {
+        "cssVariables": [],
+        "selectors": []
+      },
+      "slots": [],
+      "tagname": "google-chart"
+    }
+  ],
+  "functions": [
+    {
+      "name": "load",
+      "description": "Loads Google Charts API with the selected settings or using defaults.\n\nThe following settings are available:\n- version: which version of library to load, default: 'current',\n- packages: which chart packages to load, default: ['corechart'],\n- language: what language to load library in, default: `lang` attribute on\n  `<html>` or 'en' if not specified,\n- mapsApiKey: key to use for maps API.",
+      "summary": "",
+      "sourceRange": {
+        "file": "loader.js",
+        "start": {
+          "line": 62,
+          "column": 7
+        },
+        "end": {
+          "line": 75,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "params": [
+        {
+          "type": "!LoadSettings=",
+          "desc": "",
+          "name": "settings"
+        }
+      ],
+      "return": {
+        "type": "!Promise"
+      }
+    },
+    {
+      "name": "dataTable",
+      "description": "Creates a DataTable object for use with a chart.\n\nMultiple different argument types are supported. This is because the\nresult of loading the JSON data URL is fed into this function for\nDataTable construction and its format is unknown.\n\nThe data argument can be one of a few options:\n\n- null/undefined: An empty DataTable is created. Columns must be added\n- !DataTable: The object is simply returned\n- {{cols: !Array, rows: !Array}}: A DataTable in object format\n- {{cols: !Array}}: A DataTable in object format without rows\n- !Array<!Array>: A DataTable in 2D array format\n\nUn-supported types:\n\n- Empty !Array<!Array>: (e.g. `[]`) While technically a valid data\n  format, this is rejected as charts will not render empty DataTables.\n  DataTables must at least have columns specified. An empty array is most\n  likely due to a bug or bad data. If one wants an empty DataTable, pass\n  no arguments.\n- Anything else\n\nSee <a href=\"https://developers.google.com/chart/interactive/docs/reference#datatable-class\">the docs</a> for more details.",
+      "summary": "",
+      "sourceRange": {
+        "file": "loader.js",
+        "start": {
+          "line": 107,
+          "column": 7
+        },
+        "end": {
+          "line": 128,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "params": [
+        {
+          "type": "(!Array | {cols: !Array, rows: (!Array.<!Array> | undefined)} | undefined)",
+          "desc": "the data with which we should use to construct the new DataTable object",
+          "name": "data"
+        }
+      ],
+      "return": {
+        "type": "!Promise.<!google.visualization.DataTable>",
+        "desc": "promise for the created DataTable"
+      }
+    },
+    {
+      "name": "createChartWrapper",
+      "description": "Creates new `ChartWrapper`.",
+      "summary": "",
+      "sourceRange": {
+        "file": "loader.js",
+        "start": {
+          "line": 135,
+          "column": 7
+        },
+        "end": {
+          "line": 139,
+          "column": 1
+        }
+      },
+      "privacy": "public",
+      "params": [
+        {
+          "type": "!Element",
+          "desc": "Element in which the chart will be drawn",
+          "name": "container"
+        }
+      ],
+      "return": {
+        "type": "!Promise.<!google.visualization.ChartWrapper>"
+      }
+    }
+  ]
+}
