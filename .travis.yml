@@ -8,5 +8,5 @@ addons:
 before_script:
   - npm install web-component-tester
   - 'export PATH=$PWD/node_modules/.bin:$PATH'
-script: xvfb-run wct --module-resolution=node --npm --simpleOutput -l chrome
+script: wct --module-resolution=node --npm --simpleOutput -l chrome
 
