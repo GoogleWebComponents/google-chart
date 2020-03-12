@@ -124,6 +124,12 @@ var promises = {};
 /** @type {!Object<string, function(!Object)>} resolves for the package promises */
 var resolves = {};
 
+/**
+ * GoogleChartLoader is a wrapper around Google Charts package loading API.
+ *
+ * @deprecated Use `loader.js` or ChartWrapper directly instead. This element
+ *     will be removed in the next release.
+ */
 Polymer({
   is: 'google-chart-loader',
   properties: {
