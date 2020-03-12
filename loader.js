@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at https://polymer.github.io/PATE
 /**
  * Promise that resolves when the gviz loader script is loaded, which
  * provides access to the Google Charts loading API.
- * @type {!Promise}
+ * @type {!Promise<*>}
  */
 const loaderPromise = new Promise((resolve, reject) => {
   // Resolve immediately if the loader script has been added already and
@@ -22,6 +22,7 @@ const loaderPromise = new Promise((resolve, reject) => {
     resolve();
   } else {
     // Try to find existing loader script.
+    /** @type {?HTMLScriptElement} */
     let loaderScript = document.querySelector(
         'script[src="https://www.gstatic.com/charts/loader.js"]');
     if (!loaderScript) {
@@ -58,7 +59,7 @@ var LoadSettings;
  * - mapsApiKey: key to use for maps API.
  *
  * @param {!LoadSettings=} settings
- * @return {!Promise}
+ * @return {!Promise<void>}
  */
 export async function load(settings = {}) {
   await loaderPromise;
@@ -101,7 +102,10 @@ export async function load(settings = {}) {
  *
  * See <a href="https://developers.google.com/chart/interactive/docs/reference#datatable-class">the docs</a> for more details.
  *
- * @param {!Array|{cols: !Array, rows: (!Array<!Array>|undefined)}|undefined} data
+ * @param {!Array<!Array<*>>|
+ *     {cols: !Array<*>, rows: (!Array<!Array<*>>|undefined)}|
+ *     google.visualization.DataTable|
+ *     undefined} data
  *     the data with which we should use to construct the new DataTable object
  * @return {!Promise<!google.visualization.DataTable>} promise for the created DataTable
  */
@@ -130,7 +134,7 @@ export async function dataTable(data) {
 
 /**
  * Creates new `ChartWrapper`.
- * @param {!Element} container Element in which the chart will be drawn
+ * @param {!HTMLElement} container Element in which the chart will be drawn
  * @return {!Promise<!google.visualization.ChartWrapper>}
  */
 export async function createChartWrapper(container) {
