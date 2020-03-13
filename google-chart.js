@@ -142,14 +142,14 @@ export class GoogleChart extends PolymerElement {
    * Fired after a chart type is rendered and ready for interaction.
    *
    * @event google-chart-ready
-   * @param {{chart: !Object}} The raw chart object.
+   * @param {{chart: !Object}} detail The raw chart object.
    */
 
   /**
    * Fired when the user makes a selection in the chart.
    *
    * @event google-chart-select
-   * @param {{chart: !Object}} The raw chart object.
+   * @param {{chart: !Object}} detail The raw chart object.
    */
 
   /** Polymer element properties. */
@@ -281,7 +281,7 @@ export class GoogleChart extends PolymerElement {
      * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google Visualization API reference (addColumn)</a>
      * for column definition format.
      *
-     * @type {!Array|undefined}
+     * @type {!Array<*>|undefined}
      */
     this.cols = undefined;
 
@@ -297,7 +297,7 @@ export class GoogleChart extends PolymerElement {
      * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google Visualization API reference (addRow)</a>
      * for row format.
      *
-     * @type {!Array<!Array>|undefined}
+     * @type {!Array<!Array<*>>|undefined}
      */
     this.rows = undefined;
 
@@ -319,8 +319,8 @@ export class GoogleChart extends PolymerElement {
      *  ["Category 2", 1.1]]</pre>
      *
      * @type {!google.visualization.DataTable|
-     *        !Array<!Array>|
-     *        {cols: !Array, rows: (!Array<!Array>|undefined)}|
+     *        !Array<!Array<*>>|
+     *        {cols: !Array<*>, rows: (!Array<!Array<*>>|undefined)}|
      *        string|
      *        undefined}
      */
@@ -353,7 +353,7 @@ export class GoogleChart extends PolymerElement {
      *   [{row:0,column:1}, {row:1, column:null}]
      * </pre>
      *
-     * @type {!Array|undefined}
+     * @type {!Array<*>|undefined}
      */
     this.selection = undefined;
 
@@ -390,7 +390,7 @@ export class GoogleChart extends PolymerElement {
   /** @override */
   ready() {
     super.ready();
-    createChartWrapper(this.$.chartdiv).then((chartWrapper) => {
+    createChartWrapper(/** @type {!HTMLElement} */ (this.$['chartdiv'])).then((chartWrapper) => {
       this._chartWrapper = chartWrapper;
       this._typeChanged();
       google.visualization.events.addListener(chartWrapper, 'ready', () => {
@@ -427,6 +427,7 @@ export class GoogleChart extends PolymerElement {
    * Adds listeners to propagate events from the chart.
    *
    * @param {!Array<string>} events
+   * @param {*} eventTarget
    * @private
    */
   _propagateEvents(events, eventTarget) {
@@ -512,10 +513,9 @@ export class GoogleChart extends PolymerElement {
   /**
    * Handles changes to the `data` attribute.
    *
-   * @param {
-   *     !google.visualization.DataTable|
-   *     !Array<!Array>|
-   *     {cols: !Array, rows: (!Array<!Array>|undefined)}|
+   * @param {!google.visualization.DataTable|
+   *     !Array<!Array<*>>|
+   *     {cols: !Array<*>, rows: (!Array<!Array<*>>|undefined)}|
    *     string|
    *     undefined} data The new data value
    */
@@ -539,14 +539,16 @@ export class GoogleChart extends PolymerElement {
 
     if (isString) {
       // Load data asynchronously, from external URL.
-      dataPromise = fetch(data).then((response) => response.json());
+      dataPromise = fetch(data)
+          .then((/** @type {!Response} */ response) => response.json());
     } else {
       // Data is all ready to be processed.
       dataPromise = Promise.resolve(data);
     }
-    dataPromise.then(dataTable).then((data) => {
-      this._data = data;
-    });
+    dataPromise.then(dataTable)
+        .then((/** @type {!google.visualization.DataTable} */ data) => {
+          this._data = data;
+        });
   }
 
   /**
