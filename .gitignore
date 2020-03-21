@@ -1,1 +1,11 @@
 node_modules
+
+google-chart.d.ts
+google-chart.d.ts.map
+google-chart.js
+google-chart.js.map
+
+loader.d.ts
+loader.d.ts.map
+loader.js
+loader.js.map
