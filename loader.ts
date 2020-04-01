@@ -22,8 +22,7 @@ const loaderPromise = new Promise((resolve, reject) => {
     resolve();
   } else {
     // Try to find existing loader script.
-    /** @type {?HTMLScriptElement} */
-    let loaderScript = document.querySelector(
+    let loaderScript: HTMLScriptElement | null = document.querySelector(
         'script[src="https://www.gstatic.com/charts/loader.js"]');
     if (!loaderScript) {
       // If the loader is not present, add it.
@@ -38,15 +37,12 @@ const loaderPromise = new Promise((resolve, reject) => {
   }
 });
 
-/**
- * @typedef {{
- *   version: (string|undefined),
- *   packages: (!Array<string>|undefined),
- *   language: (string|undefined),
- *   mapsApiKey: (string|undefined),
- * }}
- */
-var LoadSettings;
+interface LoadSettings {
+  version?: string,
+  packages?: string[],
+  language?: string,
+  mapsApiKey?: string,
+}
 
 /**
  * Loads Google Charts API with the selected settings or using defaults.
@@ -58,10 +54,9 @@ var LoadSettings;
  *   `<html>` or 'en' if not specified,
  * - mapsApiKey: key to use for maps API.
  *
- * @param {!LoadSettings=} settings
  * @return {!Promise<void>}
  */
-export async function load(settings = {}) {
+export async function load(settings: LoadSettings = {}) {
   await loaderPromise;
   const {
     version = 'current',
@@ -75,6 +70,10 @@ export async function load(settings = {}) {
     'mapsApiKey': mapsApiKey,
   });
 }
+
+/** Types that can be converted to `DataTable`. */
+export type DataTableLike = unknown[][]|{cols: unknown[], rows?: unknown[][]}
+    |google.visualization.DataTable;
 
 /**
  * Creates a DataTable object for use with a chart.
@@ -102,28 +101,25 @@ export async function load(settings = {}) {
  *
  * See <a href="https://developers.google.com/chart/interactive/docs/reference#datatable-class">the docs</a> for more details.
  *
- * @param {!Array<!Array<*>>|
- *     {cols: !Array<*>, rows: (!Array<!Array<*>>|undefined)}|
- *     google.visualization.DataTable|
- *     undefined} data
- *     the data with which we should use to construct the new DataTable object
- * @return {!Promise<!google.visualization.DataTable>} promise for the created DataTable
+ * @param data The data which we should use to construct new DataTable object
+ * @return Promise for the created DataTable
  */
-export async function dataTable(data) {
+export async function dataTable(data: DataTableLike|undefined):
+    Promise<google.visualization.DataTable> {
   // Ensure that `google.visualization` namespace is added to the document.
   await load();
   if (data == null) {
     return new google.visualization.DataTable();
-  } else if (data.getNumberOfRows) {
+  } else if ((data as google.visualization.DataTable).getNumberOfRows!) {
     // Data is already a DataTable
-    return /** @type {!google.visualization.DataTable} */ (data);
-  } else if (data.cols) {  // data.rows may also be specified
+    return data as google.visualization.DataTable;
+  } else if ((data as {cols: unknown[]}).cols) {  // data.rows may also be specified
     // Data is in the form of object DataTable structure
     return new google.visualization.DataTable(data);
-  } else if (data.length > 0) {
+  } else if ((data as unknown[][]).length > 0) {
     // Data is in the form of a two dimensional array.
-    return google.visualization.arrayToDataTable(data);
-  } else if (data.length === 0) {
+    return google.visualization.arrayToDataTable(data as unknown[][]);
+  } else if ((data as unknown[][]).length === 0) {
     // Chart data was empty.
     // We throw instead of creating an empty DataTable because most
     // (if not all) charts will render a sticky error in this situation.
@@ -134,11 +130,14 @@ export async function dataTable(data) {
 
 /**
  * Creates new `ChartWrapper`.
- * @param {!HTMLElement} container Element in which the chart will be drawn
+ * @param container Element in which the chart will be drawn
  * @return {!Promise<!google.visualization.ChartWrapper>}
  */
-export async function createChartWrapper(container) {
+export async function createChartWrapper(container: HTMLElement) {
   // Ensure that `google.visualization` namespace is added to the document.
   await load();
-  return new google.visualization.ChartWrapper({'container': container});
+  // Typings suggest that `chartType` is required in `ChartSpecs`, but it works
+  // without it.
+  return new google.visualization.ChartWrapper(
+      {'container': container} as google.visualization.ChartSpecs);
 }

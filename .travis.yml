@@ -6,6 +6,7 @@ node_js: stable
 addons:
   chrome: stable
 before_script:
+  - npm run build
   - npm install web-component-tester
   - 'export PATH=$PWD/node_modules/.bin:$PATH'
 script: wct --module-resolution=node --npm --simpleOutput -l chrome

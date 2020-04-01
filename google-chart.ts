@@ -10,7 +10,7 @@ subject to an additional IP rights grant found at https://polymer.github.io/PATE
 import { PolymerElement, html } from '@polymer/polymer';
 import { timeOut } from '@polymer/polymer/lib/utils/async.js';
 import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
-import { createChartWrapper, dataTable } from './loader.js';
+import { createChartWrapper, dataTable, DataTableLike } from './loader.js';
 
 const DEFAULT_EVENTS = ['ready', 'select'];
 
@@ -19,10 +19,8 @@ const DEFAULT_EVENTS = ['ready', 'select'];
  *
  * `ChartWrapper` expects a constructor name and assumes `google.visualization`
  *  as the default namespace.
- *
- * @type {!Object<string, (string|undefined)>}
  */
-const CHART_TYPES = {
+const CHART_TYPES: Record<string, string|undefined> = {
   'area': 'AreaChart',
   'bar': 'BarChart',
   'md-bar': 'google.charts.Bar',
@@ -197,200 +195,171 @@ export class GoogleChart extends PolymerElement {
     ];
   }
 
-  constructor() {
-    super();
+  /**
+   * Sets the type of the chart.
+   *
+   * Should be one of:
+   * - `area`
+   * - `(md-)bar`
+   * - `bubble`
+   * - `calendar`
+   * - `candlestick`
+   * - `column`
+   * - `combo`
+   * - `gauge`
+   * - `geo`
+   * - `histogram`
+   * - `(md-)line`
+   * - `org`
+   * - `pie`
+   * - `sankey`
+   * - `(md-)scatter`
+   * - `stepped-area`
+   * - `table`
+   * - `timeline`
+   * - `treemap`
+   * - `wordtree`
+   *
+   * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
+   * for details.
+   */
+  type = 'column';
 
-    /**
-     * Sets the type of the chart.
-     *
-     * Should be one of:
-     * - `area`
-     * - `(md-)bar`
-     * - `bubble`
-     * - `calendar`
-     * - `candlestick`
-     * - `column`
-     * - `combo`
-     * - `gauge`
-     * - `geo`
-     * - `histogram`
-     * - `(md-)line`
-     * - `org`
-     * - `pie`
-     * - `sankey`
-     * - `(md-)scatter`
-     * - `stepped-area`
-     * - `table`
-     * - `timeline`
-     * - `treemap`
-     * - `wordtree`
-     *
-     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
-     * for details.
-     *
-     * @type {string}
-     */
-    this.type = 'column';
+  /**
+   * Enumerates the chart events that should be fired.
+   *
+   * Charts support a variety of events. By default, this element only
+   * fires on `ready` and `select`. If you would like to be notified of
+   * other chart events, use this property to list them.
+   * Events `ready` and `select` are always fired.
+   *
+   * Changes to this property are _not_ observed. Events are attached only
+   * at chart construction time.
+   */
+  events: string[] = [];
 
-    /**
-     * Enumerates the chart events that should be fired.
-     *
-     * Charts support a variety of events. By default, this element only
-     * fires on `ready` and `select`. If you would like to be notified of
-     * other chart events, use this property to list them.
-     * Events `ready` and `select` are always fired.
-     *
-     * Changes to this property are _not_ observed. Events are attached only
-     * at chart construction time.
-     *
-     * @type {!Array<string>}
-     */
-    this.events = [];
+  /**
+   * Sets the options for the chart.
+   *
+   * Example:
+   * <pre>{
+   *   title: "Chart title goes here",
+   *   hAxis: {title: "Categories"},
+   *   vAxis: {title: "Values", minValue: 0, maxValue: 2},
+   *   legend: "none"
+   * };</pre>
+   * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
+   * for the options available to each chart type.
+   *
+   * This property is observed via a deep object observer.
+   * If you would like to make changes to a sub-property, be sure to use the
+   * Polymer method `set`: `googleChart.set('options.vAxis.logScale', true)`
+   * (Note: Missing parent properties are not automatically created.)
+   */
+  options: {}|undefined = undefined;
 
-    /**
-     * Sets the options for the chart.
-     *
-     * Example:
-     * <pre>{
-     *   title: "Chart title goes here",
-     *   hAxis: {title: "Categories"},
-     *   vAxis: {title: "Values", minValue: 0, maxValue: 2},
-     *   legend: "none"
-     * };</pre>
-     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google Visualization API reference (Chart Gallery)</a>
-     * for the options available to each chart type.
-     *
-     * This property is observed via a deep object observer.
-     * If you would like to make changes to a sub-property, be sure to use the
-     * Polymer method `set`: `googleChart.set('options.vAxis.logScale', true)`
-     * (Note: Missing parent properties are not automatically created.)
-     *
-     * @type {!Object|undefined}
-     */
-    this.options = undefined;
+  /**
+   * Sets the data columns for this object.
+   *
+   * When specifying data with `cols` you must also specify `rows`, and
+   * not specify `data`.
+   *
+   * Example:
+   * <pre>[{label: "Categories", type: "string"},
+   *  {label: "Value", type: "number"}]</pre>
+   * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google Visualization API reference (addColumn)</a>
+   * for column definition format.
+   */
+  cols: unknown[]|undefined = undefined;
 
-    /**
-     * Sets the data columns for this object.
-     *
-     * When specifying data with `cols` you must also specify `rows`, and
-     * not specify `data`.
-     *
-     * Example:
-     * <pre>[{label: "Categories", type: "string"},
-     *  {label: "Value", type: "number"}]</pre>
-     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google Visualization API reference (addColumn)</a>
-     * for column definition format.
-     *
-     * @type {!Array<*>|undefined}
-     */
-    this.cols = undefined;
+  /**
+   * Sets the data rows for this object.
+   *
+   * When specifying data with `rows` you must also specify `cols`, and
+   * not specify `data`.
+   *
+   * Example:
+   * <pre>[["Category 1", 1.0],
+   *  ["Category 2", 1.1]]</pre>
+   * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google Visualization API reference (addRow)</a>
+   * for row format.
+   */
+  rows: unknown[][]|undefined = undefined;
 
-    /**
-     * Sets the data rows for this object.
-     *
-     * When specifying data with `rows` you must also specify `cols`, and
-     * not specify `data`.
-     *
-     * Example:
-     * <pre>[["Category 1", 1.0],
-     *  ["Category 2", 1.1]]</pre>
-     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google Visualization API reference (addRow)</a>
-     * for row format.
-     *
-     * @type {!Array<!Array<*>>|undefined}
-     */
-    this.rows = undefined;
+  /**
+   * Sets the entire dataset for this object.
+   * Can be used to provide the data directly, or to provide a URL from
+   * which to request the data.
+   *
+   * The data format can be a two-dimensional array or the DataTable format
+   * expected by Google Charts.
+   * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable">Google Visualization API reference (DataTable constructor)</a>
+   * for data table format details.
+   *
+   * When specifying data with `data` you must not specify `cols` or `rows`.
+   *
+   * Example:
+   * ```
+   * [["Categories", "Value"],
+   *  ["Category 1", 1.0],
+   *  ["Category 2", 1.1]]
+   * ```
+   */
+  data: DataTableLike|string|undefined = undefined;
 
-    /**
-     * Sets the entire dataset for this object.
-     * Can be used to provide the data directly, or to provide a URL from
-     * which to request the data.
-     *
-     * The data format can be a two-dimensional array or the DataTable format
-     * expected by Google Charts.
-     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable">Google Visualization API reference (DataTable constructor)</a>
-     * for data table format details.
-     *
-     * When specifying data with `data` you must not specify `cols` or `rows`.
-     *
-     * Example:
-     * <pre>[["Categories", "Value"],
-     *  ["Category 1", 1.0],
-     *  ["Category 2", 1.1]]</pre>
-     *
-     * @type {!google.visualization.DataTable|
-     *        !Array<!Array<*>>|
-     *        {cols: !Array<*>, rows: (!Array<!Array<*>>|undefined)}|
-     *        string|
-     *        undefined}
-     */
-    this.data = undefined;
+  /**
+   * Sets the entire dataset for this object to a Google DataView.
+   *
+   * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#dataview-class">Google Visualization API reference (DataView)</a>
+   * for details.
+   *
+   * When specifying data with `view` you must not specify `data`, `cols` or `rows`.
+   */
+  view: google.visualization.DataView|undefined = undefined;
 
-    /**
-     * Sets the entire dataset for this object to a Google DataView.
-     *
-     * See <a href="https://google-developers.appspot.com/chart/interactive/docs/reference#dataview-class">Google Visualization API reference (DataView)</a>
-     * for details.
-     *
-     * When specifying data with `view` you must not specify `data`, `cols` or `rows`.
-     *
-     * @type {!google.visualization.DataView|undefined}
-     */
-    this.view = undefined;
+  /**
+   * Selected datapoint(s) in the chart.
+   *
+   * An array of objects, each with a numeric row and/or column property.
+   * `row` and `column` are the zero-based row or column number of an item
+   * in the data table to select.
+   *
+   * To select a whole column, set row to null;
+   * to select a whole row, set column to null.
+   *
+   * Example:
+   * ```
+   * [{row:0,column:1}, {row:1, column:null}]
+   * ```
+   */
+  selection: unknown[]|undefined = undefined;
 
-    /**
-     * Selected datapoint(s) in the chart.
-     *
-     * An array of objects, each with a numeric row and/or column property.
-     * `row` and `column` are the zero-based row or column number of an item
-     * in the data table to select.
-     *
-     * To select a whole column, set row to null;
-     * to select a whole row, set column to null.
-     *
-     * Example:
-     * <pre>
-     *   [{row:0,column:1}, {row:1, column:null}]
-     * </pre>
-     *
-     * @type {!Array<*>|undefined}
-     */
-    this.selection = undefined;
+  /**
+   * Whether the chart is currently rendered.
+   */
+  drawn = false;
+  // This method is generated by Polymer.
+  private _setDrawn!: (drawn: boolean) => void;
 
+  /**
+   * Internal data displayed on the chart.
+   *
+   * This property has protected visibility because it is used from an observer.
+   */
+  protected _data: google.visualization.DataTable|google.visualization.DataView
+      |undefined = undefined;
 
-    /**
-     * Whether the chart is currently rendered.
-     *
-     * @type {boolean}
-     */
-    this.drawn;
-    this._setDrawn(false);
+  /**
+   * Internal chart object.
+   */
+  private _chartWrapper: google.visualization.ChartWrapper|null = null;
 
-    /**
-     * Internal data displayed on the chart.
-     *
-     * This property has protected visibility because it is used from an observer.
-     *
-     * @protected {!google.visualization.DataTable|
-     *             !google.visualization.DataView|
-     *             undefined}
-     */
-    this._data = undefined;
-
-    /**
-     * Internal chart object.
-     * @private {!google.visualization.ChartWrapper|null}
-     */
-    this._chartWrapper = null;
-
-    /** @private {?Debouncer} */
-    this._redrawDebouncer = null;
-  }
+  private _redrawDebouncer: Debouncer|null = null;
 
   /** @override */
   ready() {
     super.ready();
-    createChartWrapper(/** @type {!HTMLElement} */ (this.$['chartdiv'])).then((chartWrapper) => {
+    createChartWrapper(this.$['chartdiv'] as HTMLElement).then((chartWrapper) => {
       this._chartWrapper = chartWrapper;
       this._typeChanged();
       google.visualization.events.addListener(chartWrapper, 'ready', () => {
@@ -409,7 +378,8 @@ export class GoogleChart extends PolymerElement {
     this._chartWrapper.setChartType(CHART_TYPES[this.type] || this.type);
     const lastChart = this._chartWrapper.getChart();
     google.visualization.events.addOneTimeListener(this._chartWrapper, 'ready', () => {
-      const chart = this._chartWrapper.getChart();
+      // Ready event fires after `_chartWrapper` is initialized.
+      const chart = this._chartWrapper!.getChart();
       if (chart !== lastChart) {
         this._propagateEvents(this.events.filter((eventName) => !DEFAULT_EVENTS.includes(eventName)), chart);
       }
@@ -425,19 +395,16 @@ export class GoogleChart extends PolymerElement {
 
   /**
    * Adds listeners to propagate events from the chart.
-   *
-   * @param {!Array<string>} events
-   * @param {*} eventTarget
-   * @private
    */
-  _propagateEvents(events, eventTarget) {
+  private _propagateEvents(events: string[], eventTarget: unknown) {
     for (const eventName of events) {
-      google.visualization.events.addListener(eventTarget, eventName, (event) => {
+      google.visualization.events.addListener(eventTarget, eventName, (event:unknown) => {
         this.dispatchEvent(new CustomEvent(`google-chart-${eventName}`, {
           bubbles: true,
           composed: true,
           detail: {
-            chart: this._chartWrapper.getChart(),
+            // Events fire after `_chartWrapper` is initialized.
+            chart: this._chartWrapper!.getChart(),
             data: event,
           }}));
       });
@@ -469,12 +436,14 @@ export class GoogleChart extends PolymerElement {
    */
   redraw() {
     if (this._chartWrapper == null || this._data == null) return;
-    this._chartWrapper.setDataTable(this._data);
+    // `ChartWrapper` can be initialized with `DataView` instead of `DataTable`.
+    this._chartWrapper.setDataTable(this._data as google.visualization.DataTable);
     this._chartWrapper.setOptions(this.options || {});
 
     this._setDrawn(false);
     this._redrawDebouncer = Debouncer.debounce(this._redrawDebouncer, timeOut.after(5), () => {
-      this._chartWrapper.draw();
+      // Drawing happens after `_chartWrapper` is initialized.
+      this._chartWrapper!.draw();
     });
   }
 
@@ -512,14 +481,9 @@ export class GoogleChart extends PolymerElement {
 
   /**
    * Handles changes to the `data` attribute.
-   *
-   * @param {!google.visualization.DataTable|
-   *     !Array<!Array<*>>|
-   *     {cols: !Array<*>, rows: (!Array<!Array<*>>|undefined)}|
-   *     string|
-   *     undefined} data The new data value
    */
-  _dataChanged(data) {
+  _dataChanged() {
+    let data = this.data;
     var dataPromise;
     if (!data) { return; }
 
@@ -528,18 +492,16 @@ export class GoogleChart extends PolymerElement {
     // Polymer 2 will not call observer if type:Object is set and fails, so
     // we must parse the string ourselves.
     try {
-      /**
-       * @suppress {checkTypes} `JSON.parse` expects a string but here it tries to deserialize
-       * the value of the `data` property which might be a serialized array.
-       */
-      data = JSON.parse(data);
+      // Try to deserialize the value of the `data` property which might be a
+      // serialized array.
+      data = JSON.parse(data as string);
     } catch (e) {
       isString = typeof data == 'string' || data instanceof String;
     }
 
     if (isString) {
       // Load data asynchronously, from external URL.
-      dataPromise = fetch(data)
+      dataPromise = fetch(data as string)
           .then((/** @type {!Response} */ response) => response.json());
     } else {
       // Data is all ready to be processed.
@@ -573,7 +535,8 @@ export class GoogleChart extends PolymerElement {
         var clonedLinkEl = document.createElement('link');
         clonedLinkEl.setAttribute('rel', 'stylesheet');
         clonedLinkEl.setAttribute('type', 'text/css');
-        clonedLinkEl.setAttribute('href', sheetLinkEl.getAttribute('href'));
+        // href is always present
+        clonedLinkEl.setAttribute('href', sheetLinkEl.getAttribute('href')!);
 
         this.$.styles.appendChild(clonedLinkEl);
       }

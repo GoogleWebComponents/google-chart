@@ -21,6 +21,10 @@
   },
   "main": "google-chart.js",
   "module": "google-chart.js",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
   "contributors": [
     "Wes Alvaro",
     "Sérgio Gomes",
