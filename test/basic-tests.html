@@ -129,7 +129,7 @@ suite('<google-chart>', function() {
       var initialDraw = true;
       chart.addEventListener('google-chart-ready', function() {
         if (initialDraw) {
-          spyRedraw = sinon.spy(chart._chartWrapper, 'draw');
+          spyRedraw = sinon.spy(chart.chartWrapper, 'draw');
           initialDraw = false;
           chart.set('options.title', 'Debounced Title');
           chart.set('options.title', expectedTitle);
@@ -137,7 +137,7 @@ suite('<google-chart>', function() {
         } else {
           assert.equal(chart.shadowRoot.querySelector('text').innerHTML, expectedTitle);
           assert.isTrue(spyRedraw.calledOnce);
-          chart._chartWrapper.draw.restore();
+          chart.chartWrapper.draw.restore();
           done();
         }
       });
@@ -226,7 +226,7 @@ suite('<google-chart>', function() {
       chart.events = ['onmouseover'];
       chart.addEventListener('google-chart-ready', function() {
         google.visualization.events.trigger(
-            chart._chartWrapper.getChart(), 'onmouseover', {'row': 1, 'column': 5});
+            chart.chartWrapper.getChart(), 'onmouseover', {'row': 1, 'column': 5});
       });
       chart.addEventListener('google-chart-onmouseover', function(e) {
         assert.equal(e.detail.data.row, 1);
