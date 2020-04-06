@@ -1,17 +1,20 @@
 /**
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at https://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at https://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at https://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at https://polymer.github.io/PATENTS.txt
-*/
+ * @license
+ * Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at
+ * https://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at
+ * https://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at
+ * https://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at
+ * https://polymer.github.io/PATENTS.txt
+ */
 
 /**
  * Promise that resolves when the gviz loader script is loaded, which
  * provides access to the Google Charts loading API.
- * @type {!Promise<*>}
  */
 const loaderPromise = new Promise((resolve, reject) => {
   // Resolve immediately if the loader script has been added already and
@@ -22,12 +25,11 @@ const loaderPromise = new Promise((resolve, reject) => {
     resolve();
   } else {
     // Try to find existing loader script.
-    let loaderScript: HTMLScriptElement | null = document.querySelector(
+    let loaderScript: HTMLScriptElement|null = document.querySelector(
         'script[src="https://www.gstatic.com/charts/loader.js"]');
     if (!loaderScript) {
       // If the loader is not present, add it.
-      loaderScript =
-          /** @type {!HTMLScriptElement} */ (document.createElement('script'));
+      loaderScript = document.createElement('script');
       // Specify URL directly to pass JS compiler conformance checks.
       loaderScript.src = 'https://www.gstatic.com/charts/loader.js';
       document.head.appendChild(loaderScript);
@@ -38,10 +40,10 @@ const loaderPromise = new Promise((resolve, reject) => {
 });
 
 interface LoadSettings {
-  version?: string,
-  packages?: string[],
-  language?: string,
-  mapsApiKey?: string,
+  version?: string;
+  packages?: string[];
+  language?: string;
+  mapsApiKey?: string;
 }
 
 /**
@@ -53,10 +55,8 @@ interface LoadSettings {
  * - language: what language to load library in, default: `lang` attribute on
  *   `<html>` or 'en' if not specified,
  * - mapsApiKey: key to use for maps API.
- *
- * @return {!Promise<void>}
  */
-export async function load(settings: LoadSettings = {}) {
+export async function load(settings: LoadSettings = {}): Promise<void> {
   await loaderPromise;
   const {
     version = 'current',
@@ -72,8 +72,8 @@ export async function load(settings: LoadSettings = {}) {
 }
 
 /** Types that can be converted to `DataTable`. */
-export type DataTableLike = unknown[][]|{cols: unknown[], rows?: unknown[][]}
-    |google.visualization.DataTable;
+export type DataTableLike = unknown[][]|{cols: unknown[], rows?: unknown[][]}|
+                            google.visualization.DataTable;
 
 /**
  * Creates a DataTable object for use with a chart.
@@ -99,10 +99,11 @@ export type DataTableLike = unknown[][]|{cols: unknown[], rows?: unknown[][]}
  *   no arguments.
  * - Anything else
  *
- * See <a href="https://developers.google.com/chart/interactive/docs/reference#datatable-class">the docs</a> for more details.
+ * See <a
+ * href="https://developers.google.com/chart/interactive/docs/reference#datatable-class">the
+ * docs</a> for more details.
  *
  * @param data The data which we should use to construct new DataTable object
- * @return Promise for the created DataTable
  */
 export async function dataTable(data: DataTableLike|undefined):
     Promise<google.visualization.DataTable> {
@@ -113,7 +114,9 @@ export async function dataTable(data: DataTableLike|undefined):
   } else if ((data as google.visualization.DataTable).getNumberOfRows!) {
     // Data is already a DataTable
     return data as google.visualization.DataTable;
-  } else if ((data as {cols: unknown[]}).cols) {  // data.rows may also be specified
+  } else if ((data as {
+               cols: unknown[]
+             }).cols) {  // data.rows may also be specified
     // Data is in the form of object DataTable structure
     return new google.visualization.DataTable(data);
   } else if ((data as unknown[][]).length > 0) {
@@ -124,20 +127,20 @@ export async function dataTable(data: DataTableLike|undefined):
     // We throw instead of creating an empty DataTable because most
     // (if not all) charts will render a sticky error in this situation.
     throw new Error('Data was empty.');
-    }
+  }
   throw new Error('Data format was not recognized.');
 }
 
 /**
  * Creates new `ChartWrapper`.
  * @param container Element in which the chart will be drawn
- * @return {!Promise<!google.visualization.ChartWrapper>}
  */
-export async function createChartWrapper(container: HTMLElement) {
+export async function createChartWrapper(container: HTMLElement):
+    Promise<google.visualization.ChartWrapper> {
   // Ensure that `google.visualization` namespace is added to the document.
   await load();
   // Typings suggest that `chartType` is required in `ChartSpecs`, but it works
   // without it.
   return new google.visualization.ChartWrapper(
-      {'container': container} as google.visualization.ChartSpecs);
+      {'container': container} as unknown as google.visualization.ChartSpecs);
 }
