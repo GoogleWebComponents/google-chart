@@ -22,6 +22,9 @@
   "main": "google-chart.js",
   "module": "google-chart.js",
   "scripts": {
+    "start": "es-dev-server --app-index demo/index.html --node-resolve --open --watch",
+    "test": "wct --module-resolution=node --npm --simpleOutput -l chrome",
+    "pretest": "npm run build",
     "build": "tsc",
     "prepare": "npm run build"
   },
@@ -36,7 +39,9 @@
   },
   "devDependencies": {
     "@types/google.visualization": "0.0.51",
+    "es-dev-server": "^1.46.2",
     "typescript": "^3.7.5",
-    "wct-browser-legacy": "^1.0.1"
+    "wct-browser-legacy": "^1.0.2",
+    "web-component-tester": "^6.9.2"
   }
 }
