@@ -26,7 +26,7 @@
 import { timeOut } from '@polymer/polymer/lib/utils/async.js';
 import { Debouncer } from '@polymer/polymer/lib/utils/debounce.js';
 import { GoogleChart } from '../google-chart.js';
-import '../google-chart-loader.js';
+import { dataTable, load } from '../loader.js';
 
 suite('<google-chart>', function() {
   var chart;
@@ -182,8 +182,7 @@ suite('<google-chart>', function() {
     let dt;
     setup(async () => {
       chart = fixture('chart-fixture');
-      const loader = document.createElement('google-chart-loader');
-      dt = await loader.dataTable();
+      dt = await dataTable();
       dt.addColumn('number', 'x');
       dt.addColumn('number', 'y');
       dt.addRow([1, 1]);
@@ -283,8 +282,7 @@ suite('<google-chart>', function() {
       chart.addEventListener('google-chart-ready', function() {
         done();
       });
-      var loader = document.createElement('google-chart-loader');
-      loader.dataTable([
+      dataTable([
         ['Data', 'Value'],
         ['Something', 1]
       ]).then(function(dataTable) {
@@ -295,13 +293,12 @@ suite('<google-chart>', function() {
       chart.addEventListener('google-chart-ready', function() {
         done();
       });
-      document.createElement('google-chart-loader')
-        .query('query.json')
-        .then(function(q) {
-          q.send(function(res) {
-            chart.data = res.getDataTable();
-          });
+      load().then(() => {
+        const q = new google.visualization.Query('query.json');
+        q.send((res) => {
+          chart.data = res.getDataTable();
         });
+      });
     });
     test('[data] is JSON URL for 2D Array', function(done) {
       setDataAndWaitForRender('test-data-array.json', done);
@@ -313,14 +310,12 @@ suite('<google-chart>', function() {
       chart.addEventListener('google-chart-ready', function() {
         done();
       });
-      var loader = document.createElement('google-chart-loader');
-      loader.dataTable([
+      dataTable([
         ['Data', 'Value'],
         ['Something', 1]
       ])
-      .then(loader.dataView.bind(loader))
-      .then(function(dataView) {
-        chart.view = dataView;
+      .then((dataTable) => {
+        chart.view = new google.visualization.DataView(dataTable);
       });
     });
     test('multiple calls to JSON URL', function(done) {
