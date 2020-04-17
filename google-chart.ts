@@ -573,3 +573,9 @@ export class GoogleChart extends PolymerElement {
 }
 
 customElements.define('google-chart', GoogleChart);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'google-chart': GoogleChart;
+  }
+}
