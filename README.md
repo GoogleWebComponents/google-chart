@@ -70,20 +70,23 @@ See examples in the demo or try this live [JS bin](https://jsbin.com/zitotejimi/
 Instructions for running the tests and demo locally:
 
 ### Installation
+
 ```sh
 git clone https://github.com/GoogleWebComponents/google-chart.git
 cd google-chart
 npm install
-npm install -g polymer-cli
 ```
 
 ### Running the demo locally
+
 ```sh
-polymer serve --open
+npm start
 ```
-and visit `http://127.0.0.1:8081/components/@google-web-components/google-chart/demo/`.
+
+The browser will open automatically.
 
 ### Running the tests
+
 ```sh
-polymer test --npm
+npm test
 ```
