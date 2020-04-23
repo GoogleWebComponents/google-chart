@@ -35,6 +35,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
+    "@polymer/decorators": "^3.0.0",
     "@polymer/polymer": "^3.0.0"
   },
   "devDependencies": {
