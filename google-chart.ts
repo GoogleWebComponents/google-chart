@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2014-2020 Google, Inc.
+ * Copyright 2014-2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -375,7 +375,7 @@ export class GoogleChart extends PolymerElement {
   }
 
   /** Reacts to chart type change. */
-  typeChanged() {
+  protected typeChanged() {
     if (this.chartWrapper == null) return;
     this.chartWrapper.setChartType(CHART_TYPES[this.type] || this.type);
     const lastChart = this.chartWrapper.getChart();
@@ -420,7 +420,7 @@ export class GoogleChart extends PolymerElement {
   }
 
   /** Sets the selectiton on the chart. */
-  selectionChanged() {
+  protected selectionChanged() {
     if (this.chartWrapper == null) return;
     const chart = this.chartWrapper.getChart();
     if (chart == null) return;
@@ -470,7 +470,7 @@ export class GoogleChart extends PolymerElement {
   }
 
   /** Handles changes to the `view` attribute. */
-  viewChanged() {
+  protected viewChanged() {
     if (!this.view) {
       return;
     }
@@ -478,7 +478,7 @@ export class GoogleChart extends PolymerElement {
   }
 
   /** Handles changes to the rows & columns attributes. */
-  async rowsOrColumnsChanged() {
+  protected async rowsOrColumnsChanged() {
     const {rows, cols} = this;
     if (!rows || !cols) return;
     try {
@@ -493,7 +493,7 @@ export class GoogleChart extends PolymerElement {
   /**
    * Handles changes to the `data` attribute.
    */
-  dataChanged() {
+  protected dataChanged() {
     let data = this.data;
     let dataPromise;
     if (!data) {
