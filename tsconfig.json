@@ -10,10 +10,5 @@
     "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true
-  },
-  "exclude": [
-    "demo",
-    "node_modules",
-    "test"
-  ]
+  }
 }
