@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import '../google-chart.js';
 import {GoogleChart} from '../google-chart.js';
 import {load} from '../loader.js';
 
@@ -25,7 +26,7 @@ const assert = chai.assert;
 suite('Custom load', () => {
   suiteSetup(() => {
     // Ensure Google Charts is not loaded.
-    assert.isUndefined(google?.visualization?.DataTable);
+    assert.isUndefined(window.google?.visualization?.DataTable);
     return load({version: '45.2'});
   });
 
