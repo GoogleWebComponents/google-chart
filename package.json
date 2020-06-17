@@ -39,7 +39,9 @@
     "@polymer/polymer": "^3.0.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.11",
     "@types/google.visualization": "0.0.51",
+    "@types/mocha": "^7.0.2",
     "es-dev-server": "^1.46.2",
     "typescript": "^3.7.5",
     "wct-browser-legacy": "^1.0.2",

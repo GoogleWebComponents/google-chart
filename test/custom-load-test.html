@@ -1,16 +1,22 @@
-<!--
-    @license
-    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
-    This code may only be used under the BSD style license found at https://polymer.github.io/LICENSE.txt
-    The complete set of authors may be found at https://polymer.github.io/AUTHORS.txt
-    The complete set of contributors may be found at https://polymer.github.io/CONTRIBUTORS.txt
-    Code distributed by Google as part of the polymer project is also
-    subject to an additional IP rights grant found at https://polymer.github.io/PATENTS.txt
--->
 <!DOCTYPE html>
+<!--
+Copyright 2014-2020 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <html lang="de">
-<script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
-<script src="../../../wct-browser-legacy/browser.js"></script>
+<script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+<script src="../node_modules/wct-browser-legacy/browser.js"></script>
 
 <test-fixture id="type-table">
   <template>
@@ -18,32 +24,5 @@
   </template>
 </test-fixture>
 
-<script type="module">
-  import {load} from '../loader.js';
-  import '../google-chart.js';
-
-  // This test has to run separately because Google Charts API is loaded only once per document.
-  suite('custom load test', () => {
-    suiteSetup(() => {
-      return load({version: '45.2'});
-    });
-
-    test('loads Google Charts API with custom settings', () => {
-      // Verify that the library has been loaded with correct settings by
-      // inspecting scripts added to the document.
-      assert.isNotNull(document.querySelector('script[src*="charts/45.2"]'));
-      assert.isNotNull(document.querySelector('script[src*="corechart_module"]'));
-      assert.isNotNull(document.querySelector('script[src*="__de"]'));
-    });
-
-    test('loads packages for chart type="table"', async () => {
-      const chart = fixture('type-table');
-      chart.data = [ ['Data', 'Value'], ['Something', 1] ];
-      await new Promise((resolve) => {
-        chart.addEventListener('google-chart-ready', resolve);
-      });
-      assert.isAbove(chart.$['chartdiv'].childElementCount, 0);
-    });
-  });
-</script>
+<script type="module" src="custom-load-test.js"></script>
 </html>
