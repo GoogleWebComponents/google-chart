@@ -4,6 +4,7 @@
     "web-component",
     "web-components",
     "polymer",
+    "lit-element",
     "chart",
     "charts",
     "google-visualization",
@@ -22,11 +23,12 @@
   "main": "google-chart.js",
   "module": "google-chart.js",
   "scripts": {
-    "start": "es-dev-server --app-index demo/index.html --node-resolve --open --watch",
-    "test": "wct --module-resolution=node --npm --simpleOutput -l chrome",
-    "pretest": "npm run build",
+    "prepare": "npm run build",
     "build": "tsc",
-    "prepare": "npm run build"
+    "build:watch": "tsc --watch",
+    "start": "es-dev-server --app-index demo/index.html --node-resolve --open --watch",
+    "pretest": "npm run build",
+    "test": "wct --module-resolution=node --npm --simpleOutput -l chrome"
   },
   "contributors": [
     "Wes Alvaro",
@@ -35,15 +37,16 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@polymer/decorators": "^3.0.0",
-    "@polymer/polymer": "^3.0.0"
+    "lit-element": "^2.3.1"
   },
   "devDependencies": {
+    "@polymer/decorators": "^3.0.0",
+    "@polymer/polymer": "^3.0.0",
     "@types/chai": "^4.2.11",
     "@types/google.visualization": "0.0.51",
     "@types/mocha": "^7.0.2",
     "es-dev-server": "^1.46.2",
-    "typescript": "^3.7.5",
+    "typescript": "^3.9.5",
     "wct-browser-legacy": "^1.0.2",
     "web-component-tester": "^6.9.2"
   }

@@ -19,6 +19,7 @@ import {timeOut} from '@polymer/polymer/lib/utils/async.js';
 import {Debouncer} from '@polymer/polymer/lib/utils/debounce.js';
 import {GoogleChart} from '../google-chart.js';
 import {dataTable, load, DataTableLike} from '../loader.js';
+import {ready} from './helpers.js';
 
 const assert = chai.assert;
 
@@ -94,8 +95,8 @@ suite('<google-chart>', function() {
       chart.addEventListener('google-chart-ready', () => {
         // Look for something that can be clicked. Find rectangles for legend
         // and each bar.
-        const rects = chart.$['chartdiv']
-            .querySelectorAll('rect[fill="#3366cc"]');
+        const chartDiv = chart.shadowRoot!.getElementById('chartdiv')!;
+        const rects = chartDiv.querySelectorAll('rect[fill="#3366cc"]');
         // Click on the last bar ('Something 3').
         rects[3].dispatchEvent(new MouseEvent('click', {bubbles: true}));
       }, {once: true});
@@ -125,8 +126,11 @@ suite('<google-chart>', function() {
         if (initialDraw) {
           spyRedraw = sinon.spy(chart['chartWrapper']!, 'draw');
           initialDraw = false;
-          chart.set('options.title', 'Debounced Title');
-          chart.set('options.title', expectedTitle);
+          const options = chart.options as google.visualization.ColumnChartOptions;
+          options.title = 'Debounced Title';
+          chart.options = options;
+          options.title = expectedTitle;
+          chart.options = options;
           assert.isFalse(spyRedraw.called);
         } else {
           assert.equal(chart.shadowRoot!.querySelector('text')!.innerHTML, expectedTitle);
@@ -162,11 +166,8 @@ suite('<google-chart>', function() {
     test('can be created', async () => {
       const chart = new GoogleChart();
       chart.data = [ ['Data', 'Value'], ['Something', 1] ];
-      const ready = new Promise((resolve) => {
-        chart.addEventListener('google-chart-ready', resolve, {once: true});
-      });
       document.body.appendChild(chart);
-      await ready;
+      await ready(chart);
       document.body.removeChild(chart);
     });
   });
@@ -183,9 +184,7 @@ suite('<google-chart>', function() {
     });
 
     async function countBars(chart: GoogleChart) {
-      await new Promise((resolve) => {
-        chart.addEventListener('google-chart-ready', resolve, {once: true});
-      });
+      await ready(chart);
       return Array.from(chart.shadowRoot!.querySelectorAll('rect[fill="#3366cc"]')).length;
     }
 
@@ -248,7 +247,8 @@ suite('<google-chart>', function() {
       chart.cols = [ { 'type': 'date' } ];
       chart.rows = [ ['Date(1789, 3, 30)'] ];
       waitCheckAndDone(function() {
-        return chart.$['chartdiv'].innerHTML ==
+        const chartDiv = chart.shadowRoot!.getElementById('chartdiv')!;
+        return chartDiv.innerHTML ==
           'Error: Type mismatch. Value Date(1789, 3, 30) ' +
           'does not match type date in column index 0';
       }, done);
@@ -334,9 +334,7 @@ suite('<google-chart>', function() {
         ['Adams',      new Date(1797, 2, 4),  new Date(1801, 2, 4)],
         ['Jefferson',  new Date(1801, 2, 4),  new Date(1809, 2, 4)],
       ];
-      await new Promise((resolve) => {
-        chart.addEventListener('google-chart-ready', resolve, {once: true});
-      });
+      await ready(chart);
       // Set and update the selection.
       chart.selection = [{row: 0, column: null}];
       chart.selection = [{row: 1, column: null}];
