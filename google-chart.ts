@@ -117,6 +117,7 @@ const CHART_TYPES: Record<string, string|undefined> = {
  * @demo demo/index.html
  */
 export class GoogleChart extends LitElement {
+  /** @nocollapse */
   static styles = css`
     :host {
       display: -webkit-flex;
