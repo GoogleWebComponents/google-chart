@@ -14,18 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-<title>Tests</title>
 <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
 <script src="../node_modules/wct-browser-legacy/browser.js"></script>
 
-<script>
-  // Load and run all tests (.html, .js) as one suite:
-  WCT.loadSuites([
-    'basic-tests.html?wc-shadydom=true&wc-ce=true',
-    'basic-tests.html?dom=shadow',
-    'custom-load-test.html',
-    'polymer-use-test.html',
-  ]);
-</script>
+<script type="module" src="polymer-use-test.js"></script>

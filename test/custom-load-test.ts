@@ -18,6 +18,7 @@
 import '../google-chart.js';
 import {GoogleChart} from '../google-chart.js';
 import {load} from '../loader.js';
+import {ready} from './helpers.js';
 
 const assert = chai.assert;
 
@@ -41,9 +42,8 @@ suite('Custom load', () => {
   test('loads packages for chart type="table"', async () => {
     const chart = fixture('type-table') as GoogleChart;
     chart.data = [ ['Data', 'Value'], ['Something', 1] ];
-    await new Promise((resolve) => {
-      chart.addEventListener('google-chart-ready', resolve);
-    });
-    assert.isAbove(chart.$['chartdiv'].childElementCount, 0);
+    await ready(chart);
+    const chartDiv = chart.shadowRoot!.getElementById('chartdiv')!;
+    assert.isAbove(chartDiv.childElementCount, 0);
   });
 });

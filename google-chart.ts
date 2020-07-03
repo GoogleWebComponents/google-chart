@@ -15,10 +15,7 @@
  * limitations under the License.
  */
 
-import {observe, property} from '@polymer/decorators';
-import {html, PolymerElement} from '@polymer/polymer';
-import {timeOut} from '@polymer/polymer/lib/utils/async';
-import {Debouncer} from '@polymer/polymer/lib/utils/debounce';
+import {html, css, LitElement, property} from 'lit-element';
 
 import {createChartWrapper, dataTable, DataTableLike} from './loader';
 
@@ -119,42 +116,37 @@ const CHART_TYPES: Record<string, string|undefined> = {
  *
  * @demo demo/index.html
  */
-export class GoogleChart extends PolymerElement {
-  static get template() {
-    return html`
-      <style>
-        :host {
-          display: -webkit-flex;
-          display: -ms-flex;
-          display: flex;
-          margin: 0;
-          padding: 0;
-          width: 400px;
-          height: 300px;
-        }
+export class GoogleChart extends LitElement {
+  /** @nocollapse */
+  static styles = css`
+    :host {
+      display: -webkit-flex;
+      display: -ms-flex;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      width: 400px;
+      height: 300px;
+    }
 
-        :host([hidden]) {
-          display: none;
-        }
+    :host([hidden]) {
+      display: none;
+    }
 
-        :host([type="gauge"]) {
-          width: 300px;
-          height: 300px;
-        }
+    :host([type="gauge"]) {
+      width: 300px;
+      height: 300px;
+    }
 
-        #chartdiv {
-          width: 100%;
-        }
+    #chartdiv {
+      width: 100%;
+    }
 
-        /* Workaround for slow initial ready event for tables. */
-        .google-visualization-table-loadtest {
-          padding-left: 6px;
-        }
-      </style>
-      <div id="styles"></div>
-      <div id="chartdiv"></div>
-    `;
-  }
+    /* Workaround for slow initial ready event for tables. */
+    .google-visualization-table-loadtest {
+      padding-left: 6px;
+    }
+  `;
 
   /**
    * Fired after a chart type is rendered and ready for interaction.
@@ -171,7 +163,7 @@ export class GoogleChart extends PolymerElement {
    */
 
   /**
-   * Sets the type of the chart.
+   * Type of the chart.
    *
    * Should be one of:
    * - `area`
@@ -199,7 +191,7 @@ export class GoogleChart extends PolymerElement {
    * href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google
    * Visualization API reference (Chart Gallery)</a> for details.
    */
-  @property({type: String, observer: GoogleChart.prototype.typeChanged})
+  @property({type: String, reflect: true})
   type = 'column';
 
   /**
@@ -220,23 +212,29 @@ export class GoogleChart extends PolymerElement {
    * Sets the options for the chart.
    *
    * Example:
-   * <pre>{
+   * ```
+   * {
    *   title: "Chart title goes here",
    *   hAxis: {title: "Categories"},
    *   vAxis: {title: "Values", minValue: 0, maxValue: 2},
    *   legend: "none"
-   * };</pre>
+   * }
+   * ```
    * See <a
    * href="https://google-developers.appspot.com/chart/interactive/docs/gallery">Google
    * Visualization API reference (Chart Gallery)</a> for the options available
    * to each chart type.
    *
-   * This property is observed via a deep object observer.
-   * If you would like to make changes to a sub-property, be sure to use the
-   * Polymer method `set`: `googleChart.set('options.vAxis.logScale', true)`
+   * Setting this property always redraws the chart. If you would like to make
+   * changes to a sub-property, be sure to reassign the property:
+   * ```
+   * const options = googleChart.options;
+   * options.vAxis.logScale = true;
+   * googleChart.options = options;
+   * ```
    * (Note: Missing parent properties are not automatically created.)
    */
-  @property({type: Object})
+  @property({type: Object, hasChanged: () => true})
   options: {}|undefined = undefined;
 
   /**
@@ -252,7 +250,7 @@ export class GoogleChart extends PolymerElement {
    * href="https://google-developers.appspot.com/chart/interactive/docs/reference#DataTable_addColumn">Google
    * Visualization API reference (addColumn)</a> for column definition format.
    */
-  @property({type: Array, observer: GoogleChart.prototype.rowsOrColumnsChanged})
+  @property({type: Array})
   cols: unknown[]|undefined = undefined;
 
   /**
@@ -268,7 +266,7 @@ export class GoogleChart extends PolymerElement {
    * href="https://google-developers.appspot.com/chart/interactive/docs/reference#addrow">Google
    * Visualization API reference (addRow)</a> for row format.
    */
-  @property({type: Array, observer: GoogleChart.prototype.rowsOrColumnsChanged})
+  @property({type: Array})
   rows: unknown[][]|undefined = undefined;
 
   /**
@@ -293,7 +291,7 @@ export class GoogleChart extends PolymerElement {
    * ```
    */
   // Note: type: String, because it is parsed manually in the observer.
-  @property({type: String, observer: GoogleChart.prototype.dataChanged})
+  @property({type: String})
   data: DataTableLike|string|undefined = undefined;
 
   /**
@@ -306,7 +304,7 @@ export class GoogleChart extends PolymerElement {
    * When specifying data with `view` you must not specify `data`, `cols` or
    * `rows`.
    */
-  @property({type: Object, observer: GoogleChart.prototype.viewChanged})
+  @property({type: Object})
   view: google.visualization.DataView|undefined = undefined;
 
   /**
@@ -324,23 +322,14 @@ export class GoogleChart extends PolymerElement {
    * [{row:0,column:1}, {row:1, column:null}]
    * ```
    */
-  @property({
-    type: Array,
-    notify: true,
-    observer: GoogleChart.prototype.selectionChanged,
-  })
+  @property({type: Array})
   selection: unknown[]|undefined = undefined;
 
   /**
    * Whether the chart is currently rendered.
+   * @export
    */
-  @property({type: Boolean, readOnly: true})
   drawn = false;
-
-  /** @export */
-  // This method is generated by Polymer.
-  // tslint:disable-next-line:enforce-name-casing
-  _setDrawn!: (drawn: boolean) => void;
 
   /**
    * Internal data displayed on the chart.
@@ -354,17 +343,24 @@ export class GoogleChart extends PolymerElement {
    */
   private chartWrapper: google.visualization.ChartWrapper|null = null;
 
-  private redrawDebouncer: Debouncer|null = null;
+  private redrawTimeoutId: number|undefined = undefined;
 
   /** @override */
-  ready() {
-    super.ready();
-    createChartWrapper(this.$['chartdiv'] as HTMLElement)
+  protected render() {
+    return html`
+      <div id="styles"></div>
+      <div id="chartdiv"></div>
+    `;
+  }
+
+  /** @override */
+  protected firstUpdated() {
+    createChartWrapper(this.shadowRoot!.getElementById('chartdiv')!)
         .then((chartWrapper) => {
           this.chartWrapper = chartWrapper;
           this.typeChanged();
           google.visualization.events.addListener(chartWrapper, 'ready', () => {
-            this._setDrawn(true);
+            this.drawn = true;
           });
           google.visualization.events.addListener(
               chartWrapper, 'select', () => {
@@ -374,8 +370,32 @@ export class GoogleChart extends PolymerElement {
         });
   }
 
+  /** @override */
+  protected updated(changedProperties: Map<string, unknown>) {
+    if (changedProperties.has('type')) this.typeChanged();
+    if (changedProperties.has('rows') || changedProperties.has('cols')) {
+      this.rowsOrColumnsChanged();
+    }
+    if (changedProperties.has('data')) this.dataChanged();
+    if (changedProperties.has('view')) this.viewChanged();
+    if (changedProperties.has('_data') ||
+        changedProperties.has('options')) this.redraw();
+    if (changedProperties.has('selection')) {
+      this.selectionChanged();
+      // Fire event for backwards compatibility with Polymer two-way data
+      // binding: `@property({notify: true})`.
+      this.dispatchEvent(new CustomEvent('selection-changed', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          'value': this.selection,
+        },
+      }));
+    }
+  }
+
   /** Reacts to chart type change. */
-  protected typeChanged() {
+  private typeChanged() {
     if (this.chartWrapper == null) return;
     this.chartWrapper.setChartType(CHART_TYPES[this.type] || this.type);
     const lastChart = this.chartWrapper.getChart();
@@ -389,8 +409,9 @@ export class GoogleChart extends PolymerElement {
                     (eventName) => !DEFAULT_EVENTS.includes(eventName)),
                 chart);
           }
-          if (!this.$['styles'].children.length) {
-            this.localizeGlobalStylesheets();
+          const stylesDiv = this.shadowRoot!.getElementById('styles')!;
+          if (!stylesDiv.children.length) {
+            this.localizeGlobalStylesheets(stylesDiv);
           }
           if (this.selection) {
             this.selectionChanged();
@@ -420,7 +441,7 @@ export class GoogleChart extends PolymerElement {
   }
 
   /** Sets the selectiton on the chart. */
-  protected selectionChanged() {
+  private selectionChanged() {
     if (this.chartWrapper == null) return;
     const chart = this.chartWrapper.getChart();
     if (chart == null) return;
@@ -442,7 +463,6 @@ export class GoogleChart extends PolymerElement {
    * Called automatically when data/type/selection attributes change.
    * Call manually to handle view updates, page resizes, etc.
    */
-  @observe('_data', 'options.*')
   redraw() {
     if (this.chartWrapper == null || this._data == null) return;
     // `ChartWrapper` can be initialized with `DataView` instead of `DataTable`.
@@ -450,12 +470,12 @@ export class GoogleChart extends PolymerElement {
         this._data as google.visualization.DataTable);
     this.chartWrapper.setOptions(this.options || {});
 
-    this._setDrawn(false);
-    this.redrawDebouncer =
-        Debouncer.debounce(this.redrawDebouncer, timeOut.after(5), () => {
-          // Drawing happens after `chartWrapper` is initialized.
-          this.chartWrapper!.draw();
-        });
+    this.drawn = false;
+    if (this.redrawTimeoutId !== undefined) clearTimeout(this.redrawTimeoutId);
+    this.redrawTimeoutId = window.setTimeout(() => {
+      // Drawing happens after `chartWrapper` is initialized.
+      this.chartWrapper!.draw();
+    }, 5);
   }
 
   /**
@@ -470,15 +490,13 @@ export class GoogleChart extends PolymerElement {
   }
 
   /** Handles changes to the `view` attribute. */
-  protected viewChanged() {
-    if (!this.view) {
-      return;
-    }
+  private viewChanged() {
+    if (!this.view) return;
     this._data = this.view;
   }
 
   /** Handles changes to the rows & columns attributes. */
-  protected async rowsOrColumnsChanged() {
+  private async rowsOrColumnsChanged() {
     const {rows, cols} = this;
     if (!rows || !cols) return;
     try {
@@ -486,14 +504,14 @@ export class GoogleChart extends PolymerElement {
       dt.addRows(rows);
       this._data = dt;
     } catch (reason) {
-      this.$['chartdiv'].textContent = reason;
+      this.shadowRoot!.getElementById('chartdiv')!.textContent = reason;
     }
   }
 
   /**
    * Handles changes to the `data` attribute.
    */
-  protected dataChanged() {
+  private dataChanged() {
     let data = this.data;
     let dataPromise;
     if (!data) {
@@ -528,7 +546,7 @@ export class GoogleChart extends PolymerElement {
    * Queries global document head for Google Charts `link#load-css-*` and clones
    * them into the local root's `div#styles` element for shadow dom support.
    */
-  private localizeGlobalStylesheets() {
+  private localizeGlobalStylesheets(stylesDiv: HTMLElement) {
     // Get all Google Charts stylesheets.
     const stylesheets = Array.from(document.head.querySelectorAll(
         'link[rel="stylesheet"][type="text/css"][id^="load-css-"]'));
@@ -541,7 +559,7 @@ export class GoogleChart extends PolymerElement {
       // `href` is always present.
       clonedStylesheet.setAttribute('href', stylesheet.getAttribute('href')!);
 
-      this.$['styles'].appendChild(clonedStylesheet);
+      stylesDiv.appendChild(clonedStylesheet);
     }
   }
 }
