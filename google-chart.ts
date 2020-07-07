@@ -380,18 +380,7 @@ export class GoogleChart extends LitElement {
     if (changedProperties.has('view')) this.viewChanged();
     if (changedProperties.has('_data') ||
         changedProperties.has('options')) this.redraw();
-    if (changedProperties.has('selection')) {
-      this.selectionChanged();
-      // Fire event for backwards compatibility with Polymer two-way data
-      // binding: `@property({notify: true})`.
-      this.dispatchEvent(new CustomEvent('selection-changed', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          'value': this.selection,
-        },
-      }));
-    }
+    if (changedProperties.has('selection')) this.selectionChanged();
   }
 
   /** Reacts to chart type change. */
