@@ -65,6 +65,39 @@ customElements.define('new-element', NewElement);
 
 See examples in the demo or try this live [JS bin](https://jsbin.com/zitotejimi/edit?html,output).
 
+## Uprading from 3.x
+
+The component has been migrated to LitElement and uses TypeScript now. This migration introduced two breaking changes.
+
+### Removed Polymer-specific `selection-changed` event used for 2-way bindings
+
+There were two events that notify about chart selection changes: `google-chart-select` and the Polymer-generated `selection-changed`.
+For consistency with other events (e.g. `google-chart-ready`), we keep only `google-chart-select`.
+
+Polymer components using 2-way binding for the selection should be updated to explicitly name the event - https://polymer-library.polymer-project.org/3.0/docs/devguide/data-binding#two-way-native. Note the `::google-chart-select` part.
+
+```diff
+- <google-chart selection="{{chartSelection}}"></google-chart>
++ <google-chart selection="{{chartSelection::google-chart-select}}"></google-chart>
+```
+
+LitElement components should use the `google-chart-select` event:
+
+```diff
+- <google-chart .selection="${chartSelection}" @selection-changed="${reactToChartSelection}"></google-chart>
++ <google-chart .selection="${chartSelection}" @google-chart-select="${reactToChartSelection}"></google-chart>
+```
+
+### Removed deprecated `google-chart-loader` component
+
+Its functionality is exported from the `loader.js` module:
+
+```
+import {dataTable, load} from '@google-web-components/google-chart/loader.js';
+```
+
+or `google.visualization.ChartWrapper` can be used directly instead.
+
 ## Contributing
 
 Instructions for running the tests and demo locally:
