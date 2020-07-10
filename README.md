@@ -69,34 +69,36 @@ See examples in the demo or try this live [JS bin](https://jsbin.com/zitotejimi/
 
 The component has been migrated to LitElement and uses TypeScript now. This migration introduced two breaking changes.
 
-### Removed Polymer-specific `selection-changed` event used for 2-way bindings
+### Removed Polymer-specific `selection-changed` event
 
-There were two events that notify about chart selection changes: `google-chart-select` and the Polymer-generated `selection-changed`.
+The Polymer-specific `selection-changed` event commonly used for 2-way bindings has been removed.
+There were previously two events for observing chart selection changes: `google-chart-select` and the Polymer-generated `selection-changed`.
 For consistency with other events (e.g. `google-chart-ready`), we keep only `google-chart-select`.
 
-Polymer components using 2-way binding for the selection should be updated to explicitly name the event - https://polymer-library.polymer-project.org/3.0/docs/devguide/data-binding#two-way-native. Note the `::google-chart-select` part.
+Polymer components using this feature must be updated to explicitly name the selection event ([details](https://polymer-library.polymer-project.org/3.0/docs/devguide/data-binding#two-way-native)).
+In the example below, note the addition of `::google-chart-select`.
 
 ```diff
 - <google-chart selection="{{chartSelection}}"></google-chart>
 + <google-chart selection="{{chartSelection::google-chart-select}}"></google-chart>
 ```
 
-LitElement components should use the `google-chart-select` event:
+LitElement components using the `selection-changed` event must be updated in a similar fashion:
 
 ```diff
 - <google-chart .selection="${chartSelection}" @selection-changed="${reactToChartSelection}"></google-chart>
 + <google-chart .selection="${chartSelection}" @google-chart-select="${reactToChartSelection}"></google-chart>
 ```
 
-### Removed deprecated `google-chart-loader` component
+### Removed `google-chart-loader` component
 
-Its functionality is exported from the `loader.js` module:
+Its functionality can be imported from the `loader.js` module:
 
-```
+```javascript
 import {dataTable, load} from '@google-web-components/google-chart/loader.js';
 ```
 
-or `google.visualization.ChartWrapper` can be used directly instead.
+or you may instead choose to use `google.visualization.ChartWrapper` directly ([example](https://developers.google.com/chart/interactive/docs/reference#chartwrapper-class)).
 
 ## Contributing
 
