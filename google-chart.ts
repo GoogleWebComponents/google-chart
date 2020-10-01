@@ -36,6 +36,7 @@ const CHART_TYPES: Record<string, string|undefined> = {
   'candlestick': 'CandlestickChart',
   'column': 'ColumnChart',
   'combo': 'ComboChart',
+  'gantt': 'Gantt',
   'gauge': 'Gauge',
   'geo': 'GeoChart',
   'histogram': 'Histogram',
@@ -173,6 +174,7 @@ export class GoogleChart extends LitElement {
    * - `candlestick`
    * - `column`
    * - `combo`
+   * - `gantt`
    * - `gauge`
    * - `geo`
    * - `histogram`
