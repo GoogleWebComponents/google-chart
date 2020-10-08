@@ -516,7 +516,7 @@ export class GoogleChart extends LitElement {
     try {
       // Try to deserialize the value of the `data` property which might be a
       // serialized array.
-      data = JSON.parse(data as string);
+      data = JSON.parse(data as string) as DataTableLike;
     } catch (e) {
       isString = typeof data === 'string' || data instanceof String;
     }
