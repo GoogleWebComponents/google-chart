@@ -19,7 +19,7 @@
  * Promise that resolves when the gviz loader script is loaded, which
  * provides access to the Google Charts loading API.
  */
-const loaderPromise = new Promise((resolve, reject) => {
+const loaderPromise: Promise<void> = new Promise((resolve, reject) => {
   // Resolve immediately if the loader script has been added already and
   // `google.charts.load` is available. Adding the loader script twice throws
   // an error.
@@ -37,7 +37,7 @@ const loaderPromise = new Promise((resolve, reject) => {
       loaderScript.src = 'https://www.gstatic.com/charts/loader.js';
       document.head.appendChild(loaderScript);
     }
-    loaderScript.addEventListener('load', resolve);
+    loaderScript.addEventListener('load', resolve as () => void);
     loaderScript.addEventListener('error', reject);
   }
 });
