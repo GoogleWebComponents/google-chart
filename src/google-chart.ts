@@ -325,7 +325,7 @@ export class GoogleChart extends LitElement {
    * ```
    */
   @property({type: Array})
-  selection: unknown[]|undefined = undefined;
+  selection: google.visualization.ChartSelection[]|undefined = undefined;
 
   /**
    * Whether the chart is currently rendered.
@@ -358,7 +358,7 @@ export class GoogleChart extends LitElement {
   /** @override */
   protected firstUpdated() {
     createChartWrapper(this.shadowRoot!.getElementById('chartdiv')!)
-        .then((chartWrapper) => {
+        .then(chartWrapper => {
           this.chartWrapper = chartWrapper;
           this.typeChanged();
           google.visualization.events.addListener(chartWrapper, 'ready', () => {
@@ -366,7 +366,7 @@ export class GoogleChart extends LitElement {
           });
           google.visualization.events.addListener(
               chartWrapper, 'select', () => {
-                this.selection = chartWrapper.getChart().getSelection();
+                this.selection = chartWrapper.getChart()!.getSelection();
               });
           this.propagateEvents(DEFAULT_EVENTS, chartWrapper);
         });
@@ -477,7 +477,7 @@ export class GoogleChart extends LitElement {
   get imageURI(): string|null {
     if (this.chartWrapper == null) return null;
     const chart = this.chartWrapper.getChart();
-    return chart && chart.getImageURI();
+    return chart && (chart as google.visualization.ChartBaseRenderable).getImageURI();
   }
 
   /** Handles changes to the `view` attribute. */
