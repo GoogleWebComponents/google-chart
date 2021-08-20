@@ -119,7 +119,7 @@ const CHART_TYPES: Record<string, string|undefined> = {
  */
 export class GoogleChart extends LitElement {
   /** @nocollapse */
-  static styles = css`
+  static override styles = css`
     :host {
       display: -webkit-flex;
       display: -ms-flex;
@@ -348,7 +348,7 @@ export class GoogleChart extends LitElement {
   private redrawTimeoutId: number|undefined = undefined;
 
   /** @override */
-  protected render() {
+  protected override render() {
     return html`
       <div id="styles"></div>
       <div id="chartdiv"></div>
@@ -356,7 +356,7 @@ export class GoogleChart extends LitElement {
   }
 
   /** @override */
-  protected firstUpdated() {
+  protected override firstUpdated() {
     createChartWrapper(this.shadowRoot!.getElementById('chartdiv')!)
         .then(chartWrapper => {
           this.chartWrapper = chartWrapper;
@@ -373,7 +373,7 @@ export class GoogleChart extends LitElement {
   }
 
   /** @override */
-  protected updated(changedProperties: Map<string, unknown>) {
+  protected override updated(changedProperties: Map<string, unknown>) {
     if (changedProperties.has('type')) this.typeChanged();
     if (changedProperties.has('rows') || changedProperties.has('cols')) {
       this.rowsOrColumnsChanged();
