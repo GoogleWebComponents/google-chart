@@ -33,7 +33,7 @@
     "prepare": "npm run build",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "es-dev-server --app-index demo/index.html --node-resolve --open --watch",
+    "start": "web-dev-server --app-index demo/index.html --node-resolve --open --watch",
     "pretest": "npm run build",
     "test": "wct --module-resolution=node --npm --simpleOutput -l chrome"
   },
@@ -52,7 +52,7 @@
     "@types/chai": "^4.2.11",
     "@types/google.visualization": "0.0.65",
     "@types/mocha": "^7.0.2",
-    "es-dev-server": "^1.46.2",
+    "@web/dev-server": "^0.1.23",
     "typescript": "^4.2.0",
     "wct-browser-legacy": "^1.0.2",
     "web-component-tester": "^6.9.2"
