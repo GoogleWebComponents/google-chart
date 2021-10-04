@@ -495,7 +495,7 @@ export class GoogleChart extends LitElement {
       dt.addRows(rows);
       this._data = dt;
     } catch (reason) {
-      this.shadowRoot!.getElementById('chartdiv')!.textContent = reason;
+      this.shadowRoot!.getElementById('chartdiv')!.textContent = String(reason);
     }
   }
 
