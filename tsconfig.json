@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es2019",
     "module": "esnext",
     "strict": true,
     "moduleResolution": "node",
@@ -10,9 +10,6 @@
     "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true,
-    "esModuleInterop": false,
-    "outDir": "./",
+    "esModuleInterop": true,
   },
-  "include": ["src/**/*.ts"],
-  "exclude": [""]
 }

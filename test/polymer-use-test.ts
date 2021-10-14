@@ -61,7 +61,7 @@ suite('<google-chart> use in Polymer element', () => {
     // https://developers.google.com/chart/interactive/docs/dev/events#firing-an-event
     const chartWrapper: google.visualization.ChartWrapper=
         (element.$['chart'] as GoogleChart)['chartWrapper']!;
-    chartWrapper.getChart().setSelection([{row: 1}]);
+    chartWrapper.getChart()!.setSelection([{row: 1}]);
     google.visualization.events.trigger(chartWrapper.getChart(), 'select', {});
     await chartSelectionChanged;
 
