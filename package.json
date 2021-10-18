@@ -20,10 +20,10 @@
     "supports-color": "3.1.2",
     "type-detect": "1.0.0"
   },
+  "type": "module",
   "main": "google-chart.js",
   "module": "google-chart.js",
   "files": [
-    "/src/",
     "google-chart.d.ts*",
     "google-chart.js*",
     "loader.d.ts*",
