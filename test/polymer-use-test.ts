@@ -16,13 +16,12 @@
  */
 
 import '../google-chart.js';
+import {assert} from '@esm-bundle/chai';
 import {customElement, property} from '@polymer/decorators';
 import {PolymerElement, html} from '@polymer/polymer';
 import {GoogleChart} from '../google-chart.js';
 import {DataTableLike} from '../loader.js';
 import {ready} from './helpers.js';
-
-const assert = chai.assert;
 
 suite('<google-chart> use in Polymer element', () => {
   let element: GoogleChartTestElement;

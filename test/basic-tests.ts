@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 
+import {assert} from '@esm-bundle/chai';
+import {fixture} from '@open-wc/testing';
 import {timeOut} from '@polymer/polymer/lib/utils/async.js';
 import {Debouncer} from '@polymer/polymer/lib/utils/debounce.js';
+import {spy, SinonSpy} from 'sinon';
 import {GoogleChart} from '../google-chart.js';
 import {dataTable, load, DataTableLike} from '../loader.js';
 import {ready} from './helpers.js';
 
-const assert = chai.assert;
-
 suite('<google-chart>', function() {
   var chart: GoogleChart;
   var waitCheckAndDoneDebouncer: Debouncer|null;
-  setup(function() {
-    chart = fixture('chart-fixture') as GoogleChart;
+  setup(async function() {
+    chart = await fixture('<google-chart></google-chart>') as GoogleChart;
     waitCheckAndDoneDebouncer = null;
   });
   var waitCheckAndDone = function(check: () => unknown, done: () => void) {
@@ -124,7 +125,7 @@ suite('<google-chart>', function() {
       var initialDraw = true;
       chart.addEventListener('google-chart-ready', function() {
         if (initialDraw) {
-          spyRedraw = sinon.spy(chart['chartWrapper']!, 'draw');
+          spyRedraw = spy(chart['chartWrapper']!, 'draw');
           initialDraw = false;
           const options = chart.options as google.visualization.ColumnChartOptions;
           options.title = 'Debounced Title';
@@ -176,7 +177,7 @@ suite('<google-chart>', function() {
     let chart: GoogleChart;
     let dt: google.visualization.DataTable;
     setup(async () => {
-      chart = fixture('chart-fixture') as GoogleChart;
+      chart = await fixture('<google-chart></google-chart>') as GoogleChart;
       dt = await dataTable(undefined);
       dt.addColumn('number', 'x');
       dt.addColumn('number', 'y');
@@ -289,17 +290,17 @@ suite('<google-chart>', function() {
         done();
       });
       load().then(() => {
-        const q = new google.visualization.Query('query.json');
+        const q = new google.visualization.Query('test/query.json');
         q.send((res) => {
           chart.data = res.getDataTable();
         });
       });
     });
     test('[data] is JSON URL for 2D Array', function(done) {
-      setDataAndWaitForRender('test-data-array.json', done);
+      setDataAndWaitForRender('test/test-data-array.json', done);
     });
     test('[data] is JSON URL for DataTable Object format', function(done) {
-      setDataAndWaitForRender('test-data-object.json', done);
+      setDataAndWaitForRender('test/test-data-object.json', done);
     });
     test('[view] is DataView', function(done) {
       chart.addEventListener('google-chart-ready', function() {
@@ -314,8 +315,8 @@ suite('<google-chart>', function() {
       });
     });
     test('multiple calls to JSON URL', function(done) {
-      setDataAndWaitForRender('test-data-array.json', function() {
-        setDataAndWaitForRender('test-data-object.json', done);
+      setDataAndWaitForRender('test/test-data-array.json', function() {
+        setDataAndWaitForRender('test/test-data-object.json', done);
       });
     });
   });
