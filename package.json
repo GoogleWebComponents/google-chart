@@ -35,7 +35,8 @@
     "build:watch": "tsc --watch",
     "start": "web-dev-server --app-index demo/index.html --node-resolve --open --watch",
     "pretest": "npm run build",
-    "test": "wct --module-resolution=node --npm --simpleOutput -l chrome"
+    "test": "web-test-runner",
+    "test:watch": "web-test-runner --watch"
   },
   "contributors": [
     "Wes Alvaro",
@@ -47,15 +48,16 @@
     "lit-element": "^3.0.0"
   },
   "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@open-wc/testing": "^2.5.33",
     "@polymer/decorators": "^3.0.0",
     "@polymer/polymer": "^3.4.1",
-    "@types/chai": "^4.2.11",
     "@types/google.visualization": "0.0.68",
-    "@types/mocha": "^7.0.2",
-    "@web/dev-server": "^0.1.24",
-    "typescript": "^4.4.3",
-    "wct-browser-legacy": "^1.0.2",
-    "web-component-tester": "^6.9.2"
+    "@types/mocha": "^9.0.0",
+    "@web/dev-server": "^0.1.25",
+    "@web/test-runner": "^0.13.20",
+    "sinon": "^11.1.2",
+    "typescript": "^4.4.4"
   },
   "typings": "google-chart.d.ts"
 }

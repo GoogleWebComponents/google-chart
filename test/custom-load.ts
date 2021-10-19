@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
+import {assert} from '@esm-bundle/chai';
+import {fixture} from '@open-wc/testing';
+import {runTests} from '@web/test-runner-mocha';
 import '../google-chart.js';
 import {GoogleChart} from '../google-chart.js';
 import {load} from '../loader.js';
 import {ready} from './helpers.js';
 
-const assert = chai.assert;
-
 // This test has to run separately in a clean document because Google Charts
 // API is loaded only once per document.
+runTests(() => {
 suite('Custom load', () => {
   suiteSetup(() => {
     // Ensure Google Charts is not loaded.
@@ -40,10 +42,11 @@ suite('Custom load', () => {
   });
 
   test('loads packages for chart type="table"', async () => {
-    const chart = fixture('type-table') as GoogleChart;
+    const chart = await fixture('<google-chart type="table"></google-chart>') as GoogleChart;
     chart.data = [ ['Data', 'Value'], ['Something', 1] ];
     await ready(chart);
     const chartDiv = chart.shadowRoot!.getElementById('chartdiv')!;
     assert.isAbove(chartDiv.childElementCount, 0);
   });
+});
 });
