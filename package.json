@@ -44,9 +44,6 @@
     "Rafal Slawik"
   ],
   "license": "Apache-2.0",
-  "dependencies": {
-    "lit-element": "^3.0.0"
-  },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@open-wc/testing": "^2.5.33",
@@ -59,5 +56,8 @@
     "sinon": "^11.1.2",
     "typescript": "^4.4.4"
   },
-  "typings": "google-chart.d.ts"
+  "typings": "google-chart.d.ts",
+  "dependencies": {
+    "lit": "^2.0.2"
+  }
 }

@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-import {html, css, LitElement, property} from 'lit-element';
+import {html, css, LitElement} from 'lit';
+import {property} from 'lit/decorators.js';
 
 import {createChartWrapper, dataTable, DataTableLike} from './loader';
 
