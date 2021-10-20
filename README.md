@@ -4,7 +4,7 @@
 
 See: [Documentation](https://www.webcomponents.org/element/@google-web-components/google-chart)
 
-[![Build Status](https://travis-ci.org/GoogleWebComponents/google-chart.svg?branch=master)](https://travis-ci.org/GoogleWebComponents/google-chart) [![Published on NPM](https://img.shields.io/npm/v/@google-web-components/google-chart.svg)](https://www.npmjs.com/package/@google-web-components/google-chart) [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/@google-web-components/google-chart)
+[![Published on NPM](https://img.shields.io/npm/v/@google-web-components/google-chart.svg)](https://www.npmjs.com/package/@google-web-components/google-chart) [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/@google-web-components/google-chart)
 
 ## Usage
 
@@ -32,7 +32,8 @@ npm i @google-web-components/google-chart
 ### In a LitElement
 
 ```typescript
-import {LitElement, html, customElement} from 'lit-element';
+import {LitElement, html} from 'lit';
+import {customElement} from 'lit/decorators.js';
 import '@google-web-components/google-chart';
 
 @customElement('new-element')
