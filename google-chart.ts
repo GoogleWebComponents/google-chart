@@ -18,7 +18,7 @@
 import {html, css, LitElement} from 'lit';
 import {property} from 'lit/decorators.js';
 
-import {createChartWrapper, dataTable, DataTableLike} from './loader';
+import {createChartWrapper, dataTable, DataTableLike} from './loader.js';
 
 const DEFAULT_EVENTS = ['ready', 'select'];
 
