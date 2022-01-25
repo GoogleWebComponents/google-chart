@@ -348,7 +348,6 @@ export class GoogleChart extends LitElement {
 
   private redrawTimeoutId: number|undefined = undefined;
 
-  /** @override */
   protected override render() {
     return html`
       <div id="styles"></div>
@@ -356,7 +355,6 @@ export class GoogleChart extends LitElement {
     `;
   }
 
-  /** @override */
   protected override firstUpdated() {
     createChartWrapper(this.shadowRoot!.getElementById('chartdiv')!)
         .then(chartWrapper => {
@@ -373,7 +371,6 @@ export class GoogleChart extends LitElement {
         });
   }
 
-  /** @override */
   protected override updated(changedProperties: Map<string, unknown>) {
     if (changedProperties.has('type')) this.typeChanged();
     if (changedProperties.has('rows') || changedProperties.has('cols')) {
