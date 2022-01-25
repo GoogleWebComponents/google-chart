@@ -16,6 +16,16 @@
  */
 
 /**
+ * Basic type definitions for Trusted Types.
+ */
+declare interface TrustedTypesPolicy {
+  createScriptURL: (s: string) => string;
+}
+declare var trustedTypes: {
+  createPolicy(name: string, policy: TrustedTypesPolicy): TrustedTypesPolicy;
+};
+
+/**
  * Promise that resolves when the gviz loader script is loaded, which
  * provides access to the Google Charts loading API.
  */
@@ -33,8 +43,15 @@ const loaderPromise: Promise<void> = new Promise((resolve, reject) => {
     if (!loaderScript) {
       // If the loader is not present, add it.
       loaderScript = document.createElement('script');
-      // Specify URL directly to pass JS compiler conformance checks.
-      loaderScript.src = 'https://www.gstatic.com/charts/loader.js';
+      // Load a TrustedScriptURL to prevent a Trusted Types violation.
+      let policy = {
+        createScriptURL: (ignored: string) =>
+            'https://www.gstatic.com/charts/loader.js'
+      };
+      if (typeof trustedTypes !== 'undefined') {
+        policy = trustedTypes.createPolicy('google-chart', policy);
+      }
+      loaderScript.src = policy.createScriptURL('');
       document.head.appendChild(loaderScript);
     }
     loaderScript.addEventListener('load', resolve as () => void);
