@@ -46,18 +46,18 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@open-wc/testing": "^2.5.33",
+    "@open-wc/testing": "^3.1.1",
     "@polymer/decorators": "^3.0.0",
     "@polymer/polymer": "^3.4.1",
     "@types/google.visualization": "0.0.68",
-    "@types/mocha": "^9.0.0",
-    "@web/dev-server": "^0.1.25",
-    "@web/test-runner": "^0.13.20",
-    "sinon": "^11.1.2",
-    "typescript": "^4.5.4"
+    "@types/mocha": "^9.1.0",
+    "@web/dev-server": "^0.1.30",
+    "@web/test-runner": "^0.13.27",
+    "sinon": "^13.0.1",
+    "typescript": "^4.5.5"
   },
   "typings": "google-chart.d.ts",
   "dependencies": {
-    "lit": "^2.0.2"
+    "lit": "^2.2.0"
   }
 }
