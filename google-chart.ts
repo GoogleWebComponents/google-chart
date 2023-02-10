@@ -362,6 +362,9 @@ export class GoogleChart extends LitElement {
           this.typeChanged();
           google.visualization.events.addListener(chartWrapper, 'ready', () => {
             this.drawn = true;
+            if (this.selection) {
+              this.selectionChanged();
+            }
           });
           google.visualization.events.addListener(
               chartWrapper, 'select', () => {
@@ -401,9 +404,6 @@ export class GoogleChart extends LitElement {
           const stylesDiv = this.shadowRoot!.getElementById('styles')!;
           if (!stylesDiv.children.length) {
             this.localizeGlobalStylesheets(stylesDiv);
-          }
-          if (this.selection) {
-            this.selectionChanged();
           }
         });
     this.redraw();
