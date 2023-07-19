@@ -26,6 +26,21 @@ declare var trustedTypes: {
 };
 
 /**
+ * Returns the CSP nonce for the current document, if set for any script tag.
+ */
+function getScriptNonce(): string {
+  const script = document.querySelector<HTMLScriptElement>('script[nonce]');
+  if (script) {
+    // Try to get the nonce from the IDL property first, because browsers that
+    // implement additional nonce protection features (currently only Chrome) to
+    // prevent nonce stealing via CSS do not expose the nonce via attributes.
+    // See https://github.com/whatwg/html/issues/2369
+    return script['nonce'] || script.getAttribute('nonce') || '';
+  }
+  return '';
+}
+
+/**
  * Promise that resolves when the gviz loader script is loaded, which
  * provides access to the Google Charts loading API.
  */
@@ -52,6 +67,8 @@ const loaderPromise: Promise<void> = new Promise((resolve, reject) => {
         policy = trustedTypes.createPolicy('google-chart', policy);
       }
       loaderScript.src = policy.createScriptURL('');
+      // Propagate the CSP nonce to the script element.
+      loaderScript.setAttribute('nonce', getScriptNonce());
       document.head.appendChild(loaderScript);
     }
     loaderScript.addEventListener('load', resolve as () => void);
