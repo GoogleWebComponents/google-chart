@@ -15,30 +15,8 @@
  * limitations under the License.
  */
 
-/**
- * Basic type definitions for Trusted Types.
- */
-declare interface TrustedTypesPolicy {
-  createScriptURL: (s: string) => string;
-}
-declare var trustedTypes: {
-  createPolicy(name: string, policy: TrustedTypesPolicy): TrustedTypesPolicy;
-};
-
-/**
- * Returns the CSP nonce for the current document, if set for any script tag.
- */
-function getScriptNonce(): string {
-  const script = document.querySelector<HTMLScriptElement>('script[nonce]');
-  if (script) {
-    // Try to get the nonce from the IDL property first, because browsers that
-    // implement additional nonce protection features (currently only Chrome) to
-    // prevent nonce stealing via CSS do not expose the nonce via attributes.
-    // See https://github.com/whatwg/html/issues/2369
-    return script['nonce'] || script.getAttribute('nonce') || '';
-  }
-  return '';
-}
+import {trustedResourceUrl} from 'safevalues';
+import {safeScriptEl} from 'safevalues/dom';
 
 /**
  * Promise that resolves when the gviz loader script is loaded, which
@@ -58,17 +36,9 @@ const loaderPromise: Promise<void> = new Promise((resolve, reject) => {
     if (!loaderScript) {
       // If the loader is not present, add it.
       loaderScript = document.createElement('script');
-      // Load a TrustedScriptURL to prevent a Trusted Types violation.
-      let policy = {
-        createScriptURL: (ignored: string) =>
-            'https://www.gstatic.com/charts/loader.js'
-      };
-      if (typeof trustedTypes !== 'undefined') {
-        policy = trustedTypes.createPolicy('google-chart', policy);
-      }
-      loaderScript.src = policy.createScriptURL('');
-      // Propagate the CSP nonce to the script element.
-      loaderScript.setAttribute('nonce', getScriptNonce());
+      safeScriptEl.setSrc(
+          loaderScript,
+          trustedResourceUrl`https://www.gstatic.com/charts/loader.js`);
       document.head.appendChild(loaderScript);
     }
     loaderScript.addEventListener('load', resolve as () => void);
