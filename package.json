@@ -58,7 +58,7 @@
   },
   "typings": "google-chart.d.ts",
   "dependencies": {
-    "lit": "^2.6.1",
-    "safevalues": "^0.4.3"
+    "lit": "^2.8.0",
+    "safevalues": "^0.5.1"
   }
 }
