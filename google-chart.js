@@ -1,1 +1,1 @@
-export * from 'https://unpkg.com/@google-web-components/google-chart?module';
+export * from 'https://esm.run/@google-web-components/google-chart';
