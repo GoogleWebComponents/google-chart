@@ -13,7 +13,7 @@
   "homepage": "https://googlewebcomponents.github.io/google-chart",
   "repository": "GoogleWebComponents/google-chart",
   "name": "@google-web-components/google-chart",
-  "version": "5.0.5",
+  "version": "5.1.0",
   "resolutions": {
     "inherits": "2.0.3",
     "samsam": "1.1.3",
