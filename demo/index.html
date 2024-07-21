@@ -227,7 +227,7 @@
   <google-chart
     type="bar"
     options='{"title": "Days in a month"}'
-    cols='[{"label": "Month", "type": "string"},{"label": "Days", "type": "number"}]'
+    cols='["Month", "Days"]'
     rows='[["Jan", 31],["Feb", 28],["Mar", 31],["Apr", 30],["May", 31],["Jun", 30]]'>
   </google-chart>
 
@@ -440,6 +440,22 @@
       chart.data = dataTable;
     });
   </script>
+
+  <p>Here's the same timeline chart that parses dates from <code>rows</code>:</p>
+
+  <google-chart
+      type="timeline"
+      cols='[
+          "Name",
+          {"type": "date", "label": "Start"},
+          {"type": "date", "label": "End"}
+      ]'
+      rows='[
+          ["Washington", "Date(1789, 3, 30)", "Date(1797, 2, 4)"],
+	  ["Adams", "Date(1797, 2, 4)", "Date(1801, 2, 4)"],
+	  ["Jefferson", "Date(1801, 2, 4)", "Date(1809, 2, 4)"]
+      ]'>
+  </google-chart>
 
   <p>Here's a wordtree:</p>
 

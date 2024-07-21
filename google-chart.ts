@@ -489,8 +489,7 @@ export class GoogleChart extends LitElement {
     const {rows, cols} = this;
     if (!rows || !cols) return;
     try {
-      const dt = await dataTable({cols});
-      dt.addRows(rows);
+      const dt = await dataTable([cols, ...rows]);
       this._data = dt;
     } catch (reason) {
       this.shadowRoot!.getElementById('chartdiv')!.textContent = String(reason);
