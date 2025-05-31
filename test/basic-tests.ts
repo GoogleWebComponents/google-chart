@@ -231,6 +231,8 @@ suite('<google-chart>', function() {
   });
 
   suite('Data Source Types', function() {
+    // Waits for the event reporting a successful render. Invalid or missing data sources do not
+    // trigger the event and will timeout the tests.
     function waitForRender(done: () => void) {
       chart.addEventListener('google-chart-ready', () => void done());
     }
