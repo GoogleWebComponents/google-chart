@@ -231,34 +231,36 @@ suite('<google-chart>', function() {
   });
 
   suite('Data Source Types', function() {
-    test('[rows] and [cols]', function (done) {
-      chart.cols = [
-        {'label': 'Data', 'type': 'string'},
-        {'label': 'Value', 'type': 'number'}
-      ];
+    // Waits for the event reporting a successful render. Invalid or missing data sources do not
+    // trigger the event and will timeout the tests.
+    function waitForRender(done: () => void) {
+      chart.addEventListener('google-chart-ready', () => void done());
+    }
+    test('[rows] and [cols] without type', function (done) {
+      chart.cols = ['Data', 'Value'];
       chart.rows = [
         ['Something', 1]
       ];
-      chart.addEventListener('google-chart-ready', function() {
-        done();
-      });
+      waitForRender(done);
     });
 
-    test('[rows] and [cols] with date string repr is broken', function(done) {
-      chart.cols = [ { 'type': 'date' } ];
-      chart.rows = [ ['Date(1789, 3, 30)'] ];
-      waitCheckAndDone(function() {
-        const chartDiv = chart.shadowRoot!.getElementById('chartdiv')!;
-        return chartDiv.innerHTML ==
-          'Error: Type mismatch. Value Date(1789, 3, 30) ' +
-          'does not match type date in column index 0';
-      }, done);
+    test('[rows] and [cols] with type', function(done) {
+      chart.type = 'timeline';
+      chart.cols = [
+          'Data',
+	  {type: 'date', label: 'Start'},
+          {type: 'date', label: 'End'}
+      ];
+      chart.rows = [[
+	  'Something',
+	  'Date(2024, 6, 1)',
+	  'Date(2024, 7, 1)'
+      ]];
+      waitForRender(done);
     });
     var setDataAndWaitForRender = function(data: DataTableLike|string, done: () => void) {
       chart.data = data;
-      chart.addEventListener('google-chart-ready', function() {
-        done();
-      });
+      waitForRender(done);
     };
     test('[data] is 2D Array', function(done) {
       setDataAndWaitForRender([ ['Data', 'Value'], ['Something', 1] ], done);
