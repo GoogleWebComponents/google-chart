@@ -346,6 +346,19 @@ export class GoogleChart extends LitElement {
    */
   private chartWrapper: google.visualization.ChartWrapper|null = null;
 
+  /**
+   * Returns the google.visualization.ChartLayoutInterface for the chart.
+   *
+   * Call this on the core chart and only after the chart is drawn
+   * (`google-chart-ready` event).
+   */
+  get chartLayout() {
+    if (this.chartWrapper == null) return null;
+    const chart = this.chartWrapper.getChart();
+    return chart &&
+        (chart as google.visualization.CoreChartBase).getChartLayoutInterface();
+  }
+
   private redrawTimeoutId: number|undefined = undefined;
 
   protected override render() {
